@@ -105,7 +105,7 @@ public:
 		ros::Publisher power, hall, temperature;
 	} publisher;
 
-	int	ch, last_hall, anti_windup_percent, max_acceleration, max_deceleration, roboteq_max, hall_value,down_time,max_rpm;
+	int	ch, last_hall, anti_windup_percent, max_acceleration, max_deceleration, roboteq_max, hall_value, down_time,max_rpm;
 	double i_max,max_output;
 	double current_setpoint;
 	double velocity,mps_to_rpm,p_gain, i_gain, d_gain, ticks_to_meter, max_velocity_mps;
