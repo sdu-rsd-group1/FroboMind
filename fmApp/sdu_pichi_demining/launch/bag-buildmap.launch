@@ -1,0 +1,96 @@
+<launch>
+	<param name="robot_max_velocity" value="2.0"/>
+	<param name="diff_steer_wheel_radius" value="0.159"/>
+	<param name="diff_steer_wheel_ticks_per_rev" value="1285"/>
+	<param name="diff_steer_wheel_distance" value="0.85"/>
+	<!-- <node pkg="rviz" name="rviz" type="rviz"/> -->
+	
+	<!--node pkg="state_print" name="state_printer" type="state_printer.py" output="screen"/-->
+	<!--
+	<group ns="fmHMI">
+		<node pkg="pose_2d_estimator" name="robot_track_map" type="robot_track_map_node.py" output="screen" >
+			<param name="pose_sub" value="/fmKnowledge/pose" />
+			<param name="gnss_sub" value="/fmInformation/gpgga_tranmerc" />
+			<param name="odom_sub" value="/fmKnowledge/encoder_odom" />
+			<param name="plot_pose_track" value="true" /> 
+			<param name="plot_gnss_track" value="true" />
+			<param name="plot_odometry_track" value="true" />
+			<param name="plot_pose_yaw" value="true" />
+			<param name="easting_offset" value="-588784.0" />
+			<param name="northing_offset" value="-6137262.0" />
+			<param name="trackpoint_threshold" value="0.1" />
+			<param name="map_update_frequency" value="2.0" /> 
+			<param name="map_title" value="Robot track" />
+			<param name="map_window_size" value="5.0" />
+		</node>
+	</group>
+	-->		
+
+	<!-- Transforms -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/transform.launch"/>
+
+	<!-- Sensors -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/topcon_gps.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/vectornav_imu.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/wads.launch"/>
+	
+
+
+	<!-- Belts -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/pichi_robot.launch"/>
+	<node pkg="sdu_pichi" type="test.py" name="dummy" output="screen"/>
+	
+	<!-- Executors -->
+	<!--include file="$(find sdu_pichi_demining)/launch/nodes/ab_line.launch"/-->
+	
+	<!-- Processors -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/kalman_pose.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/differential_odometry.launch"/>
+
+	<!-- WADS -->
+	<node pkg="wads_implement" name="WADSVisualizer" type="wads_implement_visualizer">
+	      <param name="sensor_width" value="2.0" />
+	      <param name="sensor_length" value="1.0" />
+	      <param name="sensor_offset_x" value="0.0" />
+	      <param name="sensor_offset_y" value="0.0" />
+	      <param name="sensor_outerrange" value="0.1" />
+	      <param name="sensor_max" value="5.0" />
+	      <param name="subscriberTopic" value="/fmInformation/wads" />
+	      <param name="publisherTopic" value="/marker" />
+	      <param name="frame_id" value="/wads_frame" />
+	</node>
+	<node pkg="occupancy_grid_assembler" type="grid_updater.py" name="map" output="screen">
+ 		<param name="sensor_width" value="2.2" />
+	      	<param name="sensor_length" value="1.1" />
+	      	<param name="sensor_offset_x" value="0.6" />
+	      	<param name="sensor_offset_y" value="0.0" />
+	      	<param name="sensor_outerrange" value="0.0" />
+	      	<param name="resolution" value="0.1" /> <!-- Size of cell in [m] -->
+	      	<param name="period" value="0.05" /> <!-- Frequency of node in [Hz] -->
+		<param name="sensor_map_frame" value="/wads_corner" />
+		<param name="sensor_map_topic" value="/fmKnowledge/sensor_map" />
+		<param name="sensor_value_topic" value="/fmInformation/wads" />
+		<param name="sensor_odom_frame" value="/world" />
+		<param name="model_threshold" value="70" />
+	</node>
+	<node pkg="occupancy_grid_assembler" type="grid_assembler_node" name="map_assembler" output="screen">
+	      <param name="in_map_topic" value="/fmKnowledge/sensor_map" />
+	      <param name="out_map_topic" value="/fmKnowledge/map_combined" />
+	      <!-- For the folowing parameters, 0 can be used to set 0 gain -->
+	      <param name="gain_divide_enter_area_increase" value="4" /> <!-- default: 8, 20 -->
+	      <param name="gain_divide_enter_area_decrease" value="10" /> <!-- default: 40, 80 -->
+	      <param name="gain_divide_overlap_area_increase" value="70" /> <!-- default: 30, 60 -->
+	      <param name="gain_divide_overlap_area_decrease" value="80" /> <!-- default: 40, 80 -->
+	      <param name="gain_divide_left_area_increase" value="0" /> <!--default: 8, 30 -->
+	      <param name="gain_divide_left_area_decrease" value="0" /> <!-- default: 40, 80 -->
+	      <param name="filter_kernel_size" value="0" />
+	      <param name="mapResolution" value="0.2" />
+	</node>
+
+
+
+	<!-- Interface -->
+	<node pkg="rosbag" name="robot" type="play" args="--clock --start 0 --rate=1 $(find sdu_pichi_demining)/bags/2013-06-12-11-07-25-sco.bag" respawn="false">
+		<remap from="/rosbag/clock" to="/clock"/>
+	</node>
+</launch>

@@ -63,6 +63,7 @@ Revision
 2013-04-25 KJ First version
 """
 # imports
+import rospy
 import numpy as np
 from math import sqrt, pi, sin, cos, atan2, fabs
 from numpy import matrix, array, linalg, mat
@@ -128,6 +129,7 @@ class pose_2d_preprocessor():
 			(heading_valid, heading, var_heading, gnss_dist) = self.gnss_estimate_heading()
 			if heading_valid == True:
 				(odo_valid, odo_dist, odo_angle) = self.odometry_buffer_distance_angle() # calc traversed dist and angle in odo sliding window buffer
+				#if odo_valid == True and odo_dist > 0: # Bakke hack
 				if odo_valid == True:
 					if fabs (odo_angle) <= self.orientation_odo_max_angle:
 						if fabs(gnss_dist-odo_dist) < self.orientation_odo_gnss_dist_max_diff_percent/100.0*odo_dist:
@@ -379,6 +381,7 @@ class yaw_ekf():
 		# house keeping
 		self.estimated_angle = self.angle_limit(corrected_angle)
 		self.estimated_var = corrected_var
+
 		return self.estimated_angle
 
 	def angle_limit (self, angle): # return angle within [0;2pi[

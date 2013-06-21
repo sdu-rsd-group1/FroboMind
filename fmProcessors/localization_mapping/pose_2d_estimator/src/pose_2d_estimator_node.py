@@ -54,6 +54,8 @@ class Pose2DEstimatorNode():
 		self.odometry_y_prev = 0.0
 		self.odometry_yaw_prev = 0.0
 
+		self.gga_publishing = False # HACK^2
+
 		# Get parameters
 		self.pose_msg.header.frame_id = rospy.get_param("~frame_id", "base_link")
 		self.pose_msg.child_frame_id = rospy.get_param("~child_frame_id", "odom")
@@ -112,7 +114,8 @@ class Pose2DEstimatorNode():
 			delta_angle = self.angle_diff (yaw, self.odometry_yaw_prev)
 			self.pp.odometry_new_feedback (time_recv, delta_dist, delta_angle)
 			self.pose = self.ekf.system_update (delta_dist, self.odometry_var_dist, delta_angle, self.odometry_var_angle)
-			self.pose[2] = self.yawekf.system_update (delta_angle, self.odometry_var_angle) # !!! TEMPORARY HACK
+			if (self.gga_publishing == True):
+				self.pose[2] = self.yawekf.system_update (delta_angle, self.odometry_var_angle) # !!! TEMPORARY HACK
 
 			# publish the estimated pose	
 			self.publish_pose()
@@ -135,7 +138,7 @@ class Pose2DEstimatorNode():
 		#rot = self.quat(0,0,1,(2*pi)/3)
 		#self.quaternion = self.multiply(self.quaternion, rot)
 		(roll,pitch,yaw) = euler_from_quaternion(self.quaternion)
-		# self.pose[2] = yaw # NOT ACCURATE ENOUGH FROM THE VECTORNAV !!!
+		#self.pose[2] = yaw # NOT ACCURATE ENOUGH FROM THE VECTORNAV !!!
 
 	def on_gga_topic(self, msg):
 		if msg.fix > 0: # if satellite fix
@@ -149,8 +152,10 @@ class Pose2DEstimatorNode():
 				self.pose = self.ekf.measurement_update_pos ([msg.easting, msg.northing], var_pos)
 				(valid, yaw) = self.pp.estimate_absolute_orientation()
 				if valid == True:
-					var_yaw = 0.1
+					var_yaw = 0.1 #her
 					self.pose[2] = self.yawekf.measurement_update (yaw, var_yaw) # !!! TEMPORARY HACK
+					self.gga_publishing = True
+
 	
 	def publish_pose(self):
 		self.pose_msg.header.stamp = rospy.Time.now()

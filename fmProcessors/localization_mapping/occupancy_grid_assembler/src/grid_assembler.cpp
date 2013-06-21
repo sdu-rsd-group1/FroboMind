@@ -52,7 +52,7 @@ protected:
   // Methods
   void setupParameters(void);
   void onGridMsg(const nav_msgs::OccupancyGrid::ConstPtr& msg);
-  void initMap(nav_msgs::MapMetaData info);
+  void initMap(nav_msgs::MapMetaData info, const std::string& frame_id);
   void onSensorvalue(const std_msgs::Float64::ConstPtr& msg);
 
   // ROS
@@ -130,16 +130,16 @@ void GridAssembler::setupParameters(void)
   rosNode.param<double>("gain_divide_left_area_decrease", this->gain_divide_left_area_decrease_, 40);
   rosNode.param<int>("filter_kernel_size", this->filter_kernel_size_, 40);
 }
-void GridAssembler::initMap(nav_msgs::MapMetaData info)
+void GridAssembler::initMap(nav_msgs::MapMetaData info, const std::string& frame_id)
 {
   //combined_grid->info = info;
   combined_grid->info.resolution = mapResolution;
-  combined_grid->header.frame_id = "/odom";
+  combined_grid->header.frame_id = frame_id;
   combined_grid->info.height = 10;
   combined_grid->info.width = 10;
-  combined_grid->info.origin.position.x = 0;
-  combined_grid->info.origin.position.y = 0;
-  combined_grid->info.origin.position.z = 0;
+  combined_grid->info.origin.position.x = info.origin.position.x;
+  combined_grid->info.origin.position.y = info.origin.position.y;
+  combined_grid->info.origin.position.z = info.origin.position.z;
   combined_grid->info.origin.orientation.x = 0;
   combined_grid->info.origin.orientation.y = 0;
   combined_grid->info.origin.orientation.z = 1;
@@ -167,7 +167,7 @@ void GridAssembler::onGridMsg(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     {
       old_aligned_value = aligned_value;
       old_aligned_overlap = aligned_overlap;
-      initMap(msg->info);
+      initMap(msg->info, msg->header.frame_id);
       return;
     }
 
@@ -189,8 +189,9 @@ void GridAssembler::onGridMsg(const nav_msgs::OccupancyGrid::ConstPtr& msg)
   if (filter_kernel_size_ > 0)
     difference_grid = occupancy_grid_utils::averagePassGrid(difference_grid, filter_kernel_size_);
 
-  difference_grid->header.frame_id = "/odom";
+  difference_grid->header.frame_id = msg->header.frame_id;
   dMapPublisher1.publish(difference_grid);
+  //dMapPublisher1.publish(aligned_overlap);
   
   // Combine grids
   occupancy_grid_utils::combineToGrid(combined_grid, difference_grid);

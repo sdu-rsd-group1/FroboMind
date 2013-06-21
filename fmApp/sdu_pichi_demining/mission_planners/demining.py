@@ -66,7 +66,7 @@ class Mission():
 
         with mine_search:
             smach.Concurrence.add('follow_route', follow_route.build())
-            smach.Concurrence.add('mine_detect', smach_ros.MonitorState("/wads", Float64, mine_detect_cb))
+            smach.Concurrence.add('mine_detect', smach_ros.MonitorState("/fmInformation/wads", Float64, mine_detect_cb))
 
         # Build the demining task        
         demining = smach.StateMachine(outcomes=['success', 'preempted', 'aborted'])

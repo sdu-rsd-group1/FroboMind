@@ -1,6 +1,11 @@
 <launch>
-	<group ns="fmSensors">
-		<node pkg="wads_implement" name="wads_converter" type="wads_implement_communication" output="screen">
+   <group ns="fmSensors">
+	<node pkg="wads_implement" name="wads_converter" type="wads_implement_communication" output="screen">
+	      <!-- Parameters to be found from calibration of the sensor -->
+	      <param name="map_from_min" value="217" />
+	      <param name="map_from_max" value="310" />
+	      <param name="map_to_min" value="0" />
+	      <param name="map_to_max" value="5" />
         </node>
     </group>
 </launch>

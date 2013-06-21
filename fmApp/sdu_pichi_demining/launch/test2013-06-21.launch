@@ -1,0 +1,76 @@
+<launch>
+	<param name="robot_max_velocity" value="2.0"/>
+	<param name="diff_steer_wheel_radius" value="0.10"/>
+	<param name="diff_steer_wheel_ticks_per_rev" value="1432"/>
+	<param name="diff_steer_wheel_distance" value="0.85"/>
+
+	<!-- HMI -->
+	<node pkg="smach_viewer" name="stateMachine_viewer" type="smach_viewer.py"/>
+
+	<!-- Transforms -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/transform.launch"/>
+	
+	<!-- Mission -->
+	<group ns="mission_planner">
+		<node pkg="sdu_pichi_demining" name="mission_control" type="demining.py" output="screen">
+		    <param name="deadman_topic" value="/fmSignals/deadman" />
+			<param name="cmd_vel_topic" value="/fmSignals/cmd_vel" />
+			<param name="feedback_topic" value="/fmHMI/joy/set_feedback" />
+			<param name="joy_topic" value="/fmHMI/joy" />
+			<param name="status_topic" value="/fmData/status"/>		
+			<param name="max_linear_velocity" value="1"/>
+			<param name="max_angular_velocity" value="1"/>
+			<param name="deadband" value="5"/>
+			<param name="reduced_range" value="40"/>
+			<param name="publish_frequency" value="5"/>
+			<param name="odom_frame" value="/planner" />
+			<param name="base_frame" value="/pose" />
+		</node>
+	</group>
+	<!--
+	<group ns="HMI">
+		<node pkg="wiimote" type="wiimote_node.py" name="wiimote" respawn="true">
+			<param name="fixed_wiimote_address" value="00:1F:C5:3B:AE:63"/>
+		</node>
+	</group>
+	-->
+
+	<!-- Sensors -->
+	<!-- include file="$(find sdu_pichi_demining)/launch/nodes/web_cam.launch"/ -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/topcon_gps.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/vectornav_imu.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/wads.launch"/>
+	
+	<!-- Interface -->
+	<!-- include file="$(find sdu_pichi_demining)/launch/nodes/interface.launch"/ -->
+	
+	<!-- Belts -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/pichi_robot.launch"/>
+	<!-- For testing -->
+	<node pkg="sdu_pichi" type="test.py" name="dummy" output="screen"/>
+	
+	<!-- Executors -->
+	<group ns="fmExecutors">
+		<node pkg="position_action_server" name="position_planner" type="positionGoalActionServer.py" output="screen">
+			<param name="cmd_vel_topic" value="/fmSignals/cmd_vel" />
+			<param name="max_linear_velocity" value="1"/>
+			<param name="max_angular_velocity" value="4.0"/>
+			<param name="max_angle_error" value="0.2"/>
+			<param name="max_distance_error" value="0.3"/>
+			<param name="retarder" value="0.1"/>
+			<param name="use_tf" value="True" />
+		     <param name="odom_frame" value="/planner" />
+		     <param name="base_frame" value="/pose" />
+		</node>
+		
+		<node pkg="action_primitives" name="turn_executor" type="make_turn.py" output="screen">
+		     <param name="name" value="make_turn" />
+		     <param name="odom_frame" value="/planner" />
+		     <param name="base_frame" value="/pose" />
+		     <param name="cmd_vel_topic" value="/fmSignals/cmd_vel" />
+		</node>
+	</group>
+	<!-- Processors -->
+	<include file="$(find sdu_pichi_demining)/launch/nodes/kalman_pose.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/differential_odometry.launch"/>
+</launch>

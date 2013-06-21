@@ -22,12 +22,12 @@ def build():
          smach.StateMachine.add('go_to_next_search_point', smach_ros.SimpleActionState('/fmExecutors/position_planner',positionAction, goal_slots=['x','y']),
                                transitions={'succeeded':'check_no_mines','preempted':'preempted','aborted':'aborted'},
                                remapping={'x':'step_next_x','y':'step_next_y'})
-         smach.StateMachine.add('check_no_mines', smach_ros.MonitorState("/wads", Float64, mine_detect_cb, 1), transitions={'valid':'inspectionDone', 'invalid':'get_next_search_point', 'preempted':'preempted'})
+         smach.StateMachine.add('check_no_mines', smach_ros.MonitorState("/fmInformation/wads", Float64, mine_detect_cb, 1), transitions={'valid':'inspectionDone', 'invalid':'get_next_search_point', 'preempted':'preempted'})
         
     return behaviour
 
 def mine_detect_cb(userdata, msg):
-    if (msg.data > 4):
+    if (msg.data > 1):
         rospy.loginfo("Found mine")
         return False # Mine found
     else:

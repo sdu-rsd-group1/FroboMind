@@ -42,6 +42,10 @@ class Updater():
         self.sensor_offset_x = rospy.get_param("~sensor_offset_x",0.6)
         self.sensor_offset_y = rospy.get_param("~sensor_offset_y",0)
         self.sensor_outerrange = rospy.get_param("~sensor_outerrange",0.1)
+        self.sensor_map_frame = rospy.get_param("~sensor_map_frame","/map")
+        self.sensor_map_topic = rospy.get_param("~sensor_map_topic","/fmKnowledge/sensor_map")
+        self.sensor_value_topic = rospy.get_param("~sensor_value_topic","/fmInformation/wads")
+        self.sensor_odom_frame = rospy.get_param("~sensor_odom_frame","/odom")
         self.resolution = rospy.get_param("~resolution",0.05)
         self.period = rospy.get_param("~period",0.2)
         self.model_threshold = rospy.get_param("~model_threshold",50)
@@ -58,20 +62,25 @@ class Updater():
         
         
         # Init topics and transforms
-        self.map_pub = rospy.Publisher("/fmKnowledge/map", OccupancyGrid)
-        self.sensor_sub = rospy.Subscriber("/wads", Float64, self.onSensor )
-        self.sensor_sub = rospy.Subscriber("/odom", Odometry, self.onOdom )
+        self.map_pub = rospy.Publisher(self.sensor_map_topic, OccupancyGrid)
+        self.sensor_sub = rospy.Subscriber(self.sensor_value_topic, Float64, self.onSensor )
         self.br = tf.TransformBroadcaster()
         self.listener = tf.TransformListener()
         
+        # Wait for TF data to avoid TF failing
+        #try :
+        #    self.listener.waitForTransform(self.sensor_odom_frame, self.sensor_map_frame, rospy.Time(0), rospy.Duration(10))
+        #except tf.Exception as e:
+        #    rospy.loginfo("Could not look up tf " + self.sensor_odom_frame + " to " + self.sensor_map_frame  )
+
         # Init timers
-        self.timer = rospy.Timer(rospy.Duration(self.period), self.publishTransform)
+        #self.timer = rospy.Timer(rospy.Duration(self.period), self.publishTransform)
         self.timer = rospy.Timer(rospy.Duration(self.period), self.onTimer)
 
         # Map
         self.sensor_value = 0
         self.map = OccupancyGrid()     
-        self.map.header.frame_id = '/odom'
+        self.map.header.frame_id = self.sensor_odom_frame
         self.map.info.map_load_time = rospy.Time.now() # The time at which the map was loaded
         self.map.info.resolution = self.resolution # The map resolution [m/cell]
         self.map.info.width = int( np.ceil(( self.sensor_width + (2*self.sensor_outerrange) ) / self.resolution )) # Map width [cells]
@@ -108,30 +117,52 @@ class Updater():
                 #else:
                 #    self.sensormodel.data.append(0)
 
-    def publishTransform(self,event):
+    #def publishTransform(self,event):
         # Broadcast static transform from baselink to map
-        self.br.sendTransform((self.tf_offset_x , self.tf_offset_y , 0),
-                     tf.transformations.quaternion_from_euler(0, 0, - np.pi/2),
-                     rospy.Time.now(),
-                     "/map",
-                     "/base_link")
+    #    self.br.sendTransform((self.tf_offset_x , self.tf_offset_y , 0),
+    #                 tf.transformations.quaternion_from_euler(0, 0, - np.pi/2),
+    #                 rospy.Time.now(),
+    #                 "/map",
+    #                 "/base_link")
         
     def onSensor(self,msg):
         # Save sensor value
         self.sensor_value = int( msg.data * 20 )
         
-    def onOdom(self,msg):
-        self.current_position_x = msg.pose.pose.position.x
-        self.current_position_y = msg.pose.pose.position.y
-        quaternion = np.empty((4, ), dtype=np.float64)
-        quaternion[0] = msg.pose.pose.orientation.x
-        quaternion[1] = msg.pose.pose.orientation.y
-        quaternion[2] = msg.pose.pose.orientation.z
-        quaternion[3] = msg.pose.pose.orientation.w
-        (roll,pitch,yaw) = tf.transformations.euler_from_quaternion(quaternion)
-        self.current_angle = yaw
     
     def onTimer(self,event):
+        # Position from tf
+        try :      
+            if not (self.listener.frameExists(self.sensor_odom_frame) and self.listener.frameExists(self.sensor_map_frame)):
+                rospy.logerr("TF transform error from %s to %s will retry", self.sensor_odom_frame, self.sensor_map_frame)
+                return
+                
+            #time_stamp=self.listener.getLatestCommonTime(self.sensor_odom_frame, self.sensor_map_frame) # This solves the bug in tf when using bagged data
+            #(trans,rot) = self.listener.lookupTransform(self.sensor_odom_frame, self.sensor_map_frame, time_stamp)
+            (trans,rot) = self.listener.lookupTransform(self.sensor_odom_frame, self.sensor_map_frame, rospy.Time(0)) 
+            self.current_position_x = trans[0] 
+            self.current_position_y = trans[1]
+
+            # Set map information to current position
+            self.map.info.origin.position.x = trans[0] 
+            self.map.info.origin.position.y = trans[1]
+            self.map.info.origin.orientation.x = rot[0]
+            self.map.info.origin.orientation.y = rot[1]
+            self.map.info.origin.orientation.z = rot[2]
+            self.map.info.origin.orientation.w = rot[3]
+            (roll,pitch,yaw) = tf.transformations.euler_from_quaternion(rot)
+            self.current_angle = yaw
+        except tf.LookupException as e:
+            rospy.loginfo("LookupException: Could not look up tf " + self.sensor_odom_frame + " to " + self.sensor_map_frame  )
+            pass
+        except tf.ConnectivityException as e:
+            rospy.loginfo("ConnectivityException: Could not look up tf " + self.sensor_odom_frame + " to " + self.sensor_map_frame)
+            pass
+        except tf.ExtrapolationException as e:
+            rospy.loginfo("ExtrapolationException: Could not look up tf " + self.sensor_odom_frame + " to " + self.sensor_map_frame)
+            pass
+
+        # ..
         d_x = np.abs(self.current_position_x - self.last_position_x)
         d_y = np.abs(self.current_position_y - self.last_position_y)
         d_distance = np.sqrt(d_x*d_x + d_y*d_y)        
@@ -146,19 +177,6 @@ class Updater():
         # Time stamp the map
         self.map.header.stamp = rospy.Time.now() 
         
-        # Place local map on global map
-        try :      
-            (trans,rot) = self.listener.lookupTransform('/odom', '/map', rospy.Time(0))
-            self.map.info.origin.position.x = trans[0] 
-            self.map.info.origin.position.y = trans[1]
-            self.map.info.origin.orientation.x = rot[0]
-            self.map.info.origin.orientation.y = rot[1]
-            self.map.info.origin.orientation.z = rot[2]
-            self.map.info.origin.orientation.w = rot[3]
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            rospy.loginfo("da fuck!?")
-            pass
-        
         # Generate map from sensor model
         self.map.data = [-1] * (self.map.info.width * self.map.info.height)
         for x in range(self.map.info.width) :
@@ -168,6 +186,11 @@ class Updater():
                     value = -1
                 else:
                     value = self.sensor_value
+
+                if (value > 100):
+                    value = 100
+                elif (value < -1):
+                    value = 0
                 self.map.data[self.map.info.width*y+x] = value 
                 #if (value < 1):
                 #    self.map.data[self.map.info.width*y+x] = -1

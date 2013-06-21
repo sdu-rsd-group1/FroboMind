@@ -1,6 +1,8 @@
 <launch>
 	<include file="$(find sdu_pichi_demining)/launch/includes/decision_making.launch"/>
 	<include file="$(find sdu_pichi_demining)/launch/includes/hmi.launch"/>
+	<param name="use_sim_time" value="true" />
+
 	<!-- from action -->
 	<group ns="fmExecutors">
 		<node pkg="position_action_server" name="position_planner" type="positionGoalActionServer.py" output="screen">
@@ -32,18 +34,24 @@
 	      	<param name="sensor_outerrange" value="0.1" />
 	      	<param name="resolution" value="0.1" /> <!-- Size of cell in [m] -->
 	      	<param name="perios" value="0.1" /> <!-- Frequency of node in [Hz] -->
+
+		<param name="sensor_map_frame" value="/wads_corner" />
+		<param name="sensor_map_topic" value="/fmKnowledge/sensor_map" />
+		<param name="sensor_value_topic" value="/fmInformation/wads" />
+		<param name="sensor_odom_frame" value="odom" />
+		<param name="model_threshold" value="70" />
 	</node>
 		
 	<node pkg="occupancy_grid_assembler" type="grid_assembler_node" name="map_assembler" output="screen">
-	      <param name="in_map_topic" value="/fmKnowledge/map" />
+	      <param name="in_map_topic" value="/fmKnowledge/sensor_map" />
 	      <param name="out_map_topic" value="/fmKnowledge/map_combined" />
 	      <!-- For the folowing parameters, 0 can be used to set 0 gain -->
-	      <param name="gain_divide_enter_area_increase" value="20" /> <!-- default: 8 -->
-	      <param name="gain_divide_enter_area_decrease" value="80" /> <!-- default: 40 -->
-	      <param name="gain_divide_overlap_area_increase" value="60" /> <!-- default: 30 -->
+	      <param name="gain_divide_enter_area_increase" value="4" /> <!-- default: 8 -->
+	      <param name="gain_divide_enter_area_decrease" value="10" /> <!-- default: 40 -->
+	      <param name="gain_divide_overlap_area_increase" value="70" /> <!-- default: 30 -->
 	      <param name="gain_divide_overlap_area_decrease" value="80" /> <!-- default: 40 -->
-	      <param name="gain_divide_left_area_increase" value="30" /> <!--default: 8 -->
-	      <param name="gain_divide_left_area_decrease" value="80" /> <!-- default: 40 -->
+	      <param name="gain_divide_left_area_increase" value="0" /> <!--default: 8 -->
+	      <param name="gain_divide_left_area_decrease" value="0" /> <!-- default: 40 -->
 	      <param name="filter_kernel_size" value="0" />
 	</node>
 
@@ -60,19 +68,22 @@
 	      <param name="sensor_max" value="5.0" />
 	      <param name="sensor_resolution" value="1024" />
 	      <param name="subscriberTopic" value="/base_scan" />
-	      <param name="publisherTopic" value="/wads" />
+	      <param name="publisherTopic" value="/fmInformation/wads" />
 	</node>
-	
+
+
 	<node pkg="wads_implement" name="WADSVisualizer" type="wads_implement_visualizer">
 	      <param name="sensor_width" value="2.0" />
 	      <param name="sensor_length" value="1.0" />
-	      <param name="sensor_offset_x" value="0.6" />
+	      <param name="sensor_offset_x" value="0.0" />
 	      <param name="sensor_offset_y" value="0.0" />
 	      <param name="sensor_outerrange" value="0.1" />
 	      <param name="sensor_max" value="5.0" />
-	      <param name="subscriberTopic" value="/wads" />
+	      <param name="subscriberTopic" value="/fmInformation/wads" />
 	      <param name="publisherTopic" value="/marker" />
-	      <param name="frame_id" value="/base_link" />
+	      <param name="frame_id" value="/wads_frame" />
 	</node>
 
+	<node pkg="tf" type="static_transform_publisher" name="wads_broadcaster" args="0.6 0 0 0 0 0 /base_footprint /wads_frame 100" />
+	<node pkg="tf" type="static_transform_publisher" name="wads_corner_broadcaster" args="0.5 1.1 0 -1.57 0 0 /base_footprint /wads_corner 100" /> 
 </launch>
