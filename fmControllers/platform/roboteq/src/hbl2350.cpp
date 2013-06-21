@@ -137,8 +137,10 @@ void hbl2350::initController(std::string config)
 	transmit(1, "?FF"); sleep(TIME_BETWEEN_COMMANDS);								// Request fault flag
 	transmit(1, "?CB"); sleep(TIME_BETWEEN_COMMANDS);								// Request absolute hall count
 	transmit(1,	"# 50" ); sleep(TIME_BETWEEN_COMMANDS);							    // Repeat buffer every 10 ms
-	transmit(1,	"^ALIM 1 70" ); sleep(TIME_BETWEEN_COMMANDS);
-	transmit(1,	"^ALIM 2 70" ); sleep(TIME_BETWEEN_COMMANDS);
+	transmit(1,	"^ALIM 1 700" ); sleep(TIME_BETWEEN_COMMANDS);
+	transmit(1,	"^ALIM 2 700" ); sleep(TIME_BETWEEN_COMMANDS);
+	transmit(1,	"^BLSTD 1 0" ); sleep(TIME_BETWEEN_COMMANDS);
+	transmit(1,	"^BLSTD 2 0" ); sleep(TIME_BETWEEN_COMMANDS);
 	sleep(2);
 
 	ROS_INFO("Initialization finished");
