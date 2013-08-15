@@ -51,8 +51,8 @@ class Updater():
         self.model_threshold = rospy.get_param("~model_threshold",50)
         self.tf_offset_x = self.sensor_offset_x - self.sensor_outerrange
         self.tf_offset_y = (self.sensor_width/2) + self.sensor_outerrange
-        self.trans_interval = 0.05 # 5cm
-        self.angle_interval = 0.087 # 5 deg
+        self.trans_interval = rospy.get_param("~trans_interval",0.05)
+        self.angle_interval = rospy.get_param("~angle_interval",0.087)
         self.current_position_x = 0
         self.current_position_y = 0
         self.current_angle = 0

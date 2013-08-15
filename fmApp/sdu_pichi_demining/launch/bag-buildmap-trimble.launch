@@ -30,7 +30,7 @@
 	<include file="$(find sdu_pichi_demining)/launch/nodes/transform.launch"/>
 
 	<!-- Sensors -->
-	<include file="$(find sdu_pichi_demining)/launch/nodes/topcon_gps.launch"/>
+	<include file="$(find sdu_pichi_demining)/launch/nodes/trimble_gps.launch"/>
 	<include file="$(find sdu_pichi_demining)/launch/nodes/vectornav_imu.launch"/>
 	<include file="$(find sdu_pichi_demining)/launch/nodes/wads.launch"/>
 	
@@ -66,23 +66,25 @@
 	      	<param name="sensor_offset_y" value="0.0" />
 	      	<param name="sensor_outerrange" value="0.0" />
 	      	<param name="resolution" value="0.1" /> <!-- Size of cell in [m] -->
-	      	<param name="period" value="0.05" /> <!-- Frequency of node in [Hz] -->
+	      	<param name="period" value="0.5" /> <!-- Frequency of node in [Hz] was 0.05 -->
 		<param name="sensor_map_frame" value="/wads_corner" />
 		<param name="sensor_map_topic" value="/fmKnowledge/sensor_map" />
 		<param name="sensor_value_topic" value="/fmInformation/wads" />
 		<param name="sensor_odom_frame" value="/world" />
 		<param name="model_threshold" value="70" />
+		<param name="trans_interval" value="0.1" />
+		<param name="angle_interval" value="0.1" />
 	</node>
 	<node pkg="occupancy_grid_assembler" type="grid_assembler_node" name="map_assembler" output="screen">
 	      <param name="in_map_topic" value="/fmKnowledge/sensor_map" />
 	      <param name="out_map_topic" value="/fmKnowledge/map_combined" />
 	      <!-- For the folowing parameters, 0 can be used to set 0 gain -->
-	      <param name="gain_divide_enter_area_increase" value="4" /> <!-- default: 8, 20 -->
-	      <param name="gain_divide_enter_area_decrease" value="10" /> <!-- default: 40, 80 -->
-	      <param name="gain_divide_overlap_area_increase" value="70" /> <!-- default: 30, 60 -->
-	      <param name="gain_divide_overlap_area_decrease" value="80" /> <!-- default: 40, 80 -->
-	      <param name="gain_divide_left_area_increase" value="0" /> <!--default: 8, 30 -->
-	      <param name="gain_divide_left_area_decrease" value="0" /> <!-- default: 40, 80 -->
+	      <param name="gain_divide_enter_area_increase" value="10" />
+	      <param name="gain_divide_enter_area_decrease" value="15" />
+	      <param name="gain_divide_overlap_area_increase" value="40" />
+	      <param name="gain_divide_overlap_area_decrease" value="40" />
+	      <param name="gain_divide_left_area_increase" value="0" />
+	      <param name="gain_divide_left_area_decrease" value="0" />
 	      <param name="filter_kernel_size" value="0" />
 	      <param name="mapResolution" value="0.2" />
 	</node>
@@ -90,7 +92,7 @@
 
 
 	<!-- Interface -->
-	<node pkg="rosbag" name="robot" type="play" args="--clock --start 0 --rate=1 $(find sdu_pichi_demining)/bags/2013-08-12-13-34-52-out.bag" respawn="false">
+	<node pkg="rosbag" name="robot" type="play" args="--clock --start 0 --rate=1 $(find sdu_pichi_demining)/bags/2013-08-13-12-32-11-trimble.bag" respawn="false">
 		<remap from="/rosbag/clock" to="/clock"/>
 	</node>
 </launch>

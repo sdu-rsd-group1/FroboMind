@@ -6,9 +6,9 @@
 			<param name="pose_pub" value="/fmKnowledge/pose" />
 			<param name="frame_id" value="/pose" />
 			<param name="child_frame_id" value="/map" />
-			<param name="ekf_initial_guess_easting" value="588770.919" />
-			<param name="ekf_initial_guess_northing" value="6137291.524" />
-			<param name="ekf_initial_guess_yaw" value="-1.57" />
+			<param name="ekf_initial_guess_easting" value="588800.743498" />
+			<param name="ekf_initial_guess_northing" value="6137262.51346" />
+			<param name="ekf_initial_guess_yaw" value="1.57" />
 			<param name="odometry_distance_variance" value="0.000001" />
 			<param name="odometry_angular_variance" value="0.0001" />
 		</node>
