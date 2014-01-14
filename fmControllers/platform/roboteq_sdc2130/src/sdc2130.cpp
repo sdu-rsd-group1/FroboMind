@@ -1,8 +1,12 @@
 #include "roboteq_sdc2130/sdc2130.hpp"
 
+#define LOOP_TIME 0.02
+
 sdc2130::sdc2130( )
 :local_node_handler("~"),global_node_handler()
 {
+
+
 	// Two channel operation
 	two_channel = true;
 
@@ -47,46 +51,65 @@ sdc2130::sdc2130( )
 	local_node_handler.param<std::string>("propulsion_module_feedback_left_topic", propulsion_module_feedback_left_topic, "/fmInformation/propulsion_module_feedback_left");
 	local_node_handler.param<std::string>("propulsion_module_feedback_right_topic", propulsion_module_feedback_right_topic, "/fmInformation/propulsion_module_feedback_right");
 
-	// Init channel parameters
-	local_node_handler.param<double>("p_gain", ch1.p_gain, 1);
-	ch2.p_gain = ch1.p_gain;
-	local_node_handler.param<double>("i_gain", ch1.i_gain, 0);
-	ch2.i_gain = ch1.i_gain;
-	local_node_handler.param<double>("d_gain", ch1.d_gain, 0);
-	ch2.d_gain = ch1.d_gain;
-	local_node_handler.param<double>("i_max",ch1.i_max,50);
-	ch2.i_max = ch1.i_max;
+//	// Init channel parameters
+//	local_node_handler.param<double>("p_gain", ch1.p_gain, 1);
+//	ch2.p_gain = ch1.p_gain;
+//	local_node_handler.param<double>("i_gain", ch1.i_gain, 0);
+//	ch2.i_gain = ch1.i_gain;
+//	local_node_handler.param<double>("d_gain", ch1.d_gain, 0);
+//	ch2.d_gain = ch1.d_gain;
+//	local_node_handler.param<double>("i_max",ch1.i_max,50);
+//	ch2.i_max = ch1.i_max;
 
 	local_node_handler.param<double>("/robot_max_velocity",ch1.max_velocity_mps,1.0);
 	ch2.max_velocity_mps = ch1.max_velocity_mps;
 	local_node_handler.param<double>("max_controller_command",ch1.max_output,300);
 	ch2.max_output = ch1.max_output;
+
 	if(ch1.max_output > ch1.roboteq_max) ch1.max_output = ch1.roboteq_max;
 	if(ch2.max_output > ch2.roboteq_max) ch2.max_output = ch2.roboteq_max;
-	local_node_handler.param<double>("mps_to_thrust",ch1.mps_to_thrust,300);
-	ch2.mps_to_thrust = ch1.mps_to_thrust;
+
+
+
+
+	//local_node_handler.param<double>("mps_to_thrust",ch1.mps_to_thrust,300);
+	//ch2.mps_to_thrust = ch1.mps_to_thrust;
 
 	local_node_handler.param<double>("ticks_per_meter_left",ticks_per_meter_left,1285.0);
 	local_node_handler.param<double>("ticks_per_meter_right",ticks_per_meter_right,683.0);
 	ch1.ticks_to_meter = 1.0/ticks_per_meter_left;
 	ch2.ticks_to_meter = 1.0/ticks_per_meter_right;
 
+
+	int order;
+	double cutoff;
+
+	local_node_handler.param<int>("filter_order",order,8);
+	local_node_handler.param<double>("filter_cutoff",cutoff,1.0);
+
+	ch1.filter.setup(order,1/LOOP_TIME,cutoff);
+	ch2.filter.setup(order,1/LOOP_TIME,cutoff);
+
 	ch1.time_stamp.last_deadman_received = ch2.time_stamp.last_deadman_received = ros::Time::now();
+
 	ch1.velocity = ch2.velocity = 0;
-	ch1.regulator.set_params(ch1.p_gain , ch1.i_gain , ch1.d_gain ,ch1.i_max , ch1.roboteq_max);
-	ch2.regulator.set_params(ch2.p_gain , ch2.i_gain , ch2.d_gain ,ch2.i_max , ch2.roboteq_max);
+
+//	ch1.regulator.set_params(ch1.p_gain , ch1.i_gain , ch1.d_gain ,ch1.i_max , ch1.roboteq_max);
+//	ch2.regulator.set_params(ch2.p_gain , ch2.i_gain , ch2.d_gain ,ch2.i_max , ch2.roboteq_max);
 
 	// Init general parameters
 	local_node_handler.param<double>("max_time_diff",max_time_diff_input,0.5);
+
 	max_time_diff = ros::Duration(max_time_diff_input);
+
 	last_serial_msg = ros::Time::now();
+
 	local_node_handler.param<bool>("closed_loop_operation", closed_loop_operation, false);
 
 	// Setup publishers
 	propulsion_module_status_publisher = local_node_handler.advertise<msgs::PropulsionModuleStatus>( propulsion_module_status_topic,10 );
 	setSerialPub( local_node_handler.advertise<msgs::serial>( serial_tx_topic,10 ));
-	setEncoderCh1Pub( local_node_handler.advertise<msgs::IntStamped>( encoder_ch1_topic, 10));
-	setEncoderCh2Pub( local_node_handler.advertise<msgs::IntStamped>( encoder_ch2_topic, 10));
+
 	setPowerCh1Pub( local_node_handler.advertise<msgs::IntStamped>( power_ch1_topic, 10));
 	setPowerCh2Pub( local_node_handler.advertise<msgs::IntStamped>( power_ch2_topic, 10));
 	setStatusPub( local_node_handler.advertise<msgs::StringStamped>( status_topic, 10));
@@ -96,11 +119,29 @@ sdc2130::sdc2130( )
 	ch2.setPropulsionFeedbackPub( local_node_handler.advertise<msgs::PropulsionModuleFeedback>( propulsion_module_feedback_right_topic, 10));
 	setTemperaturePub( local_node_handler.advertise<msgs::StringStamped>( temperature_topic, 10));
 
+	ch1.pid_feedback_pub = local_node_handler.advertise<std_msgs::Float64MultiArray>("/fmInformation/pid_left",2);
+	ch2.pid_feedback_pub = local_node_handler.advertise<std_msgs::Float64MultiArray>("/fmInformation/pid_right",2);
 	// Set up subscribers
 	serial_sub = local_node_handler.subscribe<msgs::serial>(serial_rx_topic,10,&sdc2130::onSerial,this);
 	ch1.cmd_vel_sub = local_node_handler.subscribe<geometry_msgs::TwistStamped>(cmd_vel_ch1_topic,10,&Channel::onCmdVel,&ch1);
 	ch2.cmd_vel_sub = local_node_handler.subscribe<geometry_msgs::TwistStamped>(cmd_vel_ch2_topic,10,&Channel::onCmdVel,&ch2);
 	deadman_sub = local_node_handler.subscribe<std_msgs::Bool>(deadman_topic,10,&sdc2130::onDeadman,this);
+
+	enc_feedback_l_sub = local_node_handler.subscribe<msgs::encoder>("/fmInformation/enc_left",10,&Channel::onENCFeedback,&ch1);
+	enc_feedback_r_sub = local_node_handler.subscribe<msgs::encoder>("/fmInformation/enc_right",10,&Channel::onENCFeedback,&ch2);
+
+
+}
+
+void sdc2130::onDynreconfig(roboteq_sdc2130::roboteq_sdc2130_dynparamsConfig& cfg,  uint32_t level)
+{
+	ROS_INFO("ROBOTEQ_SDC: updated pid params");
+	ch1.regulator.set_params(cfg.FeedForward_left,  cfg.P_left,  cfg.I_left,  cfg.D_left,  cfg.I_lim_left,  cfg.max_left);
+	ch2.regulator.set_params(cfg.FeedForward_right, cfg.P_right, cfg.I_right, cfg.D_right, cfg.I_lim_right, cfg.max_right);
+	ch1.filter.reset();
+	ch2.filter.reset();
+	ch1.filter.setup(cfg.filter_order,1/LOOP_TIME,cfg.filter_cutoff);
+	ch2.filter.setup(cfg.filter_order,1/LOOP_TIME,cfg.filter_cutoff);
 }
 
 void sdc2130::spin(void)
@@ -109,13 +150,14 @@ void sdc2130::spin(void)
 	ros::Rate r(5);
 	while(!this->subscribers() && ros::ok())
 	{
+		ros::spinOnce();
 		ROS_INFO_THROTTLE(1,"Waiting for serial node to subscribe");
 		r.sleep();
 	}
 	r.sleep();
 
 	// Initialize timer
-	ros::Timer t = global_node_handler.createTimer(ros::Duration(0.02),&sdc2130::onTimer,this);
+	ros::Timer t = global_node_handler.createTimer(ros::Duration(LOOP_TIME),&sdc2130::onTimer,this);
 	ros::Timer status_timer = global_node_handler.createTimer(ros::Duration(0.5),&sdc2130::onStatusTimer,this);
 
 	ros::spin();

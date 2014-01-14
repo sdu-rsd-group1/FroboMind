@@ -1,24 +1,37 @@
 #include "roboteq_sdc2130/sdc2130.hpp"
 
-Channel::Channel( ) : velocity_filter(8) // do not change!!
+Channel::Channel( )
 {
 	down_time = 0;
 	current_setpoint = 0;
 	hall_value = 0;
+
+	fb = new double[1];
+}
+
+void Channel::onENCFeedback(const msgs::encoderConstPtr& msg)
+{
+
+	message.hall.header.stamp = msg->header.stamp;
+	message.hall.encoderticks = msg->encoderticks;
+
+	hall_value += message.hall.encoderticks - last_hall;
+	last_hall = message.hall.encoderticks;
+
+	//publisher.hall.publish(message.hall);
+	//feedback_filter.push(message.hall.encoderticks);
 }
 
 void Channel::onHallFeedback(ros::Time time, int feedback)
 {
-	message.hall.header.stamp = time;
-	message.hall.data = feedback;
+	//message.hall.header.stamp = time;
+	//message.hall.data = feedback;
 
 	// TODO: This is a temporary hack to make hall values relative
-	hall_value += feedback - last_hall;
-	last_hall = feedback;
+	//hall_value += feedback - last_hall;
+	//last_hall = feedback;
 	// end hack..
 
-	publisher.hall.publish(message.hall);
-	feedback_filter.push(message.hall);
 }
 
 void Channel::onPowerFeedback(ros::Time time, int feedback)
@@ -57,7 +70,7 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 	ros::Time now = ros::Time::now();
 	std::stringstream ss, out; /* streams for holding status message and command output */
 
-	double period = 0, feedback = 0, feedback_filtered = 0, current_velocity = feedback_filter.get()*ticks_to_meter;
+	double period = 0, feedback = 0, feedback_filtered = 0, current_velocity = 0;
 
 	if(status.online) /* is set when controller answers to FID request */
 	{
@@ -90,14 +103,22 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 						feedback = (( (double)hall_value)*ticks_to_meter)/period;
 						hall_value = 0;
 
+
+						fb[0] =  feedback;
 						/* Filter feedback */
-						feedback_filtered = velocity_filter.update(feedback);
-
-
+						filter.process<double>(1,&fb);
+						current_velocity = fb[0];
 						/* Get new setpoint from regulator */
 						//current_setpoint += regulator.output_from_input(velocity, feedback_filtered , period);
-						current_setpoint = velocity + regulator.output_from_input(velocity, current_velocity , period);
-						current_thrust =  (int)(current_setpoint * mps_to_thrust);
+						current_setpoint = regulator.output_from_input(velocity, current_velocity , period);
+						message.pid_feedback.data.clear();
+						message.pid_feedback.data.push_back(regulator.ff_term);
+						message.pid_feedback.data.push_back(regulator.p_term);
+						message.pid_feedback.data.push_back(regulator.i_term);
+						message.pid_feedback.data.push_back(regulator.d_term);
+						pid_feedback_pub.publish(message.pid_feedback);
+
+						current_thrust =  (int)(current_setpoint);
 
 						/* Implement maximum output*/
 						if(current_thrust >  max_output) current_thrust = max_output;

@@ -42,7 +42,11 @@
 #include "roboteq_sdc2130/roboteq.hpp"
 #include "roboteq_sdc2130/regulator.hpp"
 #include "filter/IRR.h"
-#include "filter/sliding_window.hpp"
+#include <std_msgs/Float64MultiArray.h>
+
+#include <msgs/encoder.h>
+
+#include <DspFilters/Butterworth.h>
 
 class BaseCB
 {
@@ -81,9 +85,11 @@ public:
 	// Convenience structs for holding related variables
 	struct
 	{
-		msgs::IntStamped hall, power, temperature;
+		msgs::IntStamped  power, temperature;
+		msgs::encoder hall;
 		msgs::StringStamped status;
 		msgs::PropulsionModuleFeedback feedback;
+		std_msgs::Float64MultiArray pid_feedback;
 	} message;
 
 	struct
@@ -101,11 +107,15 @@ public:
 	int	ch, last_hall, anti_windup_percent, max_acceleration, max_deceleration, roboteq_max, hall_value,down_time,max_rpm, current_thrust;
 	double i_max, max_output, current_setpoint, velocity,mps_to_rpm,p_gain, i_gain, d_gain, ticks_to_meter, max_velocity_mps, mps_to_thrust;
 
-	IRR velocity_filter;
-	SlidingWindowFilter feedback_filter;
+	//IRR velocity_filter;
+	//SlidingWindowFilter feedback_filter;
+	Dsp::SimpleFilter<Dsp::Butterworth::LowPass<8>, 1>  filter;
 	Regulator regulator;
 	BaseCB* transmit_cb;
 	BaseCB* init_cb;
+	ros::Publisher pid_feedback_pub;
+	double*  fb;
+
 
 
 	Channel();
@@ -113,6 +123,8 @@ public:
 	// Callbacks to RoboTeQ derived class
 	void transmit(std::string str){(*transmit_cb)(str);}
 	void initController(std::string str){(*init_cb)(str);}
+
+	void onENCFeedback(const msgs::encoderConstPtr& msg);
 
 	// Callbacks from RoboTeQ derived class
 	void onHallFeedback(ros::Time time, int feedback);

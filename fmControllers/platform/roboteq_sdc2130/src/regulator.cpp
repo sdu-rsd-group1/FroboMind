@@ -4,6 +4,9 @@ Regulator::Regulator()
 {
 	p = i = d = i_max = out_max = 0;
 	integrator = previous = 0;
+	first = true;
+
+	ff_term = p_term = i_term = d_term  = 0.0;
 }
 
 /* PID regulator. Input and output must be in equal units */
@@ -17,7 +20,7 @@ double Regulator::output_from_input( double setpoint , double input , double per
 	double error = setpoint - input;
 
 	// Calculate integrator
-	integrator += error * period * i;
+	integrator += error * period;
 
 	// Implement anti wind up
 	if(integrator > i_max)
@@ -26,10 +29,22 @@ double Regulator::output_from_input( double setpoint , double input , double per
 		integrator = -i_max;
 
 	// Calculate differentiator
+
 	double differentiator = ( previous - input ) / period;
 
+	if(first)
+	{
+		first = false;
+		differentiator = 0.0;
+	}
+
+	ff_term = setpoint * feed_forward;
+	p_term = (error * p);
+	i_term = (i*integrator);
+	d_term = (differentiator * d);
+
 	// Calculate output
-	double output = (error * p) + (integrator) - (differentiator * d);
+	double output = ff_term + p_term + i_term + d_term;
 
 	// Implement output max
 	if(output > out_max)
@@ -39,5 +54,6 @@ double Regulator::output_from_input( double setpoint , double input , double per
 
 	// Upkeep
 	previous = input;
+
 	return output;
 }

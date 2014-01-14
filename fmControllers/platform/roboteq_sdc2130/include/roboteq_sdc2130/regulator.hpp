@@ -44,15 +44,18 @@ class Regulator
 private:
 	double previous,integrator;
 
+	bool first;
 public:
-	double p,i,d,i_max,out_max;
+	double p,i,d,i_max,out_max,feed_forward;
+
+	double ff_term,p_term,i_term,d_term;
 
 	Regulator();
 
 	double output_from_input( double , double , double);
-	void reset_integrator(){integrator = 0;}
-	void set_params( double p_gain , double i_gain , double d_gain , double imax , double outmax)
-	{p = p_gain; i = i_gain; d = d_gain; i_max = imax; out_max = outmax; }
+	void reset_integrator(){integrator = 0; previous = 0;first = true; ff_term = p_term = i_term = d_term  = 0.0;}
+	void set_params(double ff, double p_gain , double i_gain , double d_gain , double imax , double outmax)
+	{feed_forward = ff;p = p_gain; i = i_gain; d = d_gain; i_max = imax; out_max = outmax; }
 };
 
 #endif /* REGULATOR_HPP_ */

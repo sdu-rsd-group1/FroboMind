@@ -53,7 +53,12 @@
   <build_depend>roscpp</build_depend>
   <run_depend>roscpp</run_depend>
   
-
+  <build_depend>dynamic_reconfigure</build_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
+  
+    <build_depend>lib_dsp_filters</build_depend>
+  <run_depend>lib_dsp_filters</run_depend>
+  
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

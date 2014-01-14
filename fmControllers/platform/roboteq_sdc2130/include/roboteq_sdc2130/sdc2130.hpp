@@ -45,6 +45,8 @@
 #include "roboteq_sdc2130/roboteq.hpp"
 #include "roboteq_sdc2130/channel.hpp"
 #include <cstdarg>
+#include "roboteq_sdc2130/roboteq_sdc2130_dynparamsConfig.h"
+
 
 class sdc2130 : public RoboTeQ
 {
@@ -56,7 +58,15 @@ private:
 	Channel ch1,ch2;
 	ros::NodeHandle local_node_handler,global_node_handler;
 
+	ros::Subscriber enc_feedback_l_sub,enc_feedback_r_sub;
+
+
+
+
+
 public:
+
+	void onDynreconfig(roboteq_sdc2130::roboteq_sdc2130_dynparamsConfig& cfg,  uint32_t level);
 	bool closed_loop_operation;
 	double mps_to_rpm;
 

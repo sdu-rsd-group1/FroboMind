@@ -4,7 +4,7 @@ project(roboteq_sdc2130)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs std_msgs msgs)
+find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs std_msgs msgs dynamic_reconfigure lib_dsp_filters)
 
 ## System dependencies are found with CMake's conventions
  find_package(Boost)
@@ -37,6 +37,8 @@ find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs std_msgs msgs)
 #   std_msgs  # Or other packages containing msgs
 # )
 
+generate_dynamic_reconfigure_options(cfg/sdc2130_dynparams.cfg)
+
 ###################################################
 ## Declare things to be passed to other projects ##
 ###################################################
@@ -45,9 +47,9 @@ find_package(catkin REQUIRED COMPONENTS roscpp geometry_msgs std_msgs msgs)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS include
+   INCLUDE_DIRS include cfg/cpp
   LIBRARIES roboteq_sdc2130
-  CATKIN_DEPENDS roscpp geometry_msgs std_msgs msgs
+  CATKIN_DEPENDS roscpp geometry_msgs std_msgs msgs dynamic_reconfigure lib_dsp_filters
 #  DEPENDS system_lib
 )
 
@@ -58,6 +60,8 @@ catkin_package(
 ## Specify additional locations of header files
 include_directories(include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  cfg/cpp
 )
 
 ## Declare a cpp library
@@ -69,12 +73,13 @@ include_directories(include
 # add_executable(roboteq_node src/roboteq_node.cpp)
 
 ## Add dependencies to the executable
- add_dependencies(${PROJECT_NAME} ${PROJECT_NAME} msgs_gencpp)
+ add_dependencies(${PROJECT_NAME} ${PROJECT_NAME} msgs_gencpp ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(roboteq_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}
+   ${catkin_LIBRARIES}
+   dsp_filters
+ )
 
 #############
 ## Install ##
