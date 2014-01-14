@@ -1,0 +1,99 @@
+<launch>
+<group ns="fmControllers">
+	<node pkg="differential_ifk" name="differential_driver" type="differential_ifk_node" output="screen" >
+		<param name="hl_subscriber_topic" value="/fmSignals/cmd_vel"/>
+		<param name="ll_publisher_topic_left" value="/fmSignals/cmd_vel_left"/>
+		<param name="ll_publisher_topic_right" value="/fmSignals/cmd_vel_right"/>
+	</node>
+
+	<node pkg="sdu_grassbots" type="sdu_grassbots_roboteq_node" name="robot_interface" output="screen">
+			<param name="cmd_vel_ch1_topic" value="/fmSignals/cmd_vel_left"/>
+			<param name="cmd_vel_ch2_topic" value="/fmSignals/cmd_vel_right"/>
+			
+			<param name="serial_rx_topic" value="/fmData/robot_rx"/>
+			<param name="serial_tx_topic" value="/fmData/robot_tx"/>
+			
+			<param name="deadman_topic" value="/fmSignals/deadman"/>
+			
+			<param name="power_ch1_topic" value="/fmData/power_left"/> 
+			<param name="power_ch2_topic" value="/fmData/power_right"/>
+			
+			<param name="propulsion_module_status_topic" value="/fmInformation/propulsion_module_status"/>
+			<param name="propulsion_module_feedback_left_topic" value="/fmInformation/propulsion_module_feedback_left"/>
+			<param name="propulsion_module_feedback_right_topic" value="/fmInformation/propulsion_module_feedback_right"/>
+			<param name="status_topic" value="/fmData/status"/>	
+			
+			<param name="ticks_per_meter_left" value="3933" />
+			<param name="ticks_per_meter_right" value="-3933" />
+	
+	</node>
+	
+	
+	<node name="$(anon load_sdu_grassbots_roboteq_params)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters /fmControllers/robot_interface">
+		<param name="FeedForward_left"	value="1.0"/>
+		<param name="P_left" 			value="0.0"/>
+		<param name="I_left" 			value="0.0"/>
+		<param name="D_left"  			value="0.0"/>
+		<param name="I_lim_left"  		value="0.0"/>
+		<param name="Ramp_left"  		value="0.0"/>
+		<param name="max_left" 			value="0.0"/>
+		
+		<param name="FeedForward_right" value="1.0"/>
+		<param name="P_right" 			value="0.0"/>
+		<param name="I_right" 			value="0.0"/>
+		<param name="D_right"  			value="0.0"/>
+		<param name="I_lim_right" 		value="0.0"/>
+		<param name="Ramp_right"  		value="0.0"/>
+		<param name="max_right" 		value="0.0"/>
+    </node>
+	
+	<node pkg="sdu_grassbots" type="test.py" name="robot_interface_stub" if="$(arg testing)">
+	
+	</node>
+
+</group>
+
+
+
+<group ns="fmLib" unless="$(arg testing)">
+	<node pkg="ci_lynex_psp" type="ci_lynex_psp_node" name="ci_lynex_psp_node">
+		<remap  from="/fmLib/ci_lynex_psp_node/serial_tx" to="/fmData/lynex_tx"/>
+		<remap  from="/fmLib/ci_lynex_psp_node/serial_rx" to="/fmData/lynex_rx"/>
+		<remap from="/fmLib/ci_lynex_psp_node/r4" to="/fmCommands/implement_active"/>
+		<remap from="/fmLib/ci_lynex_psp_node/r1" to="/fmCommands/implement_raise"/>
+		<remap from="/fmLib/ci_lynex_psp_node/r2" to="/fmCommands/implement_lower"/>
+	</node>
+	
+	<node pkg="ci_ecu_psp" type="ci_ecu_psp_node" name="ci_ecu_psp_node" output="screen">
+		<remap  from="/fmLib/ci_ecu_psp_node/encoder_serial_rx" to="/fmData/lynex_rx" />
+		<remap  from="/fmLib/ci_ecu_psp_node/encoder_1" to="/fmInformation/enc_left" />
+		<remap  from="/fmLib/ci_ecu_psp_node/encoder_2" to="/fmInformation/enc_right" />
+	</node>
+
+	<!-- serial communication with the CI_ECU box -->
+	<node pkg="serial_string" name="ciecu_serial_string_node" type="serial_string_node" output="screen" respawn="true">
+		<param name="publisher_topic" value="/fmData/lynex_rx" />	 
+		<param name="subscriber_topic" value="/fmData/lynex_tx" />
+		<param name="device" value="/dev/ttyS1" />	
+		<param name="baudrate" value="115200" />
+		<param name="termination_character" value="10"/>
+	</node> 
+	<!-- serial communication with the Roboteq SDCXX  controller -->
+	<node pkg="serial_string" name="robot_serial" type="serial_string_node" output="screen" respawn="true">
+		<param name="publisher_topic" value="/fmData/robot_rx" />	 
+		<param name="subscriber_topic" value="/fmData/robot_tx" />
+		<param name="device" value="/dev/ttyS0" />	
+		<param name="baudrate" value="115200" />
+		<param name="termination_character" value="13"/>
+	</node>
+	
+	<!-- Wiimote interface -->
+	<node pkg="wiimote" type="wiimote_node.py" name="wiimote" respawn="true">
+		<!-- param name="fixed_wiimote_address" value="00:1F:32:B3:A2:F3"/ -->	<!-- Kjelds private -->
+<!-- 		<param name="fixed_wiimote_address" value="00:19:1D:91:DC:27"/> RoboLab -->
+			<param name="fixed_wiimote_address" value="00:1F:C5:70:D4:74" />
+	</node >
+</group>
+
+
+</launch>
