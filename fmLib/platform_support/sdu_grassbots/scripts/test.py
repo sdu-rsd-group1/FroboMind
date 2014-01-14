@@ -42,11 +42,25 @@ class TestInterface():
         rospy.init_node('test_interface')
         self.publisher = rospy.Publisher("/fmData/robot_rx", serial)
         
+        self.enc_left_pub = rospy.Publisher("/fmInformation/enc_left",encoder)
+        self.enc_right_pub = rospy.Publisher("/fmInformation/enc_right",encoder)
+        self.deadman_pub = rospy.Publisher("/fmSignals/deadman",Bool)
+        self.vel_publ = rospy.Publisher("/fmSignals/cmd_vel_left",TwistStamped)
+        self.vel_pubr = rospy.Publisher("/fmSignals/cmd_vel_right",TwistStamped)
+        
+        self.vel_msg = TwistStamped()
+        self.vel_msg.twist.linear.x = 0.1
+        
         self.tx_sub = rospy.Subscriber("/fmData/robot_tx", serial, self.onTx)
         self.rx_sub = rospy.Subscriber("/fmData/robot_rx", serial, self.onRx)
         self.msg = serial()
         self.flag = False
         self.enc = 0.0
+        
+        self.dead = Bool()
+        self.dead.data = True
+        
+        self.enc_msg = encoder()
         # Spin
         try:
             while not rospy.is_shutdown():
@@ -54,7 +68,16 @@ class TestInterface():
 #                self.msg.data = "CB=125:125"
                 self.msg.data = "CB=" + str(int(self.enc)) + ":" + str(-int(self.enc))
                 self.enc += 25.7
+                self.enc_msg.encoderticks = int(self.enc)
                 self.publisher.publish(self.msg)
+                self.enc_left_pub.publish(self.enc_msg)
+                self.enc_right_pub.publish(self.enc_msg)
+                self.deadman_pub.publish(self.dead)
+                
+                self.vel_msg.header.stamp = rospy.Time.now()
+                self.vel_publ.publish(self.vel_msg)
+                self.vel_pubr.publish(self.vel_msg)
+                
                 rospy.sleep(0.02)
         except rospy.ROSInterruptException:
             pass
