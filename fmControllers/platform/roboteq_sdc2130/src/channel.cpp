@@ -91,10 +91,11 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 						if(status.emergency_stop)
 						{
 							/* release emergency stop */
-							transmit("!MG\r");
+							//transmit("!MG\r");
 							status.emergency_stop = false;
 							current_setpoint = 0;
 						}
+
 
 						/* Calculate period */
 						period = (now - time_stamp.last_regulation).toSec();
@@ -111,15 +112,11 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 						/* Get new setpoint from regulator */
 						//current_setpoint += regulator.output_from_input(velocity, feedback_filtered , period);
 						current_setpoint = regulator.output_from_input(velocity, current_velocity , period);
-						message.pid_feedback.data.clear();
-						message.pid_feedback.data.push_back(regulator.ff_term);
-						message.pid_feedback.data.push_back(regulator.p_term);
-						message.pid_feedback.data.push_back(regulator.i_term);
-						message.pid_feedback.data.push_back(regulator.d_term);
-						pid_feedback_pub.publish(message.pid_feedback);
+
 
 						current_thrust =  (int)(current_setpoint);
 
+						max_output = 1000;
 						/* Implement maximum output*/
 						if(current_thrust >  max_output) current_thrust = max_output;
 						if(current_thrust < -max_output) current_thrust = -max_output;
@@ -134,7 +131,7 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 					else /* deadman not pressed */
 					{
 						/* Set speeds to 0 and activate emergency stop */
-						transmit("!EX\r");
+						//transmit("!EX\r");
 						status.emergency_stop = true;
 						transmit("!G 1 0\r");
 						transmit("!G 2 0\r");
@@ -146,7 +143,7 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 				else /* Cmd_vel is not publishing */
 				{
 					/* Set speeds to 0 and activate emergency stop */
-					transmit("!EX\r");
+					//transmit("!EX\r");
 					status.emergency_stop = true;
 					transmit("!G 1 0\r");
 					transmit("!G 2 0\r");
@@ -188,6 +185,13 @@ void Channel::onTimer(const ros::TimerEvent& e, RoboTeQ::status_t& status)
 	message.feedback.velocity_setpoint = velocity;
 	message.feedback.thrust = (current_thrust*100)/roboteq_max; /* Thrust in % */
 	publisher.feedback.publish(message.feedback);
+	message.pid_feedback.data.clear();
+	message.pid_feedback.data.push_back(regulator.ff_term);
+	message.pid_feedback.data.push_back(regulator.p_term);
+	message.pid_feedback.data.push_back(regulator.i_term);
+	message.pid_feedback.data.push_back(regulator.d_term);
+	pid_feedback_pub.publish(message.pid_feedback);
+
 
 	/* Publish the status message */
 	message.status.header.stamp = ros::Time::now();

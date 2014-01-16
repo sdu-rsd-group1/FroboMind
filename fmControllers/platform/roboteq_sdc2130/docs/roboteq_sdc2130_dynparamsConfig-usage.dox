@@ -1,0 +1,26 @@
+\subsubsection usage Usage
+\verbatim
+<node name="dynamic_tutorials" pkg="roboteq_sdc2130" type="dynamic_tutorials">
+  <param name="FeedForward_left" type="double" value="0.0" />
+  <param name="P_left" type="double" value="0.0" />
+  <param name="I_left" type="double" value="0.0" />
+  <param name="D_left" type="double" value="0.0" />
+  <param name="I_lim_left" type="double" value="0.0" />
+  <param name="Ramp_left" type="double" value="0.0" />
+  <param name="max_left" type="double" value="0.0" />
+  <param name="deadband_left_fw" type="double" value="0.0" />
+  <param name="deadband_left_bw" type="double" value="0.0" />
+  <param name="FeedForward_right" type="double" value="0.0" />
+  <param name="P_right" type="double" value="0.0" />
+  <param name="I_right" type="double" value="0.0" />
+  <param name="D_right" type="double" value="0.0" />
+  <param name="I_lim_right" type="double" value="0.0" />
+  <param name="Ramp_right" type="double" value="0.0" />
+  <param name="max_right" type="double" value="0.0" />
+  <param name="deadband_right_fw" type="double" value="0.0" />
+  <param name="deadband_right_bw" type="double" value="0.0" />
+  <param name="filter_order" type="int" value="1" />
+  <param name="filter_cutoff" type="double" value="0.1" />
+</node>
+\endverbatim
+

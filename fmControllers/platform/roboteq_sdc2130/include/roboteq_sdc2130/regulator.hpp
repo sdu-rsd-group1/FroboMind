@@ -46,7 +46,7 @@ private:
 
 	bool first;
 public:
-	double p,i,d,i_max,out_max,feed_forward;
+	double p,i,d,i_max,out_max,feed_forward,deadband_fw,deadband_bw;
 
 	double ff_term,p_term,i_term,d_term;
 
@@ -54,8 +54,8 @@ public:
 
 	double output_from_input( double , double , double);
 	void reset_integrator(){integrator = 0; previous = 0;first = true; ff_term = p_term = i_term = d_term  = 0.0;}
-	void set_params(double ff, double p_gain , double i_gain , double d_gain , double imax , double outmax)
-	{feed_forward = ff;p = p_gain; i = i_gain; d = d_gain; i_max = imax; out_max = outmax; }
+	void set_params(double ff, double p_gain , double i_gain , double d_gain , double imax , double outmax,double dead_fw, double dead_bw)
+	{feed_forward = ff;p = p_gain; i = i_gain; d = d_gain; i_max = imax; out_max = outmax; deadband_fw=dead_fw; deadband_bw=dead_bw;}
 };
 
 #endif /* REGULATOR_HPP_ */

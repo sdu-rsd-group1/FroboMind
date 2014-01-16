@@ -1,0 +1,25 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~FeedForward_left" : \b [double] Feedforward l min: 0.0, default: 0.0, max: 1000.0
+- \b "~P_left" : \b [double] P min: 0.0, default: 0.0, max: 1000.0
+- \b "~I_left" : \b [double] I min: 0.0, default: 0.0, max: 1000.0
+- \b "~D_left" : \b [double] D min: 0.0, default: 0.0, max: 1000.0
+- \b "~I_lim_left" : \b [double] Ilim min: 0.0, default: 0.0, max: 1000.0
+- \b "~Ramp_left" : \b [double] Ramp min: 0.0, default: 0.0, max: 10000.0
+- \b "~max_left" : \b [double] max_left min: 0.0, default: 0.0, max: 1000.0
+- \b "~deadband_left_fw" : \b [double] daed_left min: 0.0, default: 0.0, max: 1000.0
+- \b "~deadband_left_bw" : \b [double] daed_left min: 0.0, default: 0.0, max: 1000.0
+- \b "~FeedForward_right" : \b [double] Feedforward min: 0.0, default: 0.0, max: 1000.0
+- \b "~P_right" : \b [double] P min: 0.0, default: 0.0, max: 1000.0
+- \b "~I_right" : \b [double] I min: 0.0, default: 0.0, max: 1000.0
+- \b "~D_right" : \b [double] D min: 0.0, default: 0.0, max: 1000.0
+- \b "~I_lim_right" : \b [double] Ilim min: 0.0, default: 0.0, max: 10000.0
+- \b "~Ramp_right" : \b [double] Ramp2 min: 0.0, default: 0.0, max: 10000.0
+- \b "~max_right" : \b [double] max_right min: 0.0, default: 0.0, max: 1000.0
+- \b "~deadband_right_fw" : \b [double] daed_left min: 0.0, default: 0.0, max: 1000.0
+- \b "~deadband_right_bw" : \b [double] daed_left min: 0.0, default: 0.0, max: 1000.0
+- \b "~filter_order" : \b [int] the order of the velocity filter min: 1, default: 1, max: 8
+- \b "~filter_cutoff" : \b [double] the cutoff frequency of the velocity filter min: 1.0, default: 0.1, max: 10.0
+

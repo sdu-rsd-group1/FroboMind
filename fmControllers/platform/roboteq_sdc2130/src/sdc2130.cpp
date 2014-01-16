@@ -136,8 +136,8 @@ sdc2130::sdc2130( )
 void sdc2130::onDynreconfig(roboteq_sdc2130::roboteq_sdc2130_dynparamsConfig& cfg,  uint32_t level)
 {
 	ROS_INFO("ROBOTEQ_SDC: updated pid params");
-	ch1.regulator.set_params(cfg.FeedForward_left,  cfg.P_left,  cfg.I_left,  cfg.D_left,  cfg.I_lim_left,  cfg.max_left);
-	ch2.regulator.set_params(cfg.FeedForward_right, cfg.P_right, cfg.I_right, cfg.D_right, cfg.I_lim_right, cfg.max_right);
+	ch1.regulator.set_params(cfg.FeedForward_left,  cfg.P_left,  cfg.I_left,  cfg.D_left,  cfg.I_lim_left,  cfg.max_left,cfg.deadband_left_fw,cfg.deadband_left_bw);
+	ch2.regulator.set_params(cfg.FeedForward_right, cfg.P_right, cfg.I_right, cfg.D_right, cfg.I_lim_right, cfg.max_right,cfg.deadband_right_fw,cfg.deadband_right_bw);
 	ch1.filter.reset();
 	ch2.filter.reset();
 	ch1.filter.setup(cfg.filter_order,1/LOOP_TIME,cfg.filter_cutoff);
@@ -171,11 +171,11 @@ void sdc2130::onStatusTimer(const ros::TimerEvent& event)
 	propulsion_module_status_message.power = (v2*ba1)/100.0;
 	propulsion_module_status_publisher.publish(propulsion_module_status_message);
 
-	transmit(1,	"?V"); sleep(TIME_BETWEEN_COMMANDS);								// Request power readings
-	transmit(1,	"?BA"); sleep(TIME_BETWEEN_COMMANDS);								// Request voltage readings
-	transmit(1,	"?T"); sleep(TIME_BETWEEN_COMMANDS);								// Request temperature readings
-	transmit(1,	"?FS"); sleep(TIME_BETWEEN_COMMANDS);								// Request status flag
-	transmit(1, "?FF"); sleep(TIME_BETWEEN_COMMANDS);								// Request fault flag
+	//transmit(1,	"?V"); sleep(TIME_BETWEEN_COMMANDS);								// Request power readings
+	//transmit(1,	"?BA"); sleep(TIME_BETWEEN_COMMANDS);								// Request voltage readings
+	//transmit(1,	"?T"); sleep(TIME_BETWEEN_COMMANDS);								// Request temperature readings
+	//transmit(1,	"?FS"); sleep(TIME_BETWEEN_COMMANDS);								// Request status flag
+	//transmit(1, "?FF"); sleep(TIME_BETWEEN_COMMANDS);								// Request fault flag
 	//transmit(1,	"# C"); sleep(TIME_BETWEEN_COMMANDS);								// Clear buffer
 	//transmit(1, "?CB"); sleep(TIME_BETWEEN_COMMANDS);								// Request absolute hall count
 	//transmit(1,	"# 20" ); sleep(TIME_BETWEEN_COMMANDS);							    // Repeat buffer every 50 ms

@@ -46,6 +46,15 @@ double Regulator::output_from_input( double setpoint , double input , double per
 	// Calculate output
 	double output = ff_term + p_term + i_term + d_term;
 
+	if(setpoint > 0.01)
+	{
+		output += deadband_fw;
+	}
+	else if(setpoint < -0.01)
+	{
+		output -= deadband_bw;
+	}
+
 	// Implement output max
 	if(output > out_max)
 		output = out_max;
