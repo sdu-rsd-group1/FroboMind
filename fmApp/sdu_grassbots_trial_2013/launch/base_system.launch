@@ -30,32 +30,35 @@
 	
 	
 	<node name="$(anon load_sdu_grassbots_roboteq_params)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters /fmControllers/robot_interface">
-		<param name="FeedForward_left"	value="1.0"/>
-		<param name="P_left" 			value="0.0"/>
-		<param name="I_left" 			value="0.0"/>
+		<param name="FeedForward_left"	value="210.0"/>
+		<param name="P_left" 			value="140.0"/>
+		<param name="I_left" 			value="70.0"/>
 		<param name="D_left"  			value="0.0"/>
-		<param name="I_lim_left"  		value="0.0"/>
+		<param name="I_lim_left"  		value="0.5"/>
 		<param name="Ramp_left"  		value="0.0"/>
-		<param name="max_left" 			value="0.0"/>
+		<param name="max_left" 			value="1000.0"/>
+		<param name="deadband_left_fw"     value="280" />
+		<param name="deadband_left_bw"     value="380" />
 		
-		<param name="FeedForward_right" value="1.0"/>
-		<param name="P_right" 			value="0.0"/>
-		<param name="I_right" 			value="0.0"/>
+		<param name="FeedForward_right" value="210.0"/>
+		<param name="P_right" 			value="140.0"/>
+		<param name="I_right" 			value="70.0"/>
 		<param name="D_right"  			value="0.0"/>
-		<param name="I_lim_right" 		value="0.0"/>
+		<param name="I_lim_right" 		value="0.5"/>
 		<param name="Ramp_right"  		value="0.0"/>
-		<param name="max_right" 		value="0.0"/>
+		<param name="max_right" 		value="1000.0"/>
+		<param name="deadband_right_fw"     value="290" />
+		<param name="deadband_right_bw"     value="380" />
+		
+		<param name="filter_order" value="2"/>
+		<param name="filter_cutoff" value="2.25"/>
     </node>
-	
-	<node pkg="sdu_grassbots" type="test.py" name="robot_interface_stub" if="$(arg testing)">
-	
-	</node>
 
 </group>
 
 
 
-<group ns="fmLib" unless="$(arg testing)">
+<group ns="fmLib">
 	<node pkg="ci_lynex_psp" type="ci_lynex_psp_node" name="ci_lynex_psp_node">
 		<remap  from="/fmLib/ci_lynex_psp_node/serial_tx" to="/fmData/lynex_tx"/>
 		<remap  from="/fmLib/ci_lynex_psp_node/serial_rx" to="/fmData/lynex_rx"/>
@@ -86,14 +89,5 @@
 		<param name="baudrate" value="115200" />
 		<param name="termination_character" value="13"/>
 	</node>
-	
-	<!-- Wiimote interface -->
-	<node pkg="wiimote" type="wiimote_node.py" name="wiimote" respawn="true">
-		<!-- param name="fixed_wiimote_address" value="00:1F:32:B3:A2:F3"/ -->	<!-- Kjelds private -->
-<!-- 		<param name="fixed_wiimote_address" value="00:19:1D:91:DC:27"/> RoboLab -->
-			<param name="fixed_wiimote_address" value="00:1F:C5:70:D4:74" />
-	</node >
 </group>
-
-
 </launch>
