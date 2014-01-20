@@ -1,4 +1,7 @@
 <launch>
+
+<param name="diff_steer_wheel_distance" value="1.515"/>
+
 <group ns="fmControllers">
 	<node pkg="differential_ifk" name="differential_driver" type="differential_ifk_node" output="screen" >
 		<param name="hl_subscriber_topic" value="/fmSignals/cmd_vel"/>
@@ -30,21 +33,21 @@
 	
 	
 	<node name="$(anon load_sdu_grassbots_roboteq_params)" pkg="dynamic_reconfigure" type="dynparam" args="set_from_parameters /fmControllers/robot_interface">
-		<param name="FeedForward_left"	value="210.0"/>
-		<param name="P_left" 			value="140.0"/>
-		<param name="I_left" 			value="70.0"/>
+		<param name="FeedForward_left"	value="580.0"/>
+		<param name="P_left" 			value="260.0"/>
+		<param name="I_left" 			value="1000.0"/>
 		<param name="D_left"  			value="0.0"/>
-		<param name="I_lim_left"  		value="0.5"/>
+		<param name="I_lim_left"  		value="0.2"/>
 		<param name="Ramp_left"  		value="0.0"/>
 		<param name="max_left" 			value="1000.0"/>
 		<param name="deadband_left_fw"     value="280" />
 		<param name="deadband_left_bw"     value="380" />
 		
-		<param name="FeedForward_right" value="210.0"/>
-		<param name="P_right" 			value="140.0"/>
-		<param name="I_right" 			value="70.0"/>
+		<param name="FeedForward_right" value="580.0"/>
+		<param name="P_right" 			value="260.0"/>
+		<param name="I_right" 			value="1000.0"/>
 		<param name="D_right"  			value="0.0"/>
-		<param name="I_lim_right" 		value="0.5"/>
+		<param name="I_lim_right" 		value="0.2"/>
 		<param name="Ramp_right"  		value="0.0"/>
 		<param name="max_right" 		value="1000.0"/>
 		<param name="deadband_right_fw"     value="290" />
@@ -56,15 +59,86 @@
 
 </group>
 
+<group ns="fmProcessors">
+		<!-- calculate odometry based on encoders and IMU yaw axis orientation -->
+		<node pkg="differential_odometry" name="differential_odometry" type="differential_odometry_node" output="screen" >
+			<param name="enc_left_sub" value="/fmInformation/enc_left" />
+			<param name="enc_right_sub" value="/fmInformation/enc_right" />
+			<param name="imu_sub" value="/fmInformation/imu" />
+			<param name="odom_pub" value="/fmKnowledge/pose" />
+			<param name="odom_estimate_frame" value="/odom_combined" />
+			<param name="vehicle_frame" value="base_footprint" />
+			<param name="encoder_output" value="absolute" />
+			<param name="ticks_per_meter_left" value="3933" />
+			<param name="ticks_per_meter_right" value="-3933" />
+			<param name="max_ticks_per_update" value="1000" />
+			<param name="yaw_angle_source" value="imu_angular_velocity" />
+			<param name="imu_angular_velocity_yaw_axis" value="z" />
+		</node>
+</group>
 
+<group ns="fmExecutors"> 
+<node pkg="sdu_grassbots_trial_2013" type="waypoint_navigation_node.py" name="wptnav" output="screen">
+			<param name="automode_sub" value="/fmDecision/automode" />
+			<param name="pose_sub" value="/fmKnowledge/pose" />
+			<param name="joy_sub" value="/fmLib/joy" />
+			<param name="cmd_vel_pub" value="/fmSignals/cmd_vel" />
+			<param name="implement_pub" value="/fmCommand/implement" />
+			<param name="status_pub" value="/fmData/wptnav_status" />
+			<param name="status_publish_interval" value="1" />
+			<param name="print_debug_information" value="true" />
+
+            <param name="max_linear_velocity" value="0.8"/>
+            <param name="max_angular_velocity" value="0.5"/>
+<!-- 1.6 0.1 2.0-->
+            <param name="drive_kp" value="1.0"/>
+            <param name="drive_ki" value="0.2"/>
+            <param name="drive_kd" value="0.0"/>
+            <param name="drive_max_output" value="0.20"/>
+
+            <param name="turn_kp" value="1.3"/>
+            <param name="turn_ki" value="0.0"/>
+            <param name="turn_kd" value="0.0"/>
+            <param name="turn_max_output" value="0.5"/>
+
+			<param name="wpt_default_mode" value="MCTE" />
+			<param name="wpt_default_tolerance" value="0.30" />
+			<param name="wpt_default_drive_velocity" value="0.7" />
+			<param name="wpt_default_turn_velocity" value="0.45" />
+			<param name="wpt_default_wait_after_arrival" value="0.0" />
+			<param name="wpt_default_implement_command" value="0.0" />
+
+			<param name="target_distance" value="1.5" />
+			<param name="turn_start_at_heading_err" value="45.0" />
+			<param name="turn_stop_at_heading_err" value="2.0" />
+			<param name="ramp_drive_velocity_at_distance" value="1.0" />
+			<param name="ramp_min_drive_velocity" value="0.12" />
+			<param name="ramp_turn_velocity_at_angle" value="35.0" />
+			<param name="ramp_min_turn_velocity" value="0.10" />
+		</node>		
+
+</group>
+
+
+<group ns="fmSensors">
+	<!-- extract data from messages transmitted by the VectorNav VN-100 IMU -->
+	<node pkg="vectornav_vn100" name="imu_node"  type="vectornav_vn100_node" output="screen" respawn="true">
+		<param name="vectornav_vn100_sub" value="/fmData/imu_rx"/>
+		<param name="imu_pub" value="/fmInformation/imu"/>
+		<param name="frame_id" value="imu_link"/>
+		<param name="use_enu" value="true"/>
+		<param name="covariance_x" value="0.001"/>
+		<param name="covariance_y" value="0.001"/>
+		<param name="covariance_z" value="0.001"/>
+	 </node>
+</group>
+
+<node pkg="rostopic" type="rostopic" name="relay_enabled" args="pub /fmLib/ci_lynex_psp_node/override std_msgs/Bool 'data: True' --rate 10"></node>
 
 <group ns="fmLib">
 	<node pkg="ci_lynex_psp" type="ci_lynex_psp_node" name="ci_lynex_psp_node">
 		<remap  from="/fmLib/ci_lynex_psp_node/serial_tx" to="/fmData/lynex_tx"/>
 		<remap  from="/fmLib/ci_lynex_psp_node/serial_rx" to="/fmData/lynex_rx"/>
-		<remap from="/fmLib/ci_lynex_psp_node/r4" to="/fmCommands/implement_active"/>
-		<remap from="/fmLib/ci_lynex_psp_node/r1" to="/fmCommands/implement_raise"/>
-		<remap from="/fmLib/ci_lynex_psp_node/r2" to="/fmCommands/implement_lower"/>
 	</node>
 	
 	<node pkg="ci_ecu_psp" type="ci_ecu_psp_node" name="ci_ecu_psp_node" output="screen">
@@ -88,6 +162,15 @@
 		<param name="device" value="/dev/ttyS0" />	
 		<param name="baudrate" value="115200" />
 		<param name="termination_character" value="13"/>
+	</node>
+	
+		<!-- serial communication with the IMU -->
+	<node pkg="serial_string" name="imu_serial_string_node" type="serial_string_node" output="screen" respawn="true">
+		<param name="publisher_topic" value="/fmData/imu_rx" />	 
+		<param name="subscriber_topic" value="/fmData/imu_tx" />
+		<param name="device" value="/dev/ttyS2" />	
+		<param name="baudrate" value="115200" />
+		<param name="termination_character" value="10"/>
 	</node>
 </group>
 </launch>

@@ -1,38 +1,60 @@
 <launch>
 <node pkg="sdu_grassbots_trial_2013" name="mission" type="keyboard_mission.py" output="screen">
 	<param name="keyboard_sub" value="/fmHMI/keyboard" />
-	<param name="automode_pub" value="/fmDecisionMakers/automode" />
+	<param name="automode_pub" value="/fmDecision/automode" />
 	<param name="deadman_pub" value="/fmSignals/deadman" />
 	<param name="cmd_vel_pub" value="/fmSignals/cmd_vel" />
 	<param name="max_linear_velocity" value="1.0"/>
 	<param name="max_angular_velocity" value="0.4"/>
-	<param name="linear_velocity_step" value="0.2"/>
-	<param name="angular_velocity_step" value="0.1"/>
+	<param name="linear_velocity_step" value="0.3"/>
+	<param name="angular_velocity_step" value="0.2"/>
 </node>
 
 <node pkg="keyboard_interface" type="keyboard_node" name="keyboard">
 <param name="keyboard_pub" value="/fmHMI/keyboard" />
 </node>
 
+<group ns="fmProcessors">
+		
+		<node pkg="sdu_grassbots_trial_2013" name="robot_track_map" type="robot_track_map_node.py" output="screen" >
+			<param name="pose_sub" value="/fmKnowledge/pose" />
+			<param name="gnss_sub" value="/fmInformation/gpgga_tranmerc" />
+			<param name="odom_sub" value="/fmKnowledge/encoder_odom" />
+			<param name="wptnav_status_sub" value="/fmData/wptnav_status" />
+			<param name="plot_pose_track" value="true" />
+			<param name="plot_gnss_track" value="false" />
+			<param name="plot_odometry_track" value="false" />
+			<param name="plot_pose_yaw" value="false" />
+			
+			<param name="northing_offset" value="-6137275.3330" />
+			<param name="easting_offset" value="0.0" />
+			<param name="northing_offset" value="0.0" />
+			<param name="trackpoint_threshold" value="0.02" />
+			<param name="map_update_frequency" value="20.0" />
+			<param name="map_title" value="Robot track" />
+			<param name="map_window_size" value="6.0" />
+		</node>
+	</group>
 
-<node pkg="sdu_grassbots_trial_2013" name="plot_feedback" type="plot_propulsion_feedback_node.py" output="screen" >
-<param name="propulsion_feedback_sub" value="/fmInformation/propulsion_module_feedback_left" />
-<param name="propulsion_pid_sub" value="/fmInformation/pid_left" />
-<param name="update_frequency" value="50" />
-<param name="plot_title" value="Wheel feedback _left" />
-<param name="maximum_velocity" value="1.1" />
-<param name="maximum_thrust" value="100" />
-<param name="maximum_pid" value="300" />
-</node>
+
+<!-- <node pkg="sdu_grassbots_trial_2013" name="plot_feedback" type="plot_propulsion_feedback_node.py" output="screen" > -->
+<!-- <param name="propulsion_feedback_sub" value="/fmInformation/propulsion_module_feedback_left" /> -->
+<!-- <param name="propulsion_pid_sub" value="/fmInformation/pid_left" /> -->
+<!-- <param name="update_frequency" value="50" /> -->
+<!-- <param name="plot_title" value="Wheel feedback _left" /> -->
+<!-- <param name="maximum_velocity" value="1.1" /> -->
+<!-- <param name="maximum_thrust" value="100" /> -->
+<!-- <param name="maximum_pid" value="300" /> -->
+<!-- </node> -->
 
 
-<node pkg="sdu_grassbots_trial_2013" name="plot_feedback_right" type="plot_propulsion_feedback_node.py" output="screen" >
-<param name="propulsion_feedback_sub" value="/fmInformation/propulsion_module_feedback_right" />
-<param name="propulsion_pid_sub" value="/fmInformation/pid_right" />
-<param name="update_frequency" value="50" />
-<param name="plot_title" value="Wheel feedback _right" />
-<param name="maximum_velocity" value="1.1" />
-<param name="maximum_thrust" value="100" />
-<param name="maximum_pid" value="300" />
-</node>
+<!-- <node pkg="sdu_grassbots_trial_2013" name="plot_feedback_right" type="plot_propulsion_feedback_node.py" output="screen" > -->
+<!-- <param name="propulsion_feedback_sub" value="/fmInformation/propulsion_module_feedback_right" /> -->
+<!-- <param name="propulsion_pid_sub" value="/fmInformation/pid_right" /> -->
+<!-- <param name="update_frequency" value="50" /> -->
+<!-- <param name="plot_title" value="Wheel feedback _right" /> -->
+<!-- <param name="maximum_velocity" value="1.1" /> -->
+<!-- <param name="maximum_thrust" value="100" /> -->
+<!-- <param name="maximum_pid" value="300" /> -->
+<!-- </node> -->
 </launch>
