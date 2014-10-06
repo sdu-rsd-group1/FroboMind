@@ -10,16 +10,16 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ros::Publisher log_pub = n.advertise<UInt32>("robotics_log",1000);
   ros::Rate loop_rate(1); 
-  int count = 0;
+  int count = -1;
   while(ros::ok())
   {
     UInt32 err;
     err.data = 0x100+count;
     log_pub.publish(err);
-
+	ROS_INFO("[%d]",err.data);
     ros::spinOnce();
     loop_rate.sleep();
-    ++count;
+    count++;
   }
 
   return 0;
