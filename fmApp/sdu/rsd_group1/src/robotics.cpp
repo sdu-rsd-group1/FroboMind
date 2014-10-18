@@ -3,24 +3,26 @@
 
 #include <sstream>
 using namespace std_msgs;
+using namespace std;
+using namespace ros;
 
 int main(int argc, char **argv)
 {
-  ros::init(argc,argv, "Robotics");
-  ros::NodeHandle n;
-  ros::Publisher log_pub = n.advertise<UInt32>("robotics_log",1000);
-  ros::Rate loop_rate(1); 
-  int count = -1;
-  while(ros::ok())
-  {
-    UInt32 err;
-    err.data = 0x100+count;
-    log_pub.publish(err);
-	ROS_INFO("[%d]",err.data);
-    ros::spinOnce();
-    loop_rate.sleep();
-    count++;
-  }
+  	init(argc,argv, "Robotics");
+  	NodeHandle n;
+  	Publisher log_pub = n.advertise<UInt32>("logging",1000);
 
-  return 0;
+	UInt32 err;
+	err.data = 0x100;	
+	Rate rate(1);
+	rate.sleep();
+	log_pub.publish(err);
+  
+	while(ros::ok())
+  	{
+	
+  	}
+
+
+  	return 0;
 }

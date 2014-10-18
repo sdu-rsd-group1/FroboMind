@@ -11,8 +11,8 @@ struct{
   unsigned int value;
   char* name;
 } err_code[] = {
-    { 0x00, "Started up" },
-    { 0x01, "Halted" }
+    	{ 0x00, "Started up" },
+    	{ 0x01, "Halted" }
 };
 
 //-------------------------------------------------------------//
@@ -26,7 +26,7 @@ string err2msg(unsigned int code)
 	string node("");
 	if(code < 0x100)
 	{
-		node.append("HMI: ");
+		node.append("Other: ");
 		new_code = code;
 	}
 	else if(code < 0x200)
@@ -39,10 +39,15 @@ string err2msg(unsigned int code)
 		node.append("Vision: ");
 		new_code = code-0x200;
 	}
+	else if(code < 0x400)
+	{
+		node.append("Conveyor: ");
+		new_code = code-0x300;
+	}
 	else
 	{
 		node.append("Unknown node: ");
-		new_code = code-0x300;
+		new_code = code-0x400;
 	}
 
     for (int i = 0; err_code[i].name; ++i)
@@ -59,7 +64,7 @@ node.append("unknown");
 void logCallback(const UInt32::ConstPtr& log)
 {
 	std::string error(err2msg(log->data));
-
+	cout << "[0x" << hex << log->data << "] " << error << endl;
 	t = time(0);   // get time now
      struct tm * now = localtime( & t );
 
@@ -73,15 +78,13 @@ int main(int argc, char**argv)
 {
   ros::init(argc,argv,"HMI");
   ros::NodeHandle n;
-  ros::Subscriber robotics_log_sub = n.subscribe("robotics_log",1000,logCallback);
-  ros::Subscriber vision_log_sub = n.subscribe("vision_log",1000,logCallback);
-  ros::Subscriber other_log_sub = n.subscribe("other_log",1000,logCallback);
+  ros::Subscriber log_sub = n.subscribe("logging",1000,logCallback);
 
      t = time(0);   // get time now
      struct tm * now = localtime( & t );
 
      char buffer [80];
-     strftime (buffer,80,"./roswork/HMI_Logs/%H:%M:%S_%d-%m-%Y.txt",now);
+     strftime (buffer,80,"%H:%M:%S_%d-%m-%Y.txt",now);
 
      logfile.open (buffer);
      if(logfile.is_open())

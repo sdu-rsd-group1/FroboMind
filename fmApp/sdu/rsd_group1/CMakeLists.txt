@@ -18,3 +18,6 @@ target_link_libraries(robotics ${catkin_LIBRARIES})
 
 add_executable(hmi src/hmi.cpp)
 target_link_libraries(hmi ${catkin_LIBRARIES})
+
+add_executable(conveyor_test_node src/conveyor_test.cpp)
+target_link_libraries(conveyor_test_node ${catkin_LIBRARIES})

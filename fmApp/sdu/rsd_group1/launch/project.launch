@@ -1,0 +1,5 @@
+<launch>
+  <node name="hmi_node" pkg="rsd_group1" type="hmi" cwd="node"/>
+  <node name="plc_communication_node" pkg="rsd_group1" type="plc_com.py" />
+  <node name="conveyor_test" pkg="rsd_group1" type="conveyor_test_node" />
+</launch>
