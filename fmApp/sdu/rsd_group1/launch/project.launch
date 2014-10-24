@@ -14,6 +14,6 @@
     <remap from="image" to="/usb_cam/image_raw"/>
     <param name="autosize" value="true" />
   </node>
- <node pkg="rsd_vision" name="convert" type="convert_image.py">
+ <node pkg="rsd_group1" name="convert" type="convert_image.py">
 </node>
 </launch>
