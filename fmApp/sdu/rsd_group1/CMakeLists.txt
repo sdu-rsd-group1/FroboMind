@@ -2,15 +2,20 @@ cmake_minimum_required(VERSION 2.8.3)
 project(rsd_group1)
 
 find_package(catkin REQUIRED COMPONENTS
+  cv_bridge
   roscpp
   rospy
+  sensor_msgs
   std_msgs
 )
+
+find_package(OpenCV REQUIRED)
 
 catkin_package()
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 add_executable(robotics src/robotics.cpp)
