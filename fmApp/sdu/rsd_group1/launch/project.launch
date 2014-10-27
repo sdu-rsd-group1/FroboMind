@@ -1,8 +1,8 @@
 <launch>
-  <node name="HMI" pkg="qt_test" type="qt_test" cwd="node"/>
+<!--  <node name="HMI" pkg="qt_test" type="qt_test" cwd="node"/>
   <node name="plc_communication_node" pkg="rsd_group1" type="plc_com.py" />
 
-<!--  <node name="hmi_node" pkg="rsd_group1" type="hmi" cwd="node"/>
+  <node name="hmi_node" pkg="rsd_group1" type="hmi" cwd="node"/> -->
 
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video0" />
@@ -17,5 +17,5 @@
     <param name="autosize" value="true" />
   </node>
  <node pkg="rsd_group1" name="convert" type="convert_image.py">
-</node> -->
+</node> 
 </launch>
