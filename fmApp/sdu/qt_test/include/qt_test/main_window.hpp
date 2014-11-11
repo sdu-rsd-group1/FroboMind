@@ -15,6 +15,8 @@
 #include <QtGui/QMainWindow>
 #include "ui_main_window.h"
 #include "qnode.hpp"
+#include <std_msgs/UInt32.h>
+#include <QTimer>
 
 /*****************************************************************************
 ** Namespace
@@ -35,6 +37,8 @@ public:
 	MainWindow(int argc, char** argv, QWidget *parent = 0);
 	~MainWindow();
 
+    QTimer *timer;
+
 	void closeEvent(QCloseEvent *event); // Overloaded function
 
 
@@ -44,10 +48,16 @@ public Q_SLOTS:
     void btn_con2_start_clicked();
     void btn_con1_direction_clicked();
     void btn_con2_direction_clicked();
+    void btn_grip_grasp_pressed();
+    void btn_grip_release_pressed();
+    void btn_test_robot_pressed();
     /******************************************
     ** Manual connections
     *******************************************/
     void updateLoggingView(); // no idea why this can't connect automatically
+
+        void MyTimerSlot();
+
 
 
 private:
@@ -58,6 +68,10 @@ private:
 
     bool con2_start;
     bool con2_dir;
+
+    std_msgs::UInt32 msg;
+    int grip_pos;
+
 };
 
 }  // namespace qt_test

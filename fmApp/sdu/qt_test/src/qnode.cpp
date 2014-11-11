@@ -18,6 +18,9 @@
 #include "fstream"
 #include <sstream>
 #include "../include/qt_test/qnode.hpp"
+#include "wsg_50_common/Move.h"
+#include "wsg_50_common/Status.h"
+#include "rx60controller/command.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -29,13 +32,36 @@ namespace qt_test {
 ** Implementation
 *****************************************************************************/
 
+rx60controller::commandRequest cmdReq;
+rx60controller::commandResponse cmdRes;
+
+rx60controller::commandRequest cmdIdle;
+
 struct{
   unsigned int value;
   char* name;
 } err_code[] = {
-        { 0x00, "Started up" },
-        { 0x01, "Halted" }
+    { 0x00, "Started up" },
+    { 0x01, "Halted" },
+    { 0x02, "1, Started" },
+    { 0x03, "2, Started" },
+    { 0x04, "1, Stopped" },
+    { 0x05, "2, Stopped" },
+    { 0x06, "1, Going forward" },
+    { 0x07, "2, Going forward" },
+    { 0x08, "1, Going backwards" },
+    { 0x09, "2, Going backwards" }
 };
+
+void QNode::grasp()
+{
+    client_grasp.call(srv_grasp);
+}
+
+void QNode::release()
+{
+    client_release.call(srv_release);
+}
 
 string err2msg(unsigned int code)
 {
@@ -90,7 +116,22 @@ void QNode::logCallback(const std_msgs::UInt32::ConstPtr& logmsg)
      char timeBuf [80];
      strftime (timeBuf,80,"%H:%M:%S",now);
     ss <<  timeBuf << ": [0x" << hex << logmsg->data << "] " << error << endl;
-    logfile << ss;
+    logfile << ss.rdbuf();
+    log(ss.str());
+}
+
+void QNode::dummyCallback(std_msgs::UInt32 logmsg)
+{
+    std::string error(err2msg(logmsg.data));
+    std::stringstream ss;
+
+    t = time(0);   // get time now
+     struct tm * now = localtime( & t );
+
+     char timeBuf [80];
+     strftime (timeBuf,80,"%H:%M:%S",now);
+    ss <<  timeBuf << ": [0x" << hex << logmsg.data << "] " << error << endl;
+    logfile << ss.rdbuf();
     log(ss.str());
 }
 
@@ -108,16 +149,52 @@ QNode::~QNode() {
 	wait();
 }
 
+void QNode::gripCallback(const wsg_50_common::Status::ConstPtr& msg)
+{
+    force = msg->force;
+    position = msg->width;
+}
+
+void QNode::test_robot(void)
+{
+    robot_client.call(cmdIdle,cmdRes);
+}
+
 bool QNode::init() {
     ros::init(init_argc,init_argv,"HMI");
 	if ( ! ros::master::check() ) {
 		return false;
 	}
+
+    cmdIdle.command_number = rx60controller::commandRequest::SET_JOINT_CONFIGURATION;
+    cmdIdle.joint1 = 110;
+    cmdIdle.joint2 = -10;
+    cmdIdle.joint3 = -12;
+    cmdIdle.joint4 = -5;
+    cmdIdle.joint5 = -23;
+    cmdIdle.joint6 = 0;
+
+
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
+    grip_sub = n.subscribe("/wsg_50_driver/status",1000,&QNode::gripCallback, this);
     command_pub = n.advertise<std_msgs::String>("serial_com",1000);
 	start();
+
+    client_grasp = n.serviceClient<wsg_50_common::Move>("/wsg_50_driver/grasp");
+    srv_grasp.request.width = 15;
+    srv_grasp.request.speed = 420;
+
+    client_grasp.call(srv_grasp);
+
+    client_release = n.serviceClient<wsg_50_common::Move>("/wsg_50_driver/release");
+    srv_release.request.width = 75;
+    srv_release.request.speed = 420;
+
+    robot_client = n.serviceClient<rx60controller::command>("/bpDrivers/rx60_controller/rx60_command");
+
+    client_release.call(srv_release);
 
     send_command("1On");
 	return true;

@@ -13,6 +13,7 @@
 #include <QMessageBox>
 #include <iostream>
 #include "../include/qt_test/main_window.hpp"
+#include <std_msgs/UInt32.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -30,6 +31,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	: QMainWindow(parent)
 	, qnode(argc,argv)
 {
+    grip_pos = 0;
     con1_start = false;
     con2_start = false;
     con1_dir = 1;
@@ -50,6 +52,19 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(ui.btn_con2_start, SIGNAL(clicked()), this, SLOT(btn_con2_start_clicked()));
     QObject::connect(ui.btn_con1_change, SIGNAL(clicked()), this, SLOT(btn_con1_direction_clicked()));
     QObject::connect(ui.btn_con2_change, SIGNAL(clicked()), this, SLOT(btn_con2_direction_clicked()));
+    QObject::connect(ui.btn_grip_grasp, SIGNAL(pressed()), this, SLOT(btn_grip_grasp_pressed()));
+    QObject::connect(ui.btn_grip_release, SIGNAL(pressed()), this, SLOT(btn_grip_release_pressed()));
+    QObject::connect(ui.btn_test_robot, SIGNAL(pressed()), this, SLOT(btn_test_robot_pressed()));
+
+    // create a timer
+    timer = new QTimer(this);
+
+    // setup signal and slot
+    connect(timer, SIGNAL(timeout()),
+          this, SLOT(MyTimerSlot()));
+
+    // msec
+    timer->start(500);
 
     /*********************
     ** Auto Start
@@ -94,6 +109,8 @@ void qt_test::MainWindow::btn_con1_start_clicked()
         ui.btn_con1_start->setText("Stop");
         ui.btn_con1_start->setStyleSheet("background-color: red");
         qnode.send_command("1On");
+        msg.data = 0x302;
+        qnode.dummyCallback(msg);
     }
     else
     {
@@ -101,6 +118,8 @@ void qt_test::MainWindow::btn_con1_start_clicked()
         ui.btn_con1_start->setText("Start");
         ui.btn_con1_start->setStyleSheet("background-color: green");
         qnode.send_command("1Off");
+        msg.data = 0x304;
+        qnode.dummyCallback(msg);
     }
 }
 
@@ -112,6 +131,8 @@ void qt_test::MainWindow::btn_con2_start_clicked()
         ui.btn_con2_start->setText("Stop");
         ui.btn_con2_start->setStyleSheet("background-color: red");
         qnode.send_command("2On");
+        msg.data = 0x303;
+        qnode.dummyCallback(msg);
     }
     else
     {
@@ -119,6 +140,8 @@ void qt_test::MainWindow::btn_con2_start_clicked()
         ui.btn_con2_start->setText("Start");
         ui.btn_con2_start->setStyleSheet("background-color: green");
         qnode.send_command("2Off");
+        msg.data = 0x305;
+        qnode.dummyCallback(msg);
     }
 }
 
@@ -129,12 +152,16 @@ void qt_test::MainWindow::btn_con1_direction_clicked()
         MainWindow::con1_dir = 0;
         ui.lbl_con1_dir->setText("Direction: Reverse");
         qnode.send_command("1Reverse");
+        msg.data = 0x308;
+        qnode.dummyCallback(msg);
     }
     else
     {
         MainWindow::con1_dir = 1;
         ui.lbl_con1_dir->setText("Direction: Forward");
         qnode.send_command("1Forward");
+        msg.data = 0x306;
+        qnode.dummyCallback(msg);
     }
 }
 
@@ -145,11 +172,36 @@ void qt_test::MainWindow::btn_con2_direction_clicked()
         MainWindow::con2_dir = 0;
         ui.lbl_con2_dir->setText("Direction: Forward");
         qnode.send_command("2Reverse");
+        msg.data = 0x307;
+        qnode.dummyCallback(msg);
     }
     else
     {
         MainWindow::con2_dir = 1;
         ui.lbl_con2_dir->setText("Direction: Reverse");
         qnode.send_command("2Forward");
+        msg.data = 0x309;
+        qnode.dummyCallback(msg);
     }
+}
+
+void qt_test::MainWindow::MyTimerSlot()
+{
+    ui.value_force->setText(QString::number(qnode.force));
+    ui.value_pos->setText(QString::number(qnode.position));
+}
+
+void qt_test::MainWindow::btn_grip_release_pressed()
+{
+  qnode.release();
+}
+
+void qt_test::MainWindow::btn_grip_grasp_pressed()
+{
+  qnode.grasp();
+}
+
+void qt_test::MainWindow::btn_test_robot_pressed()
+{
+    qnode.test_robot();
 }
