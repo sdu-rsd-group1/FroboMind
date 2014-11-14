@@ -9,41 +9,46 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
+from Lego_Brick import LegoBrick
+
+
+
+
 
 
 def getBricks(contours, color):
     #Get a list of contours and extracts the bricks
     bricks = []
+    tempList = []
     for cnt in contours:
         if contourArea(cnt) > 300:
             #Rectangle data is (x, y) (width, height) (angle)
             rect = minAreaRect(cnt)
             bricks.append(rect)
             sort(rect[1], False)
-            aspect = rect[1][1]/rect[1][0]
+
             #print "Width: " + str(rect[1][0]) + "height: " + str(rect[1][1])
             #print "Aspect " + str(aspect)
             #Thresholds the brick
-            if aspect < 0.5 or aspect > 1.5:
-                size = "long"
-            else:
-                size = "short"
 
-            print ".................."
-            print "Brick type is: " + size + " " + str(color)
-            print "Brick pose is:"
-            print "x: " + str(rect[1][0]) + " y: " + str(rect[1][1])
-            print "Angle: " + str(rect[2]) + " Deg"
 
-    return bricks
+            # print ".................."
+            # print "Brick type is: " + size + " " + str(color)
+            # print "Brick pose is:"
+            # print "x: " + str(rect[0][0]) + " y: " + str(rect[0][1])
+            # print "Angle: " + str(rect[2]) + " Deg"
+
+            tempList.append(LegoBrick(rect,color,1))
+
+    return bricks, tempList
 
 
 class image_converter:
 
-
-
-	
   def __init__(self):
+    self.orderList = []
+    self.pBrickList = []
+    self.brickList = []
     self.image_pub = rospy.Publisher("image_topic_2",Image)
     cv2.namedWindow("Image window", 1)
     self.bridge = CvBridge()
@@ -57,26 +62,28 @@ class image_converter:
       print e
 
     (rows,cols,channels) = cv_image.shape
-    if cols > 60 and rows > 60 :
-      cv2.circle(cv_image, (250,250), 10, 255)
+  
 
 #------------------------------------------------
 
-    color = 'yellow'
-    # cap = VideoCapture(0)
-    #_, frame = cap.read()
-
+    print "Printing length of bricklist: "
+    print str(len(self.brickList))
     test = False
+
+
+
     img = cv_image	# imread('frame0001.jpg', CV_32FC1)  # ("src", img)
 
     colorRange = 10
 
+    crop_img = img[0:300, 220:460]
+    img = crop_img
     img = GaussianBlur(img, (5, 5), 0)
 
     redHue = 0
     blueHue = 110
     yellowHue = 26
-    intencity = 35
+    intencity = 70
     hsv = cvtColor(img, COLOR_BGR2HSV)  # convert to hsv
 
     #Color thresholds in HSV space
@@ -109,12 +116,13 @@ class image_converter:
     #imshow("Contours", mask)
 
     #Get the recrangles
-    print "Red contours"
-    rectRed = getBricks(contoursRed, "Red")
-    print "Blue contours"
-    rectBlue = getBricks(contoursBlue, "Blue")
-    print "Yellow contours"
-    rectYellow = getBricks(contoursYellow, "Yellow")
+   # print "Red contours"
+    rectRed, bricksRed = getBricks(contoursRed, "Red")
+   # print "Blue contours"
+    rectBlue, bricksBlue = getBricks(contoursBlue, "Blue")
+   # print "Yellow contours"
+    rectYellow, bricksYellow = getBricks(contoursYellow, "Yellow")
+
 
     for rect in rectRed:
         box = cv.BoxPoints(rect)
@@ -130,6 +138,42 @@ class image_converter:
         drawContours(img, [box], -1, (0, 255, 255), 2)
   
 ##    imshow("Show", img)
+
+    self.pBrickList = bricksRed + bricksBlue + bricksYellow
+
+    #Find matches
+    for brick in self.brickList:
+        for pBrick in self.pBrickList:
+            tempX = abs(brick.x-pBrick.x)
+            tempY = abs(brick.y - pBrick.y)
+            if tempX < 10 and tempY < 10:
+                brick.addPos(pBrick.x, pBrick.y)
+                self.pBrickList.remove(pBrick)
+
+
+    #Find new bricks
+    for pBrick in self.pBrickList:
+        if pBrick.y > 100:
+            self.brickList.append(pBrick)
+
+    #Add bricks to orderList
+    for brick in self.brickList:
+        if brick.y < 50:
+            brick.timeEnd = brick.timeStart + 1
+            brick.setEndPos(brick.x, brick.y)
+            brick.calcSpeed()
+            self.orderList.append(brick)
+            print "Adding brick to order list: "
+            print str(brick.getInfo())
+            self.brickList.remove(brick)
+
+#    for brick in brickList:
+ #       print brick.getInfo()
+
+    pBrickList = []
+    print "Printing order list: "
+    for brick in self.orderList:
+        print brick.getInfo()
 
 
 #------------------------------------------------

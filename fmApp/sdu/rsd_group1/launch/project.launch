@@ -1,13 +1,7 @@
-<?xml version="1.0"?>
 <launch>
-  <node name="wsg_50_driver"  pkg="wsg_50_driver" type="wsg_50_ip">
-	<param name="ip" type="string" value="172.16.1.20"/>
-	<param name="port" type="int" value="1000"/>
-  </node>
-  <node name="HMI" pkg="qt_test" type="qt_test" cwd="node"/>
-=======
 <!--  <node name="HMI" pkg="qt_test" type="qt_test" cwd="node"/>
   <node name="plc_communication_node" pkg="rsd_group1" type="plc_com.py" />
+
   <node name="hmi_node" pkg="rsd_group1" type="hmi" cwd="node"/> -->
 
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
@@ -18,10 +12,15 @@
     <param name="camera_frame_id" value="usb_cam" />
     <param name="io_method" value="mmap"/>
   </node>
+<!--
   <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
     <remap from="image" to="/usb_cam/image_raw"/>
     <param name="autosize" value="true" />
   </node>
+
+  <node pkg="rosbag" name="play" type="play" args="/home/ditlev/roswork/src/fmApp/sdu/rsd_group1/videoStream.bag" respawn="true">
+  </node>
+-->
  <node pkg="rsd_group1" name="convert" type="convert_image.py">
 </node> 
 </launch>
