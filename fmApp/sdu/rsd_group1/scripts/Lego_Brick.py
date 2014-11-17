@@ -26,16 +26,16 @@ class LegoBrick:
         self.endX = x
         self.endY = y
 
-    def __init__(self, brick, color, time):
-        self.brick = brick
+    def __init__(self, xinp, yinp, anginp, color, time):
         self.color = color
         self.timeStart = time
-        self.x = brick[0][0]
-        self.y = brick[0][1]
-        self.startX = brick[0][0]
-        self.startY = brick[0][1]
+        self.x = xinp
+        self.y = yinp
+        self.startX = xinp
+        self.startY = yinp
         self.addPos(self.x, self.y)
-        self.angle = brick[2]
+        self.angle = anginp
+        print "Adding angle to brick: " + str(self.angle)
 
     def getInfo(self):
         return "Color: " + str(self.color) + "\n StartX: " + str(self.startX) + \

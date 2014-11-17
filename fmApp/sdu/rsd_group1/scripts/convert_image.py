@@ -36,9 +36,10 @@ def getBricks(contours, color):
             # print "Brick type is: " + size + " " + str(color)
             # print "Brick pose is:"
             # print "x: " + str(rect[0][0]) + " y: " + str(rect[0][1])
-            # print "Angle: " + str(rect[2]) + " Deg"
+            tempAngle = rect[2]
+            print "Angle: " + str(tempAngle) + " Deg"
 
-            tempList.append(LegoBrick(rect,color,1))
+            tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time()))
 
     return bricks, tempList
 
@@ -49,6 +50,10 @@ class image_converter:
     self.orderList = []
     self.pBrickList = []
     self.brickList = []
+    self.trashList = []
+    self.ordersRed = 0
+    self.ordersBlue = 0
+    self.ordersYellow = 0
     self.image_pub = rospy.Publisher("image_topic_2",Image)
     cv2.namedWindow("Image window", 1)
     self.bridge = CvBridge()
@@ -156,21 +161,40 @@ class image_converter:
         if pBrick.y > 100:
             self.brickList.append(pBrick)
 
-    #Add bricks to orderList
+    #Add bricks to orderList or trashList
     for brick in self.brickList:
         if brick.y < 50:
-            brick.timeEnd = brick.timeStart + 1
+            brick.timeEnd = rospy.get_time()
             brick.setEndPos(brick.x, brick.y)
             brick.calcSpeed()
-            self.orderList.append(brick)
-            print "Adding brick to order list: "
-            print str(brick.getInfo())
+
+
+            if brick.color == "Red" and self.ordersRed != 0:
+                self.orderList.append(brick)
+                self.ordersRed = self.ordersRed - 1
+                print "Adding brick to orderlist"
+            elif brick.color == "Blue" and self.ordersBlue != 0:
+                self.orderList.append(brick)
+                self.ordersBlue = self.ordersBlue - 1
+                print "Adding brick to orderlist"
+            elif brick.color == "Yellow" and self.ordersYellow != 0:
+                self.orderList.append(brick)
+                self.ordersYellow = self.ordersYellow - 1
+                print "Adding brick to orderlist"
+            else:
+                self.trashList.append(brick)
+                print "Adding brick to trashList"
+
             self.brickList.remove(brick)
 
 #    for brick in brickList:
  #       print brick.getInfo()
 
     pBrickList = []
+    print "Printing order list: "
+    for brick in self.orderList:
+        print brick.getInfo()
+
     print "Printing order list: "
     for brick in self.orderList:
         print brick.getInfo()
