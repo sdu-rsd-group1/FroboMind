@@ -14,15 +14,24 @@ from rsd_group1.msg import Num
 
 
 
-
-
-
 def getBricks(contours, color):
     #Get a list of contours and extracts the bricks
     bricks = []
     tempList = []
+
+    areaReq = 0
+    if color == "Blue":
+        areaReqMin = 300
+        areaReqMax = 1000
+    elif color == "Red":
+        areaReqMin = 500
+        areaReqMax = 2000
+    elif color == "Yellow":
+        areaReqMin = 700
+        areaReqMax = 3000
+
     for cnt in contours:
-        if contourArea(cnt) > 300:
+        if contourArea(cnt) > areaReqMin and contourArea(cnt) < areaReqMax:
             #Rectangle data is (x, y) (width, height) (angle)
             rect = minAreaRect(cnt)
             bricks.append(rect)
@@ -38,7 +47,6 @@ def getBricks(contours, color):
             # print "Brick pose is:"
             # print "x: " + str(rect[0][0]) + " y: " + str(rect[0][1])
             tempAngle = rect[2]
-            print "Angle: " + str(tempAngle) + " Deg"
 
             tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time()))
 
@@ -48,13 +56,27 @@ def getBricks(contours, color):
 class image_converter:
 
   def __init__(self):
+    
+    self.leaveThres = 50
+    self.enterThres = 230
+
+    #Dimenstions in meter
+    self.widthM = 0.15
+    self.lengthM = 0.30
+
+    #Dimenstions in pixel
+    self.widthP = 205
+    self.leftBorder = 3
+    self.rightBorder = self.leftBorder + self.widthP
+
     self.orderList = []
     self.pBrickList = []
     self.brickList = []
     self.trashList = []
-    self.ordersRed = 0
-    self.ordersBlue = 0
-    self.ordersYellow = 0
+    self.ordersRed = 2
+    self.ordersBlue = 1
+    self.ordersYellow = 1
+    self.avgSpeed = 0
     self.image_pub = rospy.Publisher("image_topic_2",Image)
     cv2.namedWindow("Image window", 1)
     self.bridge = CvBridge()
@@ -145,6 +167,14 @@ class image_converter:
   
 ##    imshow("Show", img)
 
+    #Horisontal lines
+    line(img, (0, self.enterThres), (240, self.enterThres),(255,0,0),1)
+    line(img, (0, self.leaveThres), (240, self.leaveThres),(255,0,0),1)
+
+    #Vertical lines
+    line(img, (self.leftBorder, 0), (self.leftBorder, 300),(0,255,0),1)
+    line(img, (self.rightBorder, 0), (self.rightBorder, 300),(0,255,0),1)
+
     self.pBrickList = bricksRed + bricksBlue + bricksYellow
 
     #Find matches
@@ -159,16 +189,16 @@ class image_converter:
 
     #Find new bricks
     for pBrick in self.pBrickList:
-        if pBrick.y > 100:
+        if pBrick.y > self.enterThres:
             self.brickList.append(pBrick)
 
     #Add bricks to orderList or trashList
     for brick in self.brickList:
-        if brick.y < 50:
+        if brick.y < self.leaveThres:
             brick.timeEnd = rospy.get_time()
-            brick.setEndPos(brick.x, brick.y)
-            brick.calcSpeed()
-
+            brick.setEndPos(brick.x-self.leftBorder, brick.y)
+            brick.calcSpeed(self.enterThres-self.leaveThres, self.lengthM)
+            brick.setXPos(self.widthP, self.widthM)
 
             if brick.color == "Red" and self.ordersRed != 0:
                 self.orderList.append(brick)
@@ -196,20 +226,34 @@ class image_converter:
     for brick in self.orderList:
         print brick.getInfo()
 
-    print "Printing order list: "
-    for brick in self.orderList:
-        print brick.getInfo()
+    print "Printing trash list: "
+    for brick in self.trashList:
+        print brick.getInfo() + "\n"
 
+    #Make a temp list that contains both order and trashlist
+    tempList = self.trashList + self.orderList
+    speedList = []
+    if len(tempList) != 0:
+        tempSpeed = 0
+        for brick in tempList:
+            speedList.append(brick.getSpeed())
+            tempSpeed = tempSpeed + brick.getSpeed()
+        self.avgSpeed = tempSpeed/len(tempList)
 
+    print "Avg speed: " + str(self.avgSpeed)
+    if len(speedList) != 0:
+        speedList.sort()
+        medianSpeed = speedList[len(speedList)/2]
+        print "Median speed: " + str(medianSpeed)
 #------------------------------------------------
+
     cv2.imshow("Image window", img)
     cv2.waitKey(3)
-
 #-------------------publish list of bricks--------------------------------------------------------------------------------
 
     #b = LegoBrick()
 
-    pub = rospy.Publisher("brick", Num,queue_size=10)#, queue_size=10
+    pub = rospy.Publisher("brick", Num)#, queue_size=10
     a = Num()
     a.x = 12
     a.info = "hej"
@@ -235,4 +279,5 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv)
+
 
