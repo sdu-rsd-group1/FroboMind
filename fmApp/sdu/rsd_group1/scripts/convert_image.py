@@ -255,9 +255,15 @@ class image_converter:
 
     pub = rospy.Publisher("brick", Num)#, queue_size=10
     a = Num()
-    a.x = 12
-    a.info = "hej"
-    pub.publish(a)
+
+    for brick in self.orderList:
+				a.color = brick.color
+				a.time = brick.timeStart
+				a.angle = brick.angle
+				a.x = brick.xPosOnBelt
+				a.speed = brick.speed
+#		    a.info = "hej"
+				pub.publish(a)
 
 #-------------------publish list of bricks--------------------------------------------------------------------------------
 
