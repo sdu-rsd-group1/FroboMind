@@ -10,6 +10,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from Lego_Brick import LegoBrick
+from rsd_group1.msg import Num
 
 
 
@@ -203,6 +204,19 @@ class image_converter:
 #------------------------------------------------
     cv2.imshow("Image window", img)
     cv2.waitKey(3)
+
+#-------------------publish list of bricks--------------------------------------------------------------------------------
+
+    #b = LegoBrick()
+
+    pub = rospy.Publisher("brick", Num,queue_size=10)#, queue_size=10
+    a = Num()
+    a.x = 12
+    a.info = "hej"
+    pub.publish(a)
+
+#-------------------publish list of bricks--------------------------------------------------------------------------------
+
 
     try:
 #      self.image_pub.publish(self.bridge.cv2_to_imgmsg(cv_image, "bgr8"))

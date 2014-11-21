@@ -7,11 +7,24 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+	message_generation
 )
 
 find_package(OpenCV REQUIRED)
 
-catkin_package()
+add_message_files(
+  FILES
+  Num.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
+catkin_package(
+CATKIN_DEPENDS message_runtime
+)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
