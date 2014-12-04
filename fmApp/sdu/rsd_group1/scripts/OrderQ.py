@@ -6,43 +6,64 @@ from rsd_group1.msg import Num
 
 
 
-#class order:
-#    def __init__(self):
-#        self.orderList = []    
-#        self.trashList = []
-#        self.ordersRed = 2
-#        self.ordersBlue = 1
-#        self.ordersYellow = 1
+orderList = []    
+trashList = []
+ordersRed = 2
+ordersBlue = 1
+ordersYellow = 1
+
 
 def talker():
-		pub = rospy.Publisher('chatter', String, queue_size=10)
-		str = "hello world %s"%rospy.get_time()
+    global orderList    
+    global trashList
+    global ordersRed
+    global ordersBlue
+    global ordersYellow
+    pub = rospy.Publisher('nextbrick', Num, queue_size=10)
+#		str = "hello world %s"%rospy.get_time()
 #    rospy.loginfo(str)
-		pub.publish(str)
+    pub.publish(orderList[1])
+    del orderList[1]
 
 def callback(brick):
-    print brick.color
-#    if brick.color == "Red" and self.ordersRed != 0:
-#        self.orderList.append(brick)
-#        self.ordersRed = self.ordersRed - 1
+    global orderList    
+    global trashList
+    global ordersRed
+    global ordersBlue
+    global ordersYellow
+    #print brick.color
+    if brick.color == "Red" and ordersRed != 0:
+        orderList.append(brick)
+        ordersRed = ordersRed - 1
+        print "filling orderlist red"
+    if brick.color == "Blue" and ordersBlue != 0:
+        orderList.append(brick)
+        ordersBlue = ordersBlue - 1
+        print "filling orderlist Blue"
+    if brick.color == "Yellow" and ordersYellow != 0:
+        orderList.append(brick)
+        ordersYellow = ordersYellow - 1
+        print "filling orderlist Yellow"
 
 def listener():
 		rospy.Subscriber("brick", Num, callback)#sub the bricks from the vision node.
-				#print "listener"
-		rospy.spin()
+		#print "listener"
 
+def robocallback(brick):
+    talker()		#this should be placed after/at a request from robotic node
+    print "give me bricks"
 
+def robolisten():
+    rospy.Subscriber("brick2pic", Num, robocallback)#sub the bricks from the vision node.
 
 if __name__ == '__main__':
     try:
         rospy.init_node('OrderQ', anonymous=True)
-#        order = order()
-        while not rospy.is_shutdown():
-#            r = rospy.Rate(10) # 10hz
-            #talker()
-            listener()
-#            r.sleep()
-            print "hell"
+        #while not rospy.is_shutdown():
+        #talker()
+        listener()
+        #print "hell"
+        rospy.spin()
     except rospy.ROSInterruptException: pass
 
 
