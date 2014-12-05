@@ -6,7 +6,7 @@ using namespace ros;
 
 int main(int argc, char**argv)
 {
-  init(argc,argv,"Conveyor_test_node");
+  init(argc,argv,"Conveyor_node");
 
 NodeHandle n;
 Publisher string_pub = n.advertise<String>("serial_com",1000);
