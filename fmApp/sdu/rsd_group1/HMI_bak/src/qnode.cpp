@@ -15,27 +15,21 @@
 #include <string>
 #include <std_msgs/String.h>
 #include <std_msgs/UInt32.h>
+
 #include "fstream"
 #include <sstream>
-#include "../include/qt_test/qnode.hpp"
+#include "../include/HMI/qnode.hpp"
 #include "wsg_50_common/Move.h"
 #include "wsg_50_common/Status.h"
-#include "rx60controller/command.h"
 
-/*****************************************************************************
-** Namespaces
-*****************************************************************************/
-using namespace std;
-namespace qt_test {
+
+namespace HMI {
 
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
 
-rx60controller::commandRequest cmdReq;
-rx60controller::commandResponse cmdRes;
 
-rx60controller::commandRequest cmdIdle;
 
 struct{
   unsigned int value;
@@ -52,16 +46,6 @@ struct{
     { 0x08, "1, Going backwards" },
     { 0x09, "2, Going backwards" }
 };
-
-void QNode::grasp()
-{
-    client_grasp.call(srv_grasp);
-}
-
-void QNode::release()
-{
-    client_release.call(srv_release);
-}
 
 string err2msg(unsigned int code)
 {
@@ -135,10 +119,27 @@ void QNode::dummyCallback(std_msgs::UInt32 logmsg)
     log(ss.str());
 }
 
+void QNode::robPosCallback(const std_msgs::Float32MultiArray::ConstPtr& msg)
+{
+    current_config[0] = msg->data[0];
+    current_config[1] = msg->data[1];
+    current_config[2] = msg->data[2];
+    current_config[3] = msg->data[3];
+    current_config[4] = msg->data[4];
+    current_config[5] = msg->data[5];
+
+    current_pose[0] = msg->data[6];
+    current_pose[1] = msg->data[7];
+    current_pose[2] = msg->data[8];
+    current_pose[3] = msg->data[9];
+    current_pose[4] = msg->data[10];
+    current_pose[5] = msg->data[11];
+}
+
 QNode::QNode(int argc, char** argv ) :
 	init_argc(argc),
 	init_argv(argv)
-    {}
+    {cout << "qnode constructor" << endl;}
 
 QNode::~QNode() {
     if(ros::isStarted()) {
@@ -149,59 +150,31 @@ QNode::~QNode() {
 	wait();
 }
 
-void QNode::gripCallback(const wsg_50_common::Status::ConstPtr& msg)
-{
-    force = msg->force;
-    position = msg->width;
-}
-
-void QNode::test_robot(void)
-{
-    robot_client.call(cmdIdle,cmdRes);
-}
-
 bool QNode::init() {
     ros::init(init_argc,init_argv,"HMI");
 	if ( ! ros::master::check() ) {
 		return false;
 	}
 
-    cmdIdle.command_number = rx60controller::commandRequest::SET_JOINT_CONFIGURATION;
-    cmdIdle.joint1 = 110;
-    cmdIdle.joint2 = -10;
-    cmdIdle.joint3 = -12;
-    cmdIdle.joint4 = -5;
-    cmdIdle.joint5 = -23;
-    cmdIdle.joint6 = 0;
-
+    cout << "qnode start" << endl;
 
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
-    grip_sub = n.subscribe("/wsg_50_driver/status",1000,&QNode::gripCallback, this);
+    rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
     command_pub = n.advertise<std_msgs::String>("serial_com",1000);
+
 	start();
 
-    client_grasp = n.serviceClient<wsg_50_common::Move>("/wsg_50_driver/grasp");
-    srv_grasp.request.width = 15;
-    srv_grasp.request.speed = 420;
-
-    client_grasp.call(srv_grasp);
-
-    client_release = n.serviceClient<wsg_50_common::Move>("/wsg_50_driver/release");
-    srv_release.request.width = 75;
-    srv_release.request.speed = 420;
-
-    robot_client = n.serviceClient<rx60controller::command>("/bpDrivers/rx60_controller/rx60_command");
-
-    client_release.call(srv_release);
-
     send_command("1On");
+    cout << "init end" << endl;
+
 	return true;
 }
 
 void QNode::run() {
 
+    cout << "run start" << endl;
     t = time(0);   // get time now
     struct tm * now = localtime( & t );
 
@@ -209,9 +182,15 @@ void QNode::run() {
     strftime (buffer,80,"%H:%M:%S_%d-%m-%Y.txt",now);
 
     logfile.open (buffer);
+    ros::Rate Loop_rate(100);
+    cout << "running" << endl;
     if(logfile.is_open())
     {
-       ros::spin();
+       while(ros::ok())
+       {
+           ros::spinOnce();
+           Loop_rate.sleep();
+       }
     }
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
@@ -223,7 +202,6 @@ void QNode::send_command(string commandmsg)
     command_pub.publish(msg);
 }
 
-
 void QNode::log(const std::string &msg) {
 	logging_model.insertRows(logging_model.rowCount(),1);
 	std::stringstream logging_model_msg;
@@ -233,4 +211,5 @@ void QNode::log(const std::string &msg) {
 	Q_EMIT loggingUpdated(); // used to readjust the scrollbar
 }
 
-}  // namespace qt_test
+
+}  // namespace HMI

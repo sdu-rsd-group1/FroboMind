@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <package>
-  <name>qt_test</name>
+  <name>HMI</name>
   <version>0.1.0</version>
   <description>
 
-     qt_test
+     HMI
 
   </description>
   <maintainer email="Robot@gmail.com">Robot</maintainer>

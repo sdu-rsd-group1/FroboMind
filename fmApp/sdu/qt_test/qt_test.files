@@ -1,8 +1,0 @@
-include/qt_test/main_window.hpp
-include/qt_test/qnode.hpp
-src/main.cpp
-src/main_window.cpp
-src/qnode.cpp
-resources/images/icon.png
-resources/images.qrc
-ui/main_window.ui

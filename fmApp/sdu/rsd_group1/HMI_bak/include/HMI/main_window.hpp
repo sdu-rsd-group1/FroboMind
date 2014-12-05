@@ -1,12 +1,12 @@
 /**
- * @file /include/qt_test/main_window.hpp
+ * @file /include/HMI/main_window.hpp
  *
- * @brief Qt based gui for qt_test.
+ * @brief Qt based gui for HMI.
  *
  * @date November 2010
  **/
-#ifndef qt_test_MAIN_WINDOW_H
-#define qt_test_MAIN_WINDOW_H
+#ifndef HMI_MAIN_WINDOW_H
+#define HMI_MAIN_WINDOW_H
 
 /*****************************************************************************
 ** Includes
@@ -22,7 +22,7 @@
 ** Namespace
 *****************************************************************************/
 
-namespace qt_test {
+namespace HMI {
 
 /*****************************************************************************
 ** Interface [MainWindow]
@@ -44,19 +44,37 @@ public:
 
 public Q_SLOTS:
 
-    void btn_con1_start_clicked();
-    void btn_con2_start_clicked();
-    void btn_con1_direction_clicked();
-    void btn_con2_direction_clicked();
-    void btn_grip_grasp_pressed();
-    void btn_grip_release_pressed();
-    void btn_test_robot_pressed();
+//    void btn_con1_start_clicked();
+//    void btn_con2_start_clicked();
+//    void btn_con1_direction_clicked();
+//    void btn_con2_direction_clicked();
+//    void btn_grip_grasp_pressed();
+//    void btn_grip_release_pressed();
+//    void btn_test_config_pressed();
+//    void btn_reset_config_pressed();
+
+//    void btn_set_position_clicked();
+
+//    void btn_x_axis_positive(){}
+//    void btn_y_axis_positive(){}
+//    void btn_z_axis_positive(){}
+//    void btn_rotate_positive(){}
+
+//    void btn_x_axis_negative(){}
+//    void btn_y_axis_negative(){}
+//    void btn_z_axis_negative(){}
+//    void btn_rotate_negative(){}
     /******************************************
     ** Manual connections
     *******************************************/
-    void updateLoggingView(); // no idea why this can't connect automatically
+//    void updateLoggingView(); // no idea why this can't connect automatically
 
-        void MyTimerSlot();
+//        void MyTimerSlot();
+
+//    void newest_configuration(double *configuration);
+//    void newest_pose(double *pose);
+
+
 
 
 
@@ -74,6 +92,6 @@ private:
 
 };
 
-}  // namespace qt_test
+}  // namespace HMI
 
-#endif // qt_test_MAIN_WINDOW_H
+#endif // HMI_MAIN_WINDOW_H

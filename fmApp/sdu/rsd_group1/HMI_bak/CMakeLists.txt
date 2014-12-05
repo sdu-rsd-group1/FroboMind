@@ -3,7 +3,13 @@
 ##############################################################################
 
 cmake_minimum_required(VERSION 2.8.0)
-project(qt_test)
+project(HMI)
+
+SET(RW_ROOT "/home/robot/RWPROJECTROOT/RobWork")
+
+SET(CMAKE_MODULE_PATH ${RW_ROOT}/build ${CMAKE_MODULE_PATH})
+FIND_PACKAGE(RobWork)
+LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 
 ##############################################################################
 # Catkin
@@ -31,7 +37,7 @@ rosbuild_prepare_qt4(QtCore QtGui) # Add the appropriate components to the compo
 
 file(GLOB QT_FORMS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ui/*.ui)
 file(GLOB QT_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} resources/*.qrc)
-file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS include/qt_test/*.hpp)
+file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS include/HMI/*.hpp)
 
 QT4_ADD_RESOURCES(QT_RESOURCES_CPP ${QT_RESOURCES})
 QT4_WRAP_UI(QT_FORMS_HPP ${QT_FORMS})
@@ -43,11 +49,14 @@ QT4_WRAP_CPP(QT_MOC_HPP ${QT_MOC})
 
 file(GLOB_RECURSE QT_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS src/*.cpp)
 
+
+include_directories(HMI ${catkin_INCLUDE_DIRS} ${ROBWORK_INCLUDE_DIR})
+
 ##############################################################################
 # Binaries
 ##############################################################################
 
-add_executable(qt_test ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
-target_link_libraries(qt_test ${QT_LIBRARIES} ${catkin_LIBRARIES})
-install(TARGETS qt_test RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+add_executable(HMI ${QT_SOURCES} ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_HPP})
+target_link_libraries(HMI ${QT_LIBRARIES} ${catkin_LIBRARIES}  ${ROBWORK_LIBRARIES})
+install(TARGETS HMI RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
