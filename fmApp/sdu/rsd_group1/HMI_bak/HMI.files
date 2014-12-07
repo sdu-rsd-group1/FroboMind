@@ -1,0 +1,11 @@
+include/HMI/main_window.hpp
+include/HMI/qnode.hpp
+resources/images/icon.png
+resources/images.qrc
+src/main.cpp
+src/main_window.cpp
+src/qnode.cpp
+ui/main_window.ui
+src/robot.cpp
+src/rw_object.hpp
+include/HMI/robot.hpp
