@@ -3,8 +3,10 @@
 namespace robot {
 
     robot::robot(ros::ServiceClient new_robot_client, ros::ServiceClient new_client_grasp, ros::ServiceClient new_client_release){
-        boxQ.set_Q_deg(88,-53,-55,-4,-73,2);
-        middleQ.set_Q_deg(130.7,-30.84,-91.58,-5.18,-59.36,43.35);
+        double b1 = BOXQ1;
+        double m1 = MIDDLEQ1;
+        boxQ.set_Q_deg(b1,BOXQ2,BOXQ3,BOXQ4,BOXQ5,BOXQ6);
+        middleQ.set_Q_deg(m1,MIDDLEQ2,MIDDLEQ3,MIDDLEQ4,MIDDLEQ5,MIDDLEQ6);
         zeroQ.set_Q_deg(0,0,0,0,0,0);
 
         currentWorkCell = WorkCellLoader::Factory::load("/home/robot/StaubliRX60_Scene/SceneStaubliRX60.wc.xml");
@@ -148,8 +150,8 @@ namespace robot {
         double rot = next_brick[2];
         Q_deg2rad currentQ = get_current_joints();
 
-        double z_up = (0.02/0.29)*(y-0.2) + 0.345;
-        if((x >= -0.3 && x <= -0.15) && (y >= 0.2 && y <= 0.49))
+        double z_up = ((PICKUP_BOX_ZPOS_UP-PICKUP_BOX_ZNEG_UP)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_UP;
+        if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
         {
             Vector3D<> new_pos(x,y,z_up);
             RPY<> new_RPY(rot,-0.078,-3.113);
@@ -199,8 +201,8 @@ namespace robot {
         double rot = next_brick[2];
         Q_deg2rad currentQ = get_current_joints();
 
-        double z_up = (0.02/0.29)*(y-0.2) + 0.345;
-        if((x >= -0.3 && x <= -0.15) && (y >= 0.2 && y <= 0.49))
+        double z_up = ((PICKUP_BOX_ZPOS_UP-PICKUP_BOX_ZNEG_UP)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_UP;
+        if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
         {
             Vector3D<> new_pos(x,y,z_up);
             RPY<> new_RPY(rot,-0.078,-3.113);
@@ -240,8 +242,8 @@ namespace robot {
         double rot = next_brick[2];
         Q_deg2rad currentQ = get_current_joints();
 
-        double z_down = (0.02/0.29)*(y-0.2) + 0.31 -(0.005/0.15)*(x+0.3);
-        if((x >= -0.3 && x <= -0.15) && (y >= 0.2 && y <= 0.49))
+        double z_down = ((PICKUP_BOX_ZPOS_DOWN-PICKUP_BOX_ZNEG_DOWN)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_DOWN;
+        if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
         {
             Vector3D<> new_pos(x,y,z_down);
             RPY<> new_RPY(rot,-0.078,-3.113);
@@ -273,77 +275,6 @@ namespace robot {
             return OUT_OF_BOUNDS;
         }
     }
-
-//    int robot::graspBrick(double x, double y, double rot)
-//    {
-//        Q_deg2rad currentQ = get_current_joints();
-
-//        Path<Q> toMiddlePath = OptimizedRRT(currentQ.get_Q_rad(),middleQ.get_Q_rad());
-
-//        for (int i = 0; i < (int)toMiddlePath.size(); i++)
-//        {
-//            Q_rad2deg config(double(toMiddlePath.data()[i][0]),double(toMiddlePath.data()[i][1]),double(toMiddlePath.data()[i][2]),double(toMiddlePath.data()[i][3]),double(toMiddlePath.data()[i][4]),double(toMiddlePath.data()[i][5]));
-//            set_robot_config(config);
-//        }
-
-//        RobotDevice->setQ(middleQ.get_Q_rad(),current_state);
-
-//        double z_up = (0.02/0.29)*(y-0.2) + 0.345;
-//        double z_down = (0.02/0.29)*(y-0.2) + 0.31 -(0.005/0.15)*(x+0.3);
-//        if((x >= -0.3 && x <= -0.15) && (y >= 0.2 && y <= 0.49))
-//        {
-//            Vector3D<> new_pos(x,y,z_up);
-//            RPY<> new_RPY(rot,-0.078,-3.113);
-//            Transform3D<> new_transform(new_pos,new_RPY.toRotation3D());
-
-//            cout << " new pose " << new_pos << endl << new_RPY << endl << new_transform << endl;
-
-//            rw::invkin::JacobianIKSolver solver(RobotDevice, current_state);
-//            std::vector<Q> solutions = solver.solve(new_transform, current_state);
-
-//            if(solutions.size() != 0)
-//            {
-
-//                Path<Q> MiddleToBrickPath = OptimizedRRT(currentQ.get_Q_rad(),solutions[0]);
-//                Q_rad2deg config;
-//                for (int i = 0; i < (int)MiddleToBrickPath.size(); i++)
-//                {
-//                    config.set_Q_rad(MiddleToBrickPath.data()[i][0],MiddleToBrickPath.data()[i][1],MiddleToBrickPath.data()[i][2],MiddleToBrickPath.data()[i][3],MiddleToBrickPath.data()[i][4],MiddleToBrickPath.data()[i][5]);
-//                    set_robot_config(config);
-//                }
-
-//                Vector3D<> new_pos2(x,y,z_down);
-//                RPY<> new_RPY2(rot,-0.078,-3.113);
-//                Transform3D<> new_transform2(new_pos2,new_RPY2.toRotation3D());
-
-//                cout << " new pose " << new_pos2 << endl << new_RPY2 << endl << new_transform2 << endl;
-
-//                std::vector<Q> solutions2 = solver.solve(new_transform2, current_state);
-
-//                if(solutions2.size() != 0)
-//                {
-//                    Q_rad2deg config1(solutions2[0][0],solutions2[0][1],solutions2[0][2],solutions2[0][3],solutions2[0][4],solutions2[0][5]);
-//                    set_robot_config(config1);
-//                }
-
-//                grasp();
-
-//                for (int i = (int)MiddleToBrickPath.size()-1; i >= 0; i--)
-//                {
-//                    config.set_Q_rad(MiddleToBrickPath.data()[i][0],MiddleToBrickPath.data()[i][1],MiddleToBrickPath.data()[i][2],MiddleToBrickPath.data()[i][3],MiddleToBrickPath.data()[i][4],MiddleToBrickPath.data()[i][5]);
-//                    set_robot_config(config);
-//                }
-//            }
-//            cout << "No solutions" << endl;
-//            return NO_SOLUTIONS;
-//        }
-//        else
-//        {
-//            cout << "Out of bounds" << endl;
-//            return OUT_OF_BOUNDS;
-//        }
-//    }
-
     void robot::grasp()
     {
 
@@ -420,7 +351,6 @@ namespace robot {
 
     std_msgs::Float32MultiArray robot::get_pub_pose(){
 
-            //double *config = new double[6];
             double *pose = new double[6];
 
             Q_deg2rad currentQ = get_current_joints();

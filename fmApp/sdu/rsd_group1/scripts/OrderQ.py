@@ -19,7 +19,7 @@ def talker():
     global ordersRed
     global ordersBlue
     global ordersYellow
-    pub = rospy.Publisher('brick2pick', Num, queue_size=10)
+    pub = rospy.Publisher('brick2pick', Num, queue_size=100)
 #		str = "hello world %s"%rospy.get_time()
 #    rospy.loginfo(str)
     pub.publish(orderList[0])

@@ -218,12 +218,7 @@ void MainWindow::stateStart(){
     ui.lbl_state->setStyleSheet("background-color: yellow");
     ui.lbl_state->setText("Starting");
 
-    float middlePos[2] = {-0.23,0.36};
-    double math = 0;
-    for(int i = 0; i < 2; i++)
-    {
-        math += (qnode.current_pose[i]-middlePos[i])*(qnode.current_pose[i]-middlePos[i]);
-    }
+    double math = (qnode.current_pose[0]-PICKUP_BOX_CENTERX)*(qnode.current_pose[0]-PICKUP_BOX_CENTERX) + (qnode.current_pose[1]-PICKUP_BOX_CENTERY)*(qnode.current_pose[1]-PICKUP_BOX_CENTERY);
 
     cout << "Start " << sqrt(math) <<   endl;
 
@@ -327,13 +322,7 @@ void MainWindow::stateBrickToMiddle(){
 
     ui.lbl_state->setText("Going to middle");
 
-
-    float middlePos[2] = {-0.23,0.36};
-    double math = 0;
-    for(int i = 0; i < 2; i++)
-    {
-        math += (qnode.current_pose[i]-middlePos[i])*(qnode.current_pose[i]-middlePos[i]);
-    }
+    double math = (qnode.current_pose[0]-PICKUP_BOX_CENTERX)*(qnode.current_pose[0]-PICKUP_BOX_CENTERX) + (qnode.current_pose[1]-PICKUP_BOX_CENTERY)*(qnode.current_pose[1]-PICKUP_BOX_CENTERY);
 
     cout <<"going to middle " << sqrt(math) <<   endl;
 
@@ -348,12 +337,7 @@ void MainWindow::stateBrickToMiddle(){
 void MainWindow::stateMiddleToBox(){
         ui.lbl_state->setText("Going to box");
 
-        float boxPos[2] = {0.071,0.523};
-        double math = 0;
-        for(int i = 0; i < 2; i++)
-        {
-            math += (qnode.current_pose[i]-boxPos[i])*(qnode.current_pose[i]-boxPos[i]);
-        }
+        double math = (qnode.current_pose[0]-DELIVER_BOX_X)*(qnode.current_pose[0]-DELIVER_BOX_X) + (qnode.current_pose[1]-DELIVER_BOX_Y)*(qnode.current_pose[1]-DELIVER_BOX_Y);
 
         cout <<"going to box " << sqrt(math) <<   endl;
 
@@ -368,12 +352,7 @@ void MainWindow::stateMiddleToBox(){
 void MainWindow::stateBoxToMiddle(){
     ui.lbl_state->setText("Going to middle");
 
-    float middlePos[2] = {-0.23,0.36};
-    double math;
-    for(int i = 0; i < 2; i++)
-    {
-        math += (qnode.current_pose[i]-middlePos[i])*(qnode.current_pose[i]-middlePos[i]);
-    }
+    double math = (qnode.current_pose[0]-PICKUP_BOX_CENTERX)*(qnode.current_pose[0]-PICKUP_BOX_CENTERX) + (qnode.current_pose[1]-PICKUP_BOX_CENTERY)*(qnode.current_pose[1]-PICKUP_BOX_CENTERY);
 
     cout <<"going to middle " << sqrt(math) <<   endl;
 

@@ -72,11 +72,11 @@ void stateUpperBrick(){
     {
         current_order = Staubli->orderlist.front();
         double y = getPositionFromOrder(current_order.speed,current_order.time);
-        double x = current_order.x-0.3;
+        double x = current_order.x-PICKUP_BOX_XNEG;
         double angle = current_order.angle;
 
         cout << "Order: " << x << ", " << y << ", " << angle << endl;
-//        if(y > 0.2)
+//        if(y > PICKUP_BRICK_OFFSET-PICKUP_BOX_YNEG)
 //        {
 //            Staubli->orderlist.erase(0);
 //            Staubli->next_brick[0] = current_order.x-0.3;
@@ -217,6 +217,8 @@ int main(int argc, char **argv)
 
     gripper_grasp_client = n.serviceClient<wsg_50_common::Move>("/wsg_50/grasp");
 
+    srv_grasp.request.width = 25.0;
+    srv_grasp.request.speed = 400.0;
     gripper_grasp_client.call(srv_grasp);
 
     gripper_release_client = n.serviceClient<wsg_50_common::Move>("/wsg_50/release");
