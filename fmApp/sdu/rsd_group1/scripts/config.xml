@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<root>
+	<imageBorders>
+		<leftBorder>26</leftBorder>
+		<rightBorder>857</rightBorder>
+		<enterThres>933</enterThres>
+		<leaveThres>359</leaveThres>
+	</imageBorders>
+	<imageCrop>
+		<leftCrop>57</leftCrop>
+		<rightCrop>932</rightCrop>
+		<botCrop>1643</botCrop>
+		<topCrop>192</topCrop>
+	</imageCrop>
+	<hsvSettings>
+		<blueHue>120</blueHue>
+		<yellowHue>31</yellowHue>
+		<intensity>105</intensity>
+		<saturation>52</saturation>
+		<colorRange>8</colorRange>
+		<redSaturation>47</redSaturation>
+		<blueSaturation>99</blueSaturation>
+		<yellowSaturation>24</yellowSaturation>
+		<redHue>8</redHue>
+		<redIntensity>11</redIntensity>
+		<blueIntensity>76</blueIntensity>
+		<yellowIntensity>136</yellowIntensity>
+	</hsvSettings>
+</root>

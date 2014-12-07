@@ -56,8 +56,8 @@ def listener():
 #    talker()		#this should be placed after/at a request from robotic node
 #    print "give me bricks"
 
-#def robolisten():
-#    rospy.Subscriber("brick2pick", Num, robocallback)#sub the bricks from the vision node.
+def robolisten():
+    rospy.Subscriber("bricklost", Num, robocallback)#bricks dropped/missed by the robot
 
 if __name__ == '__main__':
     try:
