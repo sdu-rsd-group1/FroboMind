@@ -121,7 +121,6 @@ def on_colorbar(args):
 
 def on_trackbar(args):
     #crop settings
-    print "Global variables: "
     global leftCrop
     global rightCrop
     global topCrop
@@ -135,7 +134,6 @@ def on_trackbar(args):
 
     global config
 
-    print "Get trackbar poss: "
     leftBorder = getTrackbarPos('leftBorder', 'trackbars')
     rightBorder = getTrackbarPos('rightBorder', 'trackbars')
     enterThres = getTrackbarPos('enterThres', 'trackbars')
@@ -146,7 +144,6 @@ def on_trackbar(args):
     topCrop = getTrackbarPos('TopCrop', 'trackbars')
     botCrop = getTrackbarPos('BotCrop', 'trackbars')
 
-    print "Put in XML: "
 
     config.put('imageBorders/leftBorder', leftBorder)
     config.put('imageBorders/rightBorder', rightBorder)
@@ -158,7 +155,6 @@ def on_trackbar(args):
     config.put('imageCrop/topCrop', topCrop)
     config.put('imageCrop/botCrop', botCrop)
 
-    print "save XML: "
     config.save()
 
     return
@@ -167,7 +163,6 @@ class image_converter:
 
   def __init__(self):
 
-    print "init"
     global config
     config = xmlsettings.XMLSettings('/home/ditlev/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
 
@@ -186,7 +181,7 @@ class image_converter:
 
     #Dimenstions in meter
     self.widthM = 0.15
-    self.lengthM = 0.175
+    self.lengthM = 0.09
 
     #Dimenstions in pixel
     self.widthP = leftBorder - rightBorder
@@ -243,9 +238,7 @@ class image_converter:
     namedWindow("Blue mask", WINDOW_NORMAL)
     namedWindow("Yellow mask", WINDOW_NORMAL)
 
-    print "Create taskbars: "
 
-    print "HSV: "
     #Adjustment of hsv
     createTrackbar('redHue', 'hsvBar', redHue, 255, on_colorbar)
     createTrackbar("blueHue", 'hsvBar', blueHue, 255, on_colorbar)
@@ -258,14 +251,12 @@ class image_converter:
     createTrackbar('yellowIntensity', 'hsvBar', yellowIntensity, 255, on_colorbar)
     createTrackbar('colorRange', 'hsvBar', colorRange, 255, on_colorbar)
 
-    print "Line trackbar: "
     #Adjustment of lines
     createTrackbar('leaveThres', 'trackbars', leaveThres, enterThres, on_trackbar)
     createTrackbar('enterThres', 'trackbars', enterThres, botCrop-topCrop, on_trackbar)
     createTrackbar('leftBorder', 'trackbars', leftBorder, rightBorder, on_trackbar)
     createTrackbar('rightBorder', 'trackbars', rightBorder, rightCrop - leftCrop, on_trackbar)
 
-    print "Crop: "
     #Adjustment of Crop
     createTrackbar('LeftCrop', 'trackbars', leftCrop, rightCrop, on_trackbar)
     createTrackbar("RightCrop", 'trackbars', rightCrop, 1080, on_trackbar)
@@ -280,30 +271,16 @@ class image_converter:
       print e
 
 #-----------------------------------------------
-
-    print "Printing length of bricklist: "
-
-    print str(len(self.brickList))
-
-    print "Transpose and flip: "
-
     try:
         img = transpose(cv_image)
     finally:
         pass
     flip(img, 0, img)
 
-    print "Crop img: "
     #crop_img = img[self.topCrop:self.botCrop, self.leftCrop:self.rightCrop]
     crop_img = img[topCrop:botCrop, leftCrop:rightCrop]
-    print "Copy: "
     img = crop_img
-    print "Gauss: "
     img = GaussianBlur(img, (9, 9), 5)
-
-
-
-    print "Segmentation: "
 
     hsv = cvtColor(img, COLOR_BGR2HSV)  # convert to hsv
 
@@ -327,7 +304,7 @@ class image_converter:
     maskYellow = inRange(hsv, lower_thrs_yellow, upper_thrs_yellow)
 
     kernel = np.ones((7,7), np.int8)
-    numOfIter = 8
+    numOfIter = 5
 
     maskRed = morphologyEx(maskRed, MORPH_OPEN, kernel, iterations=numOfIter)
     maskBlue = morphologyEx(maskBlue, MORPH_OPEN, kernel, iterations=numOfIter)
@@ -352,7 +329,6 @@ class image_converter:
     drawContours(mask, allContours, -1, (255, 0, 255), 2)
     #imshow("Contours", mask)
 
-    print "Get countours"
     #Get the recrangles
    # print "Red contours"
     rectRed, bricksRed = getBricks(contoursRed, "Red")
@@ -361,7 +337,6 @@ class image_converter:
    # print "Yellow contours"
     rectYellow, bricksYellow = getBricks(contoursYellow, "Yellow")
 
-    print "Draw countours"
 
     for rect in rectRed:
         box = cv.BoxPoints(rect)
@@ -377,7 +352,6 @@ class image_converter:
         drawContours(img, [box], -1, (0, 255, 255), 2)
 
 
-    print "Draw lines"
     #Horisontal lines
     line(img, (0, enterThres), (rightCrop - leftCrop, enterThres),(255,0,0),1)
     line(img, (0, leaveThres), (rightCrop - leftCrop, leaveThres),(255,0,0),1)
@@ -389,7 +363,6 @@ class image_converter:
     imshow("Show", img)
     self.pBrickList = bricksRed + bricksBlue + bricksYellow
 
-    print "Find matches"
     #Find matches
     for brick in self.brickList:
         for pBrick in self.pBrickList:
@@ -408,13 +381,11 @@ class image_converter:
             self.brickList.remove(brick)
 
 
-    print "find new bricks"
     #Find new bricks
     for pBrick in self.pBrickList:
         if pBrick.y > enterThres:
             self.brickList.append(pBrick)
 
-    print "publish bricks"
     #Publish found bricks
     for brick in self.brickList:
         if brick.y < leaveThres:
