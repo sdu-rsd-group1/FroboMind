@@ -27,6 +27,7 @@
 #include <ros/network.h>
 #include <std_msgs/String.h>
 #include <std_msgs/UInt32.h>
+#include "fstream"
 #include <sstream>
 
 
@@ -61,7 +62,7 @@ public:
 	 };
 
 	QStringListModel* loggingModel() { return &logging_model; }
-	void log( const LogLevel &level, const std::string &msg);
+	void log(const std::string &msg);
 void localLogCallback(std_msgs::UInt32 logmsg);
 
     float current_config[6];

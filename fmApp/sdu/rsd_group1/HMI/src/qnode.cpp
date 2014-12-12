@@ -69,10 +69,10 @@ string code2msg(unsigned int code)
         new_code = code-0x400;
     }
 
-    for (int i = 0; err_code[i].name; ++i)
-        if (err_code[i].value == new_code)
+    for (int i = 0; log_code[i].name; ++i)
+        if (log_code[i].value == new_code)
     {
-        node.append(err_code[i].name);
+        node.append(log_code[i].name);
         return node;
     }
 
@@ -102,7 +102,7 @@ void QNode::logCallback(const std_msgs::UInt32::ConstPtr& logmsg)
 
 void QNode::localLogCallback(std_msgs::UInt32 logmsg)
 {
-    std::string error(err2msg(logmsg.data));
+    std::string error(code2msg(logmsg.data));
     std::stringstream ss;
 
     t = time(0);   // get time now
