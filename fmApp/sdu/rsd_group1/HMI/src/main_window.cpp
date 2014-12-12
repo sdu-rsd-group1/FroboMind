@@ -283,7 +283,7 @@ double math = 0;
     {
         state = OPEN_GRIP;
         qnode.publish_state(state);
-        cout << "State: open grip" << endl;
+        cout << "State: open grip " << sqrt(math) << endl;
     }
 }
 

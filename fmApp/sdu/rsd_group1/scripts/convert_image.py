@@ -10,14 +10,36 @@ from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 from Lego_Brick import LegoBrick
 from rsd_group1.msg import Num
+from rsd_group1.msg import Log
 import xmlsettings
 
 
 
+def publishToLog(level, code, logMessage):
+    #-------------------publish list of bricks---------------------------------------------------------------------
+    #Node ID = 2
+    #level = 0 = debug, 1 = operation
+    logEntry = Log()
+    logEntry.CodeID = code
+    logEntry.NodeID = 2
+    logEntry.Text = logMessage
+
+    if level == "operation":
+        logEntry.Level = 1
+    elif level == "debug":
+        logEntry.Level = 0
+    else:
+        print "Invalid loglevel:"
+        print level
+        return
+
+    pubLog.publish(logEntry)
+
+    return
 
 def publishBrick(brick):
     #-------------------publish list of bricks---------------------------------------------------------------------
-    
+
     a = Num()
 
     a.color = brick.color
@@ -27,7 +49,7 @@ def publishBrick(brick):
     a.speed = brick.speed
 
     pub.publish(a)
-
+    publishToLog("operation", 11, brick.color.lower()+" brick published")
     print "Following brick published:"
     print brick.getInfo()
 
@@ -44,7 +66,7 @@ def getBricks(contours, color):
     bricks = []
     tempList = []
 
-    areaReq = 0
+    #Area requirements for the different colored bricks
     if color == "Blue":
         areaReqMin = 3500
         areaReqMax = 10000
@@ -59,35 +81,40 @@ def getBricks(contours, color):
         areaReqMax = 1000000
 
     for cnt in contours:
+        #Check if the bricks area is plausible
         if contourArea(cnt) > areaReqMin and contourArea(cnt) < areaReqMax:
             #Rectangle data is (x, y) (width, height) (angle)
             rect = minAreaRect(cnt)
             bricks.append(rect)
             sort(rect[1], False)
-            #print "Width: " + str(rect[1][0]) + "height: " + str(rect[1][1])
-            #print "Aspect " + str(aspect)
-            #Thresholds the brick
 
-
-            # print ".................."
-            # print "Brick type is: " + size + " " + str(color)
-            # print "Brick pose is:"
-            # print "x: " + str(rect[0][0]) + " y: " + str(rect[0][1])
-            #print "...."
+            #Check if width is larger than length
+            #if so, rotate 90 degrees
             if (rect[1][0] > rect[1][1]):
                 tempAngle = rect[2] + 90
-            #    print "Bad angle, orig:"
-            #    print rect[2]
-            #    print "Corrected: "
-             #   print tempAngle
             else:
-             #   print "Angle:"
-             #   print rect[2]
                 tempAngle = rect[2]
-           # print "...."
-            tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time(), rect[1][0], rect[1][1]))
 
+            tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time(), rect[1][0], rect[1][1]))
+        else:
+            pass
+            publishToLog("debug", 11, "Potential "+color+" brick detected, area too small")
     return bricks, tempList
+
+def on_dimensionbar(args):
+
+    global lengthM
+    global widthM
+
+    lengthM = getTrackbarPos('length', 'dimBar')/1000
+    widthM = getTrackbarPos('width', 'dimBar')/1000
+
+    config.put('dimensions/length', redHue)
+    config.put('dimensions/width', blueHue)
+
+    config.save()
+    return
+
 
 def on_colorbar(args):
 
@@ -140,8 +167,6 @@ def on_trackbar(args):
     global rightBorder
     global enterThres
     global leaveThres
-
-
     global config
 
     leftBorder = getTrackbarPos('leftBorder', 'trackbars')
@@ -153,7 +178,6 @@ def on_trackbar(args):
     rightCrop = getTrackbarPos('RightCrop', 'trackbars')
     topCrop = getTrackbarPos('TopCrop', 'trackbars')
     botCrop = getTrackbarPos('BotCrop', 'trackbars')
-
 
     config.put('imageBorders/leftBorder', leftBorder)
     config.put('imageBorders/rightBorder', rightBorder)
@@ -176,22 +200,22 @@ class image_converter:
     global config
     config = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
 
-
     global leftBorder
     global rightBorder
     global enterThres
     global leaveThres
-
 
     leftBorder = config.get('imageBorders/leftBorder', 200)
     rightBorder = config.get('imageBorders/rightBorder', 500)
     enterThres = config.get('imageBorders/enterThres', 250)
     leaveThres = config.get('imageBorders/leaveThres', 50)
 
-
     #Dimenstions in meter
-    self.widthM = 0.15
-    self.lengthM = 0.09
+    global widthM
+    global lengthM
+
+    widthM = config.get('dimensions/width', 0.15)
+    lengthM = config.get('dimensions/length', 0.09)
 
     #Dimenstions in pixel
     self.widthP = leftBorder - rightBorder
@@ -218,7 +242,6 @@ class image_converter:
     global blueIntensity
     global yellowIntensity
 
-
     redHue = config.get('hsvSettings/redHue', 0)
     blueHue = config.get('hsvSettings/blueHue', 110)
     yellowHue = config.get('hsvSettings/yellowHue', 26)
@@ -230,7 +253,6 @@ class image_converter:
     blueIntensity = config.get('hsvSettings/blueIntensity', 50)
     yellowIntensity = config.get('hsvSettings/yellowIntensity', 104)
 
-
     self.pBrickList = []
     self.brickList = []
 
@@ -239,63 +261,91 @@ class image_converter:
 
     self.bridge = CvBridge()
     self.image_sub = rospy.Subscriber("/usb_cam/image_raw",Image,self.callback)
-
+    rospy.Subscriber("vision_config", String, self.logSubCallback)
+    self.config_mode = "false"
     #windows
-    namedWindow("trackbars", 0)
-    namedWindow("hsvBar", 0)
-    namedWindow("Show", WINDOW_NORMAL)
-    namedWindow("Red mask", WINDOW_NORMAL)
-    namedWindow("Blue mask", WINDOW_NORMAL)
-    namedWindow("Yellow mask", WINDOW_NORMAL)
 
+  def logSubCallback(self, conf):
+    print "config callback called, conf recieved is:"
+    print conf.data
 
-    #Adjustment of hsv
-    createTrackbar('redHue', 'hsvBar', redHue, 255, on_colorbar)
-    createTrackbar("blueHue", 'hsvBar', blueHue, 255, on_colorbar)
-    createTrackbar('yellowHue', 'hsvBar', yellowHue, 255, on_colorbar)
-    createTrackbar('redSaturation', 'hsvBar', redSaturation, 255, on_colorbar)
-    createTrackbar('blueSaturation', 'hsvBar', blueSaturation, 255, on_colorbar)
-    createTrackbar('yellowSaturation', 'hsvBar', yellowSaturation, 255, on_colorbar)
-    createTrackbar('redIntensity', 'hsvBar', redIntensity, 255, on_colorbar)
-    createTrackbar('blueIntensity', 'hsvBar', blueIntensity, 255, on_colorbar)
-    createTrackbar('yellowIntensity', 'hsvBar', yellowIntensity, 255, on_colorbar)
-    createTrackbar('colorRange', 'hsvBar', colorRange, 255, on_colorbar)
+    if conf.data == "true":
+        self.config_mode = conf.data
 
-    #Adjustment of lines
-    createTrackbar('leaveThres', 'trackbars', leaveThres, enterThres, on_trackbar)
-    createTrackbar('enterThres', 'trackbars', enterThres, botCrop-topCrop, on_trackbar)
-    createTrackbar('leftBorder', 'trackbars', leftBorder, rightBorder, on_trackbar)
-    createTrackbar('rightBorder', 'trackbars', rightBorder, rightCrop - leftCrop, on_trackbar)
+        publishToLog("operation", 14, "Entering configuration mode")
 
-    #Adjustment of Crop
-    createTrackbar('LeftCrop', 'trackbars', leftCrop, rightCrop, on_trackbar)
-    createTrackbar("RightCrop", 'trackbars', rightCrop, 1080, on_trackbar)
-    createTrackbar('TopCrop', 'trackbars', topCrop, botCrop, on_trackbar)
-    createTrackbar('BotCrop', 'trackbars', botCrop, 1920, on_trackbar)
+        namedWindow("trackbars", WINDOW_NORMAL)
+        namedWindow("hsvBar", WINDOW_NORMAL)
+        namedWindow("Show", WINDOW_NORMAL)
+        namedWindow("Red mask", WINDOW_NORMAL)
+        namedWindow("Blue mask", WINDOW_NORMAL)
+        namedWindow("Yellow mask", WINDOW_NORMAL)
+        namedWindow("dimBar", WINDOW_NORMAL)
+
+        #Adjustment of dimensions
+        createTrackbar('length', 'dimBar', int(lengthM*1000), 2000, on_dimensionbar)
+        createTrackbar("width", 'dimBar', int(widthM*1000), 2000, on_dimensionbar)
+
+        #Adjustment of hsv
+        createTrackbar('redHue', 'hsvBar', redHue, 255, on_colorbar)
+        createTrackbar("blueHue", 'hsvBar', blueHue, 255, on_colorbar)
+        createTrackbar('yellowHue', 'hsvBar', yellowHue, 255, on_colorbar)
+        createTrackbar('redSaturation', 'hsvBar', redSaturation, 255, on_colorbar)
+        createTrackbar('blueSaturation', 'hsvBar', blueSaturation, 255, on_colorbar)
+        createTrackbar('yellowSaturation', 'hsvBar', yellowSaturation, 255, on_colorbar)
+        createTrackbar('redIntensity', 'hsvBar', redIntensity, 255, on_colorbar)
+        createTrackbar('blueIntensity', 'hsvBar', blueIntensity, 255, on_colorbar)
+        createTrackbar('yellowIntensity', 'hsvBar', yellowIntensity, 255, on_colorbar)
+        createTrackbar('colorRange', 'hsvBar', colorRange, 255, on_colorbar)
+
+        #Adjustment of lines
+        createTrackbar('leaveThres', 'trackbars', leaveThres, enterThres, on_trackbar)
+        createTrackbar('enterThres', 'trackbars', enterThres, botCrop-topCrop, on_trackbar)
+        createTrackbar('leftBorder', 'trackbars', leftBorder, rightBorder, on_trackbar)
+        createTrackbar('rightBorder', 'trackbars', rightBorder, rightCrop - leftCrop, on_trackbar)
+
+        #Adjustment of Crop
+        createTrackbar('LeftCrop', 'trackbars', leftCrop, rightCrop, on_trackbar)
+        createTrackbar("RightCrop", 'trackbars', rightCrop, 1080, on_trackbar)
+        createTrackbar('TopCrop', 'trackbars', topCrop, botCrop, on_trackbar)
+        createTrackbar('BotCrop', 'trackbars', botCrop, 1920, on_trackbar)
+
+    elif conf.data == "false":
+        publishToLog("operation", 14, "Exiting configuration mode")
+        self.config_mode = conf.data
+        destroyAllWindows()
+    else:
+        pass
+    return
 
   def callback(self, data):
 
+    #convert the image to opencv format
     try:
       cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
     except CvBridgeError, e:
       print e
 
 #-----------------------------------------------
+
+    #rotate image 90 degrees by transposing and flipping
     try:
         img = transpose(cv_image)
     finally:
         pass
     flip(img, 0, img)
 
-    #crop_img = img[self.topCrop:self.botCrop, self.leftCrop:self.rightCrop]
+    #Crop image according to borders
     crop_img = img[topCrop:botCrop, leftCrop:rightCrop]
     img = crop_img
+
+    #Blur image, 5 iterations with 9x9 mask
     img = GaussianBlur(img, (9, 9), 5)
 
     hsv = cvtColor(img, COLOR_BGR2HSV)  # convert to hsv
 
     #Color thresholds in HSV space
-
+    #Parameters comes from trackbar / XML file
     lower_thrs_red = np.array([0,redSaturation,redIntensity])
     upper_thrs_red = np.array([redHue+colorRange,255,255])
 
@@ -307,47 +357,47 @@ class image_converter:
     upper_thrs_yellow= np.array([yellowHue+colorRange,255,255])
 
     #Get binary images
-
-
     maskRed = inRange(hsv, lower_thrs_red, upper_thrs_red)
     maskBlue = inRange(hsv, lower_thrs_blue, upper_thrs_blue)
     maskYellow = inRange(hsv, lower_thrs_yellow, upper_thrs_yellow)
 
+    #Make kernel for use in morhpology filter
     kernel = np.ones((7,7), np.int8)
+
+    #Set number of iterations for morph
     numOfIter = 5
 
+    #Apply open filter, enhances gaps without completely eroding smaller bricks
     maskRed = morphologyEx(maskRed, MORPH_OPEN, kernel, iterations=numOfIter)
     maskBlue = morphologyEx(maskBlue, MORPH_OPEN, kernel, iterations=numOfIter)
     maskYellow = morphologyEx(maskYellow, MORPH_OPEN, kernel, iterations=numOfIter)
 
+    #Final erosion to fully seperate bricks
     maskRed = morphologyEx(maskRed, MORPH_ERODE, kernel, iterations=numOfIter)
     maskBlue = morphologyEx(maskBlue, MORPH_ERODE, kernel, iterations=numOfIter)
     maskYellow = morphologyEx(maskYellow, MORPH_ERODE, kernel, iterations=numOfIter)
 
+    #If config mode is true, show the individually masked images
+    if self.config_mode == "true":
+        imshow("Red mask", maskRed)
+        imshow("Blue mask", maskBlue)
+        imshow("Yellow mask", maskYellow)
+    else:
+        pass
 
-
-    mask = maskRed + maskBlue + maskYellow
-    imshow("Red mask", maskRed)
-    imshow("Blue mask", maskBlue)
-    imshow("Yellow mask", maskYellow)
+    #Find contours
     contoursRed, hierarchy = findContours(maskRed, RETR_LIST, CHAIN_APPROX_SIMPLE)
     contoursBlue, hierarchy = findContours(maskBlue, RETR_LIST, CHAIN_APPROX_SIMPLE)
     contoursYellow, hierarchy = findContours(maskYellow, RETR_LIST, CHAIN_APPROX_SIMPLE)
 
-    allContours = contoursBlue + contoursRed + contoursYellow
-
-    drawContours(mask, allContours, -1, (255, 0, 255), 2)
-    #imshow("Contours", mask)
-
-    #Get the recrangles
-   # print "Red contours"
+    #Find minimum area rectangels on the contours
     rectRed, bricksRed = getBricks(contoursRed, "Red")
-   # print "Blue contours"
     rectBlue, bricksBlue = getBricks(contoursBlue, "Blue")
-   # print "Yellow contours"
     rectYellow, bricksYellow = getBricks(contoursYellow, "Yellow")
 
 
+
+    #Draw the contours and lines
     for rect in rectRed:
         box = cv.BoxPoints(rect)
         box = np.int0(box)
@@ -361,7 +411,6 @@ class image_converter:
         box = np.int0(box)
         drawContours(img, [box], -1, (0, 255, 255), 5)
 
-
     #Horisontal lines
     line(img, (0, enterThres), (rightCrop - leftCrop, enterThres),(255,0,0),1)
     line(img, (0, leaveThres), (rightCrop - leftCrop, leaveThres),(255,0,0),1)
@@ -370,10 +419,16 @@ class image_converter:
     line(img, (leftBorder, 0), (leftBorder, botCrop - topCrop),(0,255,0),1)
     line(img, (rightBorder, 0), (rightBorder, botCrop - topCrop),(0,255,0),1)
 
-    imshow("Show", img)
+    #If the config mode is true, show the rectangles
+    if self.config_mode == "true":
+        imshow("Show", img)
+    else:
+        pass
+
+    #Add the found bricks to a preliminary bricklist
     self.pBrickList = bricksRed + bricksBlue + bricksYellow
 
-    #Find matches
+    #Find matches between already found bricks and preliminary bricks
     for brick in self.brickList:
         for pBrick in self.pBrickList:
             if pBrick.color == brick.color:
@@ -386,47 +441,53 @@ class image_converter:
 
         #Timeout, if a tracked brick haven't been updated in 2 sec it is discarded
         if brick.getTimeSinceUpdate(rospy.get_time()) > 2:
+            publishToLog("debug",12, brick.color.lower()+" brick removed by timeout")
             print "Following brick removed by timeout:"
             print brick.getInfo()
             self.brickList.remove(brick)
 
 
     #Find new bricks
+    #New brick is found if a preliminary brick haven't been matched and is located between the enter and leave thresholds
     for pBrick in self.pBrickList:
-        if pBrick.y > enterThres:
+        if pBrick.y < enterThres and pBrick.y > leaveThres:
+            publishToLog("debug", 13, pBrick.color.lower()+" brick detected")
             self.brickList.append(pBrick)
 
-    #Publish found bricks
+    #Publish found bricks when they leave the leaveThreshold
     for brick in self.brickList:
         if brick.y < leaveThres:
             print "Brick found!"
             brick.timeEnd = rospy.get_time()
             brick.setEndPos(brick.x-leftBorder, brick.y)
-            brick.calcSpeed(enterThres-leaveThres, self.lengthM, self.widthP, self.widthM)
-            brick.setXPos(self.widthP, self.widthM)
+            brick.calcSpeed(enterThres-leaveThres, lengthM, self.widthP, widthM)
+            brick.setXPos(self.widthP, widthM)
             publishBrick(brick)
             self.brickList.remove(brick)
 
-    waitKey(3)
-
-
-
+    #Publish the image with drawn contours and bricks
     try:
       self.image_pub.publish(self.bridge.cv2_to_imgmsg(img, "bgr8"))
     except CvBridgeError, e:
       print e
 
+    waitKey(3)
+
 def main(args):
 	ic = image_converter()
 	rospy.init_node('image_converter', anonymous=True)
+	publishToLog("operation", 15, "Vision node sucessfully initialized")
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
 		print "Shutting down"
+	publishToLog("operation", 15, "Vision node shutting down")
 	destroyAllWindows()
+
 
 if __name__ == '__main__':
     pub = rospy.Publisher('brick', Num, queue_size=100)
+    pubLog = rospy.Publisher('logging', Log, queue_size=100)
     main(sys.argv)
 
 

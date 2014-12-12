@@ -25,7 +25,7 @@ namespace HMI {
 *****************************************************************************/
 
 
-void QNode::logCallback(const rsd_group1::Log new_log)
+void QNode::logCallback(const msgs::log new_log)
 {
     	std::stringstream ss;
 
@@ -42,11 +42,11 @@ void QNode::logCallback(const rsd_group1::Log new_log)
 		{
             if(new_log.Level == 0)
 			{
-                new_log_Hmi_Normal	<< ss.rdbuf();
+                Log_Hmi_Normal	<< ss.rdbuf();
 			}
             else if(new_log.Level == 1)
 			{
-                new_log_Hmi_Debug << ss.rdbuf();
+                Log_Hmi_Debug << ss.rdbuf();
 			}
 			break;
 		}
@@ -54,11 +54,11 @@ void QNode::logCallback(const rsd_group1::Log new_log)
 		{
             if(new_log.Level == 0)
 			{
-                new_log_Rob_Normal	<< ss.rdbuf();
+                Log_Rob_Normal	<< ss.rdbuf();
 			}
             else if(new_log.Level == 1)
 			{
-                new_log_Rob_Debug << ss.rdbuf();
+                Log_Rob_Debug << ss.rdbuf();
 			}
 			break;
 		}
@@ -66,11 +66,11 @@ void QNode::logCallback(const rsd_group1::Log new_log)
 		{
             if(new_log.Level == 0)
 			{
-                new_log_Vis_Normal	<< ss.rdbuf();
+                Log_Vis_Normal	<< ss.rdbuf();
 			}
             else if(new_log.Level == 1)
 			{
-                new_log_Vis_Debug << ss.rdbuf();
+                Log_Vis_Debug << ss.rdbuf();
 			}
 			break;
 		}
@@ -78,11 +78,11 @@ void QNode::logCallback(const rsd_group1::Log new_log)
 		{
             if(new_log.Level == 0)
 			{
-                new_log_Mes_Normal	<< ss.rdbuf();
+                Log_Mes_Normal	<< ss.rdbuf();
 			}
             else if(new_log.Level == 1)
 			{
-                new_log_Mes_Debug << ss.rdbuf();
+                Log_Mes_Debug << ss.rdbuf();
 			}
 			break;
 		}
@@ -90,11 +90,11 @@ void QNode::logCallback(const rsd_group1::Log new_log)
 		{
             if(new_log.Level == 0)
 			{
-                new_log_Con_Normal	<< ss.rdbuf();
+                Log_Con_Normal	<< ss.rdbuf();
 			}
             else if(new_log.Level == 1)
 			{
-                new_log_Con_Debug << ss.rdbuf();
+                Log_Con_Debug << ss.rdbuf();
 			}
 			break;
 		}
@@ -149,20 +149,45 @@ void QNode::run() {
     t = time(0);   // get time now
     struct tm * now = localtime( & t );
 
-    char buffer [80];
+    char hmi_normal_buffer [80];
+    char rob_normal_buffer [80];
+    char vis_normal_buffer [80];
+    char mes_normal_buffer [80];
+    char con_normal_buffer [80];
+    char complete_buffer [80];
 
-    strftime (buffer,80,"%H:%M:%S_%d-%m-%Y.txt",now);
 
-    	Log_Hmi_Normal.open("HMI_Normal_" + buffer);
-	Log_Hmi_Debug.open("HMI_Debug_" + buffer);
-    	Log_Rob_Normal.open("Rob_Normal_" + buffer);
-	Log_Rob_Debug.open("Rob_Debug_" + buffer);
-    	Log_Vis_Normal.open("Vis_Normal_" + buffer);
-	Log_Vis_Debug.open("Vis_Debug_" + buffer);
-    	Log_Mes_Normal;.open("MES_Normal_" + buffer);
-	Log_Mes_Debug.open("MES_Debug_" + buffer);
-    	Log_Con_Normal;.open("Con_Normal_" + buffer);
-	Log_Con_Debug.open("Con_Debug_" + buffer);
+    char hmi_debug_buffer [80];
+    char rob_debug_buffer [80];
+    char vis_debug_buffer [80];
+    char mes_debug_buffer [80];
+    char con_debug_buffer [80];
+
+
+    strftime (hmi_normal_buffer,80,"HMI_Normal_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (rob_normal_buffer,80,"Rob_Normal_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (vis_normal_buffer,80,"Vis_Normal_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (mes_normal_buffer,80,"MES_Normal_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (con_normal_buffer,80,"Con_Normal_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (complete_buffer,80,"Complete_%H:%M:%S_%d-%m-%Y.txt",now);
+
+    strftime (hmi_debug_buffer,80,"HMI_Debug_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (rob_debug_buffer,80,"Rob_Debug_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (vis_debug_buffer,80,"Vis_Debug_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (mes_debug_buffer,80,"MES_Debug_%H:%M:%S_%d-%m-%Y.txt",now);
+    strftime (con_debug_buffer,80,"Con_Debug_%H:%M:%S_%d-%m-%Y.txt",now);
+
+        Log_Hmi_Normal.open(hmi_normal_buffer);
+        Log_Hmi_Debug.open(hmi_debug_buffer);
+        Log_Rob_Normal.open(rob_normal_buffer);
+        Log_Rob_Debug.open(rob_debug_buffer);
+        Log_Vis_Normal.open(vis_normal_buffer);
+        Log_Vis_Debug.open(vis_debug_buffer);
+        Log_Mes_Normal.open(mes_normal_buffer);
+        Log_Mes_Debug.open(mes_debug_buffer);
+        Log_Con_Normal.open(con_normal_buffer);
+        Log_Con_Debug.open(con_debug_buffer);
+        Log_Complete.open(complete_buffer);
 
 
 	HMI_debug = false;
@@ -204,8 +229,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
                 complete_logging_model_msg << "HMI node: " << msg;
                 QVariant new_row1(QString(complete_logging_model_msg.str().c_str()));
                 complete_logging_model.setData(complete_logging_model.index(complete_logging_model.rowCount()-1),new_row1);
-
-                Q_EMIT loggingUpdated();
 			}
 			else if(level == 1)
 			{
@@ -216,7 +239,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
 				    	hmi_logging_model_msg << msg;
 					QVariant new_row(QString(hmi_logging_model_msg.str().c_str()));
 					hmi_logging_model.setData(hmi_logging_model.index(hmi_logging_model.rowCount()-1),new_row);
-					Q_EMIT hmiLogUpdated();
 				}
 			}
 			break;
@@ -236,8 +258,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
                 complete_logging_model_msg << "Robotics node: " << msg;
                 QVariant new_row1(QString(complete_logging_model_msg.str().c_str()));
                 complete_logging_model.setData(complete_logging_model.index(complete_logging_model.rowCount()-1),new_row1);
-
-                Q_EMIT loggingUpdated();
 			}
 			else if(level == 1)
 			{
@@ -248,7 +268,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
 				    	rob_logging_model_msg << msg;
 					QVariant new_row(QString(rob_logging_model_msg.str().c_str()));
 					rob_logging_model.setData(rob_logging_model.index(rob_logging_model.rowCount()-1),new_row);
-					Q_EMIT robLogUpdated();
 				}
 			}
 			break;
@@ -268,8 +287,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
                 complete_logging_model_msg << "Vision node: " << msg;
                 QVariant new_row1(QString(complete_logging_model_msg.str().c_str()));
                 complete_logging_model.setData(complete_logging_model.index(complete_logging_model.rowCount()-1),new_row1);
-
-                Q_EMIT loggingUpdated();
 			}
 			else if(level == 1)
 			{
@@ -280,7 +297,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
 				    	vis_logging_model_msg << msg;
 					QVariant new_row(QString(vis_logging_model_msg.str().c_str()));
 					vis_logging_model.setData(vis_logging_model.index(vis_logging_model.rowCount()-1),new_row);
-					Q_EMIT visLogUpdated();
 				}
 			}
 			break;
@@ -300,8 +316,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
                 complete_logging_model_msg << "MES node: " << msg;
                 QVariant new_row1(QString(complete_logging_model_msg.str().c_str()));
                 complete_logging_model.setData(complete_logging_model.index(complete_logging_model.rowCount()-1),new_row1);
-
-                Q_EMIT loggingUpdated();
 			}
 			else if(level == 1)
 			{
@@ -312,7 +326,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
 				    	mes_logging_model_msg << msg;
 					QVariant new_row(QString(mes_logging_model_msg.str().c_str()));
 					mes_logging_model.setData(mes_logging_model.index(mes_logging_model.rowCount()-1),new_row);
-					Q_EMIT mesLogUpdated();
 				}
 			}
 			break;
@@ -332,8 +345,6 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
                 complete_logging_model_msg << "Conveyor node: " << msg;
                 QVariant new_row1(QString(complete_logging_model_msg.str().c_str()));
                 complete_logging_model.setData(complete_logging_model.index(complete_logging_model.rowCount()-1),new_row1);
-
-                Q_EMIT loggingUpdated();
 			}
 			else if(level == 1)
 			{
@@ -344,13 +355,12 @@ void QNode::log(int nodeid, int level, const std::string &msg) {
 				    	con_logging_model_msg << msg;
 					QVariant new_row(QString(con_logging_model_msg.str().c_str()));
 					con_logging_model.setData(con_logging_model.index(con_logging_model.rowCount()-1),new_row);
-					Q_EMIT conLogUpdated();
 				}
 			}
 			break;
 		}
 	}
-
+Q_EMIT loggingUpdated();
 	 // used to readjust the scrollbar
 }
 

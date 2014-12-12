@@ -149,7 +149,6 @@ namespace robot {
         double y = next_brick[1];
         double rot = next_brick[2];
         Q_deg2rad currentQ = get_current_joints();
-        cout << " vision pose: " << x << ", " << y << endl;
         double z_up = ((PICKUP_BOX_ZPOS_UP-PICKUP_BOX_ZNEG_UP)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_UP;
         if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
         {
@@ -206,10 +205,10 @@ namespace robot {
         Q_deg2rad currentQ = get_current_joints();
         
         //limit the y position
-        if(y < PICKUP_BOX_YNEG)
-        {
-			y = PICKUP_BOX_YNEG;
-		}
+        //if(y < PICKUP_BOX_YNEG)
+        //{
+        //	y = PICKUP_BOX_YNEG;
+        //}
 
         double z_up = ((PICKUP_BOX_ZPOS_UP-PICKUP_BOX_ZNEG_UP)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_UP;
         if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
@@ -247,6 +246,10 @@ namespace robot {
             return OUT_OF_BOUNDS;
         }
     }
+
+
+
+
 
     int robot::goToBottomPos()
     {
