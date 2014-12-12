@@ -6,3 +6,11 @@ src/main.cpp
 src/main_window.cpp
 src/qnode.cpp
 ui/main_window.ui
+resources/down_arrow.png
+resources/left_arrow.png
+resources/left_down_arrow.png
+resources/left_up_arrow.png
+resources/right_arrow.png
+resources/right_down_arrow.png
+resources/right_up_arrow.png
+resources/up_arrow.png
