@@ -24,6 +24,10 @@
 #include "../../../shared.hpp"
 #include "wsg_50_common/Status.h"
 #include "wsg_50_common/Move.h"
+#include <ros/network.h>
+#include <std_msgs/String.h>
+#include <std_msgs/UInt32.h>
+#include <sstream>
 
 
 
@@ -58,6 +62,7 @@ public:
 
 	QStringListModel* loggingModel() { return &logging_model; }
 	void log( const LogLevel &level, const std::string &msg);
+void localLogCallback(std_msgs::UInt32 logmsg);
 
     float current_config[6];
     float current_pose[6];
@@ -78,6 +83,9 @@ Q_SIGNALS:
 private:
 	int init_argc;
 	char** init_argv;
+    ros::Subscriber log_sub;
+    time_t t;
+    std::ofstream logfile;
 
     ros::Subscriber rob_pos_sub;
     ros::Subscriber gripper_sub;
@@ -85,6 +93,7 @@ private:
 
     void robPosCallback(const std_msgs::Float32MultiArray::ConstPtr& msg);
     void statusCallback(const wsg_50_common::Status status);
+    void logCallback(const std_msgs::UInt32::ConstPtr& logmsg);
 
 };
 

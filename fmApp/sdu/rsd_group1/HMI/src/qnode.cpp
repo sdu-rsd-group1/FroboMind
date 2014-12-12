@@ -10,24 +10,110 @@
 ** Includes
 *****************************************************************************/
 
-#include <ros/ros.h>
-#include <ros/network.h>
-#include <string>
-#include <std_msgs/String.h>
-#include <sstream>
 #include "../include/HMI/qnode.hpp"
-#include "std_msgs/UInt32.h"
-#include "wsg_50_common/Status.h"
 
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
 using namespace std;
+
 namespace HMI {
+
+/*****************************************************************************
+** Log codes
+*****************************************************************************/
+
+struct code_format{
+  unsigned int value;
+  char* name;
+} log_code[] = {
+    { 0x00, "Started up" },
+    { 0x01, "Halted" },
+    { 0x02, "1, Started" },
+    { 0x03, "2, Started" },
+    { 0x04, "1, Stopped" },
+    { 0x05, "2, Stopped" },
+    { 0x06, "1, Going forward" },
+    { 0x07, "2, Going forward" },
+    { 0x08, "1, Going backwards" },
+    { 0x09, "2, Going backwards" }
+};
+
+string code2msg(unsigned int code)
+{
+    unsigned int new_code = 0;
+    string node("");
+    if(code < 0x100)
+    {
+        node.append("Other: ");
+        new_code = code;
+    }
+    else if(code < 0x200)
+    {
+        node.append("Robotics: ");
+        new_code = code-0x100;
+    }
+    else if(code < 0x300)
+    {
+        node.append("Vision: ");
+        new_code = code-0x200;
+    }
+    else if(code < 0x400)
+    {
+        node.append("Conveyor: ");
+        new_code = code-0x300;
+    }
+    else
+    {
+        node.append("Unknown node: ");
+        new_code = code-0x400;
+    }
+
+    for (int i = 0; err_code[i].name; ++i)
+        if (err_code[i].value == new_code)
+    {
+        node.append(err_code[i].name);
+        return node;
+    }
+
+    node.append("unknown");
+        return node;
+}
 
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
+
+
+void QNode::logCallback(const std_msgs::UInt32::ConstPtr& logmsg)
+{
+    std::string error(code2msg(logmsg->data));
+    std::stringstream ss;
+
+    t = time(0);   // get time now
+     struct tm * now = localtime( & t );
+
+     char timeBuf [80];
+     strftime (timeBuf,80,"%H:%M:%S",now);
+    ss <<  timeBuf << ": [0x" << hex << logmsg->data << "] " << error << endl;
+    logfile << ss.rdbuf();
+    log(ss.str());
+}
+
+void QNode::localLogCallback(std_msgs::UInt32 logmsg)
+{
+    std::string error(err2msg(logmsg.data));
+    std::stringstream ss;
+
+    t = time(0);   // get time now
+     struct tm * now = localtime( & t );
+
+     char timeBuf [80];
+     strftime (timeBuf,80,"%H:%M:%S",now);
+    ss <<  timeBuf << ": [0x" << hex << logmsg.data << "] " << error << endl;
+    logfile << ss.rdbuf();
+    log(ss.str());
+}
 
 void QNode::publish_state(states state){
     std_msgs::UInt32 msg;
@@ -64,6 +150,7 @@ bool QNode::init() {
     ros::start(); // explicitly needed since our nodehandle is going out of scope.
     ros::NodeHandle n;
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
+    log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
     state_publisher = n.advertise<std_msgs::UInt32>("robot_states", 1000);
     gripper_sub = n.subscribe("wsg_50/status",1000,&QNode::statusCallback,this);
     start();
@@ -71,6 +158,13 @@ bool QNode::init() {
 }
 
 void QNode::run() {
+    t = time(0);   // get time now
+    struct tm * now = localtime( & t );
+
+    char buffer [80];
+    strftime (buffer,80,"%H:%M:%S_%d-%m-%Y.txt",now);
+
+    logfile.open (buffer);
     ros::Rate loop_rate(1);
     int count = 0;
     while ( ros::ok() ) {
@@ -84,36 +178,10 @@ void QNode::run() {
 }
 
 
-void QNode::log( const LogLevel &level, const std::string &msg) {
+void QNode::log(const std::string &msg) {
 	logging_model.insertRows(logging_model.rowCount(),1);
 	std::stringstream logging_model_msg;
-	switch ( level ) {
-		case(Debug) : {
-				ROS_DEBUG_STREAM(msg);
-				logging_model_msg << "[DEBUG] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Info) : {
-				ROS_INFO_STREAM(msg);
-				logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Warn) : {
-				ROS_WARN_STREAM(msg);
-				logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Error) : {
-				ROS_ERROR_STREAM(msg);
-				logging_model_msg << "[ERROR] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Fatal) : {
-				ROS_FATAL_STREAM(msg);
-				logging_model_msg << "[FATAL] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-	}
+    logging_model_msg << msg;
 	QVariant new_row(QString(logging_model_msg.str().c_str()));
 	logging_model.setData(logging_model.index(logging_model.rowCount()-1),new_row);
 	Q_EMIT loggingUpdated(); // used to readjust the scrollbar
