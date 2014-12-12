@@ -520,7 +520,7 @@
              </property>
              <layout class="QGridLayout" name="gridLayout">
               <item row="0" column="3">
-               <widget class="QWidget" name="widget_6" native="true">
+               <widget class="QWidget" name="widget_4_1" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -530,7 +530,7 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QWidget" name="widget_16" native="true">
+               <widget class="QWidget" name="widget_2_2" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -982,7 +982,7 @@
                </widget>
               </item>
               <item row="0" column="2">
-               <widget class="QWidget" name="widget_5" native="true">
+               <widget class="QWidget" name="widget_3_1" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1434,7 +1434,7 @@
                </widget>
               </item>
               <item row="4" column="4">
-               <widget class="QWidget" name="widget_23" native="true">
+               <widget class="QWidget" name="widget_5_5" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1886,7 +1886,7 @@
                </widget>
               </item>
               <item row="3" column="3">
-               <widget class="QWidget" name="widget_10" native="true">
+               <widget class="QWidget" name="widget_4_4" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1899,7 +1899,7 @@
                </widget>
               </item>
               <item row="3" column="4">
-               <widget class="QWidget" name="widget_21" native="true">
+               <widget class="QWidget" name="widget_5_4" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1912,7 +1912,7 @@
                </widget>
               </item>
               <item row="4" column="3">
-               <widget class="QWidget" name="widget_9" native="true">
+               <widget class="QWidget" name="widget_4_5" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1922,7 +1922,7 @@
                </widget>
               </item>
               <item row="3" column="2">
-               <widget class="QWidget" name="widget_14" native="true">
+               <widget class="QWidget" name="widget_3_4" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1932,7 +1932,7 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QWidget" name="widget_4" native="true">
+               <widget class="QWidget" name="widget_2_1" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1942,7 +1942,7 @@
                </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QWidget" name="widget_22" native="true">
+               <widget class="QWidget" name="widget_2_5" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -1952,7 +1952,7 @@
                </widget>
               </item>
               <item row="0" column="0">
-               <widget class="QWidget" name="widget_3" native="true">
+               <widget class="QWidget" name="widget_1_1" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -2404,7 +2404,7 @@
                </widget>
               </item>
               <item row="4" column="2">
-               <widget class="QWidget" name="widget_15" native="true">
+               <widget class="QWidget" name="widget_3_5" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -2856,7 +2856,7 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QWidget" name="widget_18" native="true">
+               <widget class="QWidget" name="widget_2_3" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -2866,7 +2866,7 @@
                </widget>
               </item>
               <item row="2" column="3">
-               <widget class="QWidget" name="widget_11" native="true">
+               <widget class="QWidget" name="widget_4_3" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -2876,7 +2876,7 @@
                </widget>
               </item>
               <item row="1" column="3">
-               <widget class="QWidget" name="widget_12" native="true">
+               <widget class="QWidget" name="widget_4_2" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -3328,7 +3328,7 @@
                </widget>
               </item>
               <item row="0" column="4">
-               <widget class="QWidget" name="widget_7" native="true">
+               <widget class="QWidget" name="widget_5_1" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -3780,7 +3780,7 @@
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QWidget" name="widget_20" native="true">
+               <widget class="QWidget" name="widget_2_4" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -3790,7 +3790,7 @@
                </widget>
               </item>
               <item row="2" column="2">
-               <widget class="QWidget" name="widget_13" native="true">
+               <widget class="QWidget" name="widget_3_3" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -4242,7 +4242,7 @@
                </widget>
               </item>
               <item row="2" column="4">
-               <widget class="QWidget" name="widget_19" native="true">
+               <widget class="QWidget" name="widget_5_3" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -4255,7 +4255,7 @@
                </widget>
               </item>
               <item row="1" column="2">
-               <widget class="QWidget" name="widget_8" native="true">
+               <widget class="QWidget" name="widget_3_2" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -4265,7 +4265,7 @@
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QWidget" name="widget_24" native="true">
+               <widget class="QWidget" name="widget_1_2" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -4717,7 +4717,7 @@
                </widget>
               </item>
               <item row="2" column="0">
-               <widget class="QWidget" name="widget_25" native="true">
+               <widget class="QWidget" name="widget_1_3" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -4727,7 +4727,7 @@
                </widget>
               </item>
               <item row="3" column="0">
-               <widget class="QWidget" name="widget_26" native="true">
+               <widget class="QWidget" name="widget_1_4" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -5179,7 +5179,7 @@
                </widget>
               </item>
               <item row="4" column="0">
-               <widget class="QWidget" name="widget_27" native="true">
+               <widget class="QWidget" name="widget_1_5" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>
@@ -5631,7 +5631,7 @@
                </widget>
               </item>
               <item row="1" column="4">
-               <widget class="QWidget" name="widget" native="true">
+               <widget class="QWidget" name="widget_5_2" native="true">
                 <property name="minimumSize">
                  <size>
                   <width>140</width>

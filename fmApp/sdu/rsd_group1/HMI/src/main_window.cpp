@@ -61,7 +61,20 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     // setup signal and slot
     connect(&qnode, SIGNAL(runStateMachine()),this, SLOT(StateMachine()));
 
-    ui.widget->setStyleSheet("border-image: url(:/test/down_arrow.png)");
+    ui.widget_2_1->setStyleSheet("border-image: url(:/arrows/right_up_right_arrow.png)");
+    ui.widget_4_1->setStyleSheet("border-image: url(:/arrows/right_down_right_arrow.png)");
+    ui.widget_5_2->setStyleSheet("border-image: url(:/arrows/down_arrow.png)");
+    ui.widget_1_3->setStyleSheet("border-image: url(:/arrows/up_arrow.png)");
+    ui.widget_2_3->setStyleSheet("border-image: url(:/arrows/left_up_arrow.png)");
+    ui.widget_4_3->setStyleSheet("border-image: url(:/arrows/down_left_arrow.png)");
+    ui.widget_5_3->setStyleSheet("border-image: url(:/arrows/down_arrow.png)");
+    ui.widget_2_4->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
+    ui.widget_3_4->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
+    ui.widget_4_4->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
+    ui.widget_5_4->setStyleSheet("border-image: url(:/arrows/down_left_arrow.png)");
+    ui.widget_4_4->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
+    ui.widget_2_5->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
+    ui.widget_4_5->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
 
     initialize();
 
