@@ -40,6 +40,11 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	ui.tab_manager->setCurrentIndex(0); // ensure the first tab is showing - qt-designer should have this already hardwired, but often loses it (settings?).
     QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
     QObject::connect(ui.btn_master, SIGNAL(clicked()), this, SLOT(btn_master_clicked()));
+    QObject::connect(ui.chk_HMI_debug, SIGNAL(toggled(bool),this,SLOT(hmi_debug_checked(bool)));
+    QObject::connect(ui.chk_Ros_debug, SIGNAL(toggled(bool),this,SLOT(ros_debug_checked(bool)));
+    QObject::connect(ui.chk_Vis_debug, SIGNAL(toggled(bool),this,SLOT(vis_debug_checked(bool)));
+    QObject::connect(ui.chk_MES_debug, SIGNAL(toggled(bool),this,SLOT(mes_debug_checked(bool)));
+    QObject::connect(ui.chk_Con_debug, SIGNAL(toggled(bool),this,SLOT(con_debug_checked(bool)));
 
 	/*********************
 	** Logging
@@ -117,6 +122,33 @@ void MainWindow::updateLoggingView() {
 /*****************************************************************************
 ** Implementation [Configuration]
 *****************************************************************************/
+
+void MainWindow::hmi_debug_checked(bool setting)
+{
+    qnode.HMI_debug = setting;
+}
+
+void MainWindow::rob_debug_checked(bool setting)
+{
+    qnode.Rob_debug = setting;
+}
+
+void MainWindow::vis_debug_checked(bool setting)
+{
+    qnode.Vis_debug = setting;
+}
+
+void MainWindow::mes_debug_checked(bool setting)
+{
+    qnode.MES_debug = setting;
+}
+
+void MainWindow::con_debug_checked(bool setting)
+{
+    qnode.Con_debug = setting;
+}
+
+
 
 void MainWindow::updatePositions(){
         ui.lbl_current_q_1->setText(QString::number(qnode.current_config[0]));

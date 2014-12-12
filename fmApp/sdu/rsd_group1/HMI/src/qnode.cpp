@@ -36,6 +36,11 @@ void QNode::logCallback(const msgs::log new_log)
 
         ss <<  timeBuf << ": [0x" << hex << new_log.CodeID << "] " << new_log.Text << endl;
 
+        if(new_log.Level == 0)
+        {
+            Log_Complete	<< ss.rdbuf();
+        }
+
     switch(new_log.NodeID)
 	{
 		case 0:

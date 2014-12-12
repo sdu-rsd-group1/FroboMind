@@ -239,6 +239,11 @@ int main(int argc, char **argv)
    ros::Rate loop_rate(10);
    while(ros::ok())
    {
+	log.NodeID = 1;
+	log.CodeID = 1;
+	log.Level = 1;
+	log.Text = "Spamming Debug mode";	
+	log_pub.publish(log);
        if(upperBrickWait)
        {
            if(!Staubli->orderlist.empty())

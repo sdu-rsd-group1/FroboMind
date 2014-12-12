@@ -48,6 +48,12 @@ public Q_SLOTS:
     void btn_master_clicked();
     void StateMachine();
 
+
+    void hmi_debug_checked(bool setting);
+    void rob_debug_checked(bool setting);
+    void vis_debug_checked(bool setting);
+    void mes_debug_checked(bool setting);
+    void con_debug_checked(bool setting);
     /******************************************
     ** Manual connections
     *******************************************/
@@ -81,6 +87,8 @@ private:
     void stateCompleted();
     void stateReleaseBrick(states next_state);
     void stateGraspBrick(states next_state);
+
+
 
 };
 }  // namespace HMI
