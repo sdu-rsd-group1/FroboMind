@@ -23,9 +23,9 @@ namespace robot {
 
         loop_rate = new ros::Rate(5);
 
-        next_brick[0] = 0;
-        next_brick[1] = 0;
-        next_brick[2] = 0;
+        //next_brick[0] = 0;
+        //next_brick[1] = 0;
+        //next_brick[2] = 0;
 
     }
 
@@ -149,13 +149,14 @@ namespace robot {
         double y = next_brick[1];
         double rot = next_brick[2];
         Q_deg2rad currentQ = get_current_joints();
-
+        cout << " vision pose: " << x << ", " << y << endl;
         double z_up = ((PICKUP_BOX_ZPOS_UP-PICKUP_BOX_ZNEG_UP)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_UP;
         if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
         {
             Vector3D<> new_pos(x,y,z_up);
             RPY<> new_RPY(rot,-0.078,-3.113);
             Transform3D<> new_transform(new_pos,new_RPY.toRotation3D());
+
 
             cout << " new pose " << new_pos << endl << new_RPY << endl << new_transform << endl;
 
@@ -184,12 +185,15 @@ namespace robot {
                 RobotDevice->setQ(middleQ.get_Q_rad(),current_state);
 
             }
-            cout << "No solutions" << endl;
-            return NO_SOLUTIONS;
+            else
+            {
+                cout << "No solutions" << endl;
+                return NO_SOLUTIONS;
+            }
         }
         else
         {
-            cout << "Out of bounds" << endl;
+            cout << "Out of bounds1" << endl;
             return OUT_OF_BOUNDS;
         }
     }
@@ -200,6 +204,12 @@ namespace robot {
         double y = next_brick[1];
         double rot = next_brick[2];
         Q_deg2rad currentQ = get_current_joints();
+        
+        //limit the y position
+        if(y < PICKUP_BOX_YNEG)
+        {
+			y = PICKUP_BOX_YNEG;
+		}
 
         double z_up = ((PICKUP_BOX_ZPOS_UP-PICKUP_BOX_ZNEG_UP)/(PICKUP_BOX_YPOS-PICKUP_BOX_YNEG))*(y-(PICKUP_BOX_YNEG)) + PICKUP_BOX_ZNEG_UP;
         if((x >= PICKUP_BOX_XNEG && x <= PICKUP_BOX_XPOS) && (y >= PICKUP_BOX_YNEG && y <= PICKUP_BOX_YPOS))
@@ -225,12 +235,15 @@ namespace robot {
                 }
 
             }
-            cout << "No solutions" << endl;
-            return NO_SOLUTIONS;
+            else
+            {
+                cout << "No solutions" << endl;
+                return NO_SOLUTIONS;
+            }
         }
         else
         {
-            cout << "Out of bounds" << endl;
+            cout << "Out of bounds2" << endl;
             return OUT_OF_BOUNDS;
         }
     }
@@ -266,20 +279,24 @@ namespace robot {
                 }
 
             }
-            cout << "No solutions" << endl;
-            return NO_SOLUTIONS;
+            else
+            {
+                cout << "No solutions" << endl;
+                return NO_SOLUTIONS;
+            }
         }
         else
         {
-            cout << "Out of bounds" << endl;
+            cout << "Out of bounds3" << endl;
             return OUT_OF_BOUNDS;
         }
+
     }
     void robot::grasp()
     {
 
         loop_rate->sleep();
-        srv_grasp.request.width = 25.0;
+        srv_grasp.request.width = GRASP_WIDTH;
         srv_grasp.request.speed = 400.0;
         gripper_client_grasp.call(srv_grasp);
 
@@ -289,7 +306,7 @@ namespace robot {
 
     void robot::release()
     {
-        srv_release.request.width = 75.0;
+        srv_release.request.width = RELEASE_WIDTH;
         srv_release.request.speed = 400.0;
         gripper_client_release.call(srv_release);
 

@@ -11,8 +11,6 @@
 
 #include <sstream>
 
-#define LENGTH_OFFSET 2
-
 using namespace std_msgs;
 using namespace std;
 using namespace ros;
@@ -31,19 +29,17 @@ rsd_group1::Num current_order;
 float wsg_width;
 float wsg_force;
 
+bool upperBrickWait = false;
+
 robot::robot *Staubli;
 
 double getPositionFromOrder(double speed, double seconds)
 {
-    time_t now;
-    struct tm sendTime;
+double new_time = ros::Time::now().toSec();
 
-    time(&now);
-    sendTime.tm_sec = seconds;
+    cout << "get position function: " << speed << " " << seconds << " " << new_time << " " << (new_time-seconds) << endl;
 
-    seconds = difftime(now,mktime(&sendTime));
-
-    return speed*seconds + LENGTH_OFFSET;
+    return speed*(new_time-seconds) + PICKUP_BOX_YNEG-PICKUP_BRICK_OFFSET;
 }
 
 void stateStop(){
@@ -68,23 +64,7 @@ void stateSuspended(){
 }
 
 void stateUpperBrick(){
-    if(!Staubli->orderlist.empty())
-    {
-        current_order = Staubli->orderlist.front();
-        double y = getPositionFromOrder(current_order.speed,current_order.time);
-        double x = current_order.x-PICKUP_BOX_XNEG;
-        double angle = current_order.angle;
 
-        cout << "Order: " << x << ", " << y << ", " << angle << endl;
-//        if(y > PICKUP_BRICK_OFFSET-PICKUP_BOX_YNEG)
-//        {
-//            Staubli->orderlist.erase(0);
-//            Staubli->next_brick[0] = current_order.x-0.3;
-//            Staubli->next_brick[1] = getPositionFromOrder(current_order.speed,current_order.time);
-//            Staubli->next_brick[2] = current_order.angle;
-//            Staubli->goToUpperPos();
-//        }
-    }
 
 }
 
@@ -97,6 +77,9 @@ void stateLowerBrick(){
 }
 
 void stateGraspBrick(){
+    Staubli->next_brick[0] = 0;
+    Staubli->next_brick[1] = 0;
+    Staubli->next_brick[2] = 0;
     Staubli->grasp();
 }
 
@@ -118,7 +101,9 @@ void stateCompleted(){
 
 void orderCallback(const rsd_group1::Num status)
 {
+    cout << "Order" << endl;
     Staubli->orderlist.push_back(status);
+    cout << "New Brick " << Staubli->orderlist.front().color << endl;
 }
 
 void statusCallback(const wsg_50_common::Status status){
@@ -202,6 +187,14 @@ void stateCallback(const std_msgs::UInt32::ConstPtr& state){
             break;
         }
     }
+    if((states)state->data == GO_TO_UPPER_BRICK)
+    {
+        upperBrickWait = true;
+    }
+    else
+    {
+        upperBrickWait = false;
+    }
 }
 
 int main(int argc, char **argv)
@@ -213,11 +206,11 @@ int main(int argc, char **argv)
     ros::Subscriber state_sub = n.subscribe("robot_states",1000,stateCallback);
     ros::Subscriber gripper_sub = n.subscribe("wsg_50/status",1000,statusCallback);
 
-    ros::Subscriber brick_sub = n.subscribe("rsd_group1/brick2pick",1000,orderCallback);
+    ros::Subscriber brick_sub = n.subscribe("/brick2pick",1000,orderCallback);
 
     gripper_grasp_client = n.serviceClient<wsg_50_common::Move>("/wsg_50/grasp");
 
-    srv_grasp.request.width = 25.0;
+    srv_grasp.request.width = GRASP_WIDTH;
     srv_grasp.request.speed = 400.0;
     gripper_grasp_client.call(srv_grasp);
 
@@ -238,6 +231,39 @@ int main(int argc, char **argv)
    ros::Rate loop_rate(10);
    while(ros::ok())
    {
+       if(upperBrickWait)
+       {
+           if(!Staubli->orderlist.empty())
+           {
+               current_order = Staubli->orderlist.front();
+               double y = getPositionFromOrder(current_order.speed,current_order.time);
+               double x = PICKUP_BOX_XNEG-current_order.x;
+               double angle = -current_order.angle;
+
+               angle += ANGLE_OFFSET;
+
+               //Staubli->orderlist.erase(Staubli->orderlist.begin());
+
+               cout << "Order: " << x << ", " << y << ", " << angle << endl;
+               
+
+               if(y > PICKUP_BOX_YNEG)
+               {
+				   //Staubli->next_brick[0] = x;
+				   Staubli->next_brick[1] = y;
+				   //Staubli->next_brick[2] = (3.1415/180.0)*angle;
+				   Staubli->goToUpperPos();
+                   Staubli->orderlist.erase(Staubli->orderlist.begin());
+                   
+               }
+               else
+               {
+				   Staubli->next_brick[0] = x;
+				   Staubli->next_brick[2] = (3.1415/180.0)*angle;
+			       Staubli->goToUpperPos();
+			   }
+           }
+       }
        rob_pose_pub.publish(Staubli->get_pub_pose());
 	    ros::spinOnce();
         loop_rate.sleep();

@@ -43,7 +43,7 @@ class LegoBrick:
         return self.speed
         return
 
-    def __init__(self, xinp, yinp, anginp, color, time):
+    def __init__(self, xinp, yinp, anginp, color, time, width, height):
         self.speed = 0
         self.color = color
         self.timeStart = time
@@ -55,6 +55,8 @@ class LegoBrick:
         self.angle = anginp
         self.xPosOnBelt = 0
         self.lastUpdateTime = time
+        self.width = width
+        self.height = height
         return
 
     def getInfo(self):
@@ -62,5 +64,6 @@ class LegoBrick:
                     "\n StartY: " + str(self.startY) + "\n EndX: " + str(self.endX) + \
                     "\n EndY: " + str(self.endY) + "\n angle: " + str(self.angle) + \
                     "\n Timestamp: " + str(self.timeStart) + \
-                    "\n Speed: " + str(self.speed) + "\n X on belt: " + str(self.xPosOnBelt)
+                    "\n Speed: " + str(self.speed) + "\n X on belt: " + str(self.xPosOnBelt) + \
+                    "\n Width: " + str(self.width) + "\n Height: " + str(self.height)
         return infoAsString

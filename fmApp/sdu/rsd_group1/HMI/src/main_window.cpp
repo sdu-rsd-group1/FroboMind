@@ -280,7 +280,7 @@ void MainWindow::stateReleaseBrick(states next_state){
 
     ui.lbl_state->setText("Opening grip");
 
-    if(qnode.wsg_width > 70)
+    if(qnode.wsg_width > RELEASE_WIDTH_THRESHOLD)
     {
         state = next_state;
         qnode.publish_state(state);
@@ -292,13 +292,13 @@ void MainWindow::stateGraspBrick(){
 
     ui.lbl_state->setText("Grasping brick");
 
-    if(qnode.wsg_width < 16)
+    if(qnode.wsg_width < GRASP_WIDTH_THRESHOLD)
     {
-        state = SUSPENDED;
+        state = START;
         qnode.publish_state(state);
-        cout << "State: suspended"  <<qnode.wsg_width << endl;
+        cout << "State: Start"  <<qnode.wsg_width << endl;
     }
-    else if(qnode.wsg_width < 30 && qnode.wsg_width > 16)
+    else if(qnode.wsg_width < RELEASE_WIDTH_THRESHOLD && qnode.wsg_width > GRASP_WIDTH_THRESHOLD)
     {
         state = BRICK_TO_MIDDLE;
         qnode.publish_state(state);
@@ -310,7 +310,7 @@ void MainWindow::stateLowerBrick(){
 
     ui.lbl_state->setText("Lowering tool");
 
-    if(qnode.current_pose[2] < 0.34)
+    if(qnode.current_pose[2] < PICKUP_BOX_ZNEG_UP-0.02)
     {
         state = GRASP_BRICK;
         cout << "State: Grasp Brick" << endl;
@@ -326,7 +326,7 @@ void MainWindow::stateBrickToMiddle(){
 
     cout <<"going to middle " << sqrt(math) <<   endl;
 
-    if(sqrt(math) < 0.02)//qnode.wsg_width > 60 && )
+    if(sqrt(math) < 0.2)//0.02)//qnode.wsg_width > 60 && )
     {
         state = MIDDLE_TO_BOX;
         qnode.publish_state(state);

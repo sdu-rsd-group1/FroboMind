@@ -8,9 +8,9 @@ from rsd_group1.msg import Num
 
 orderList = []    
 trashList = []
-ordersRed = 2
-ordersBlue = 1
-ordersYellow = 1
+ordersRed = 100
+ordersBlue = 100
+ordersYellow = 100
 
 
 def talker():
@@ -19,7 +19,6 @@ def talker():
     global ordersRed
     global ordersBlue
     global ordersYellow
-    pub = rospy.Publisher('brick2pick', Num, queue_size=100)
 #		str = "hello world %s"%rospy.get_time()
 #    rospy.loginfo(str)
     pub.publish(orderList[0])
@@ -64,6 +63,7 @@ if __name__ == '__main__':
         rospy.init_node('OrderQ', anonymous=True)
         #while not rospy.is_shutdown():
         #talker()
+	pub = rospy.Publisher('brick2pick', Num, queue_size=100)
         listener()
         #print "hell"
         rospy.spin()

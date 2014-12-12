@@ -2,12 +2,12 @@
 <root>
 	<imageBorders>
 		<leftBorder>26</leftBorder>
-		<rightBorder>857</rightBorder>
+		<rightBorder>875</rightBorder>
 		<enterThres>933</enterThres>
 		<leaveThres>359</leaveThres>
 	</imageBorders>
 	<imageCrop>
-		<leftCrop>57</leftCrop>
+		<leftCrop>27</leftCrop>
 		<rightCrop>932</rightCrop>
 		<botCrop>1643</botCrop>
 		<topCrop>192</topCrop>
@@ -19,11 +19,11 @@
 		<saturation>52</saturation>
 		<colorRange>8</colorRange>
 		<redSaturation>47</redSaturation>
-		<blueSaturation>99</blueSaturation>
-		<yellowSaturation>24</yellowSaturation>
+		<blueSaturation>68</blueSaturation>
+		<yellowSaturation>21</yellowSaturation>
 		<redHue>8</redHue>
 		<redIntensity>11</redIntensity>
-		<blueIntensity>76</blueIntensity>
-		<yellowIntensity>136</yellowIntensity>
+		<blueIntensity>62</blueIntensity>
+		<yellowIntensity>130</yellowIntensity>
 	</hsvSettings>
 </root>

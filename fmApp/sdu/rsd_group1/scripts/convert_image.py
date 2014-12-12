@@ -14,10 +14,10 @@ import xmlsettings
 
 
 
+
 def publishBrick(brick):
     #-------------------publish list of bricks---------------------------------------------------------------------
-
-    pub = rospy.Publisher("brick", Num)
+    
     a = Num()
 
     a.color = brick.color
@@ -46,14 +46,14 @@ def getBricks(contours, color):
 
     areaReq = 0
     if color == "Blue":
-        areaReqMin = 300
-        areaReqMax = 1000000
+        areaReqMin = 3500
+        areaReqMax = 10000
     elif color == "Red":
-        areaReqMin = 300
-        areaReqMax = 1000000
+        areaReqMin = 7500
+        areaReqMax = 20000
     elif color == "Yellow":
-        areaReqMin = 300
-        areaReqMax = 1000000
+        areaReqMin = 11500
+        areaReqMax = 30000
     else:
         areaReqMin = 300
         areaReqMax = 1000000
@@ -73,9 +73,19 @@ def getBricks(contours, color):
             # print "Brick type is: " + size + " " + str(color)
             # print "Brick pose is:"
             # print "x: " + str(rect[0][0]) + " y: " + str(rect[0][1])
-            tempAngle = rect[2]
-
-            tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time()))
+            #print "...."
+            if (rect[1][0] > rect[1][1]):
+                tempAngle = rect[2] + 90
+            #    print "Bad angle, orig:"
+            #    print rect[2]
+            #    print "Corrected: "
+             #   print tempAngle
+            else:
+             #   print "Angle:"
+             #   print rect[2]
+                tempAngle = rect[2]
+           # print "...."
+            tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time(), rect[1][0], rect[1][1]))
 
     return bricks, tempList
 
@@ -164,7 +174,7 @@ class image_converter:
   def __init__(self):
 
     global config
-    config = xmlsettings.XMLSettings('/home/ditlev/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
+    config = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
 
 
     global leftBorder
@@ -341,15 +351,15 @@ class image_converter:
     for rect in rectRed:
         box = cv.BoxPoints(rect)
         box = np.int0(box)
-        drawContours(img, [box], -1, (0, 0, 255), 2)
+        drawContours(img, [box], -1, (0, 0, 255), 5)
     for rect in rectBlue:
         box = cv.BoxPoints(rect)
         box = np.int0(box)
-        drawContours(img, [box], -1, (255, 0, 0), 2)
+        drawContours(img, [box], -1, (255, 0, 0), 5)
     for rect in rectYellow:
         box = cv.BoxPoints(rect)
         box = np.int0(box)
-        drawContours(img, [box], -1, (0, 255, 255), 2)
+        drawContours(img, [box], -1, (0, 255, 255), 5)
 
 
     #Horisontal lines
@@ -407,15 +417,16 @@ class image_converter:
       print e
 
 def main(args):
-    ic = image_converter()
-    rospy.init_node('image_converter', anonymous=True)
-    try:
-        rospy.spin()
-    except KeyboardInterrupt:
-        print "Shutting down"
-    destroyAllWindows()
+	ic = image_converter()
+	rospy.init_node('image_converter', anonymous=True)
+	try:
+		rospy.spin()
+	except KeyboardInterrupt:
+		print "Shutting down"
+	destroyAllWindows()
 
 if __name__ == '__main__':
+    pub = rospy.Publisher('brick', Num, queue_size=100)
     main(sys.argv)
 
 
