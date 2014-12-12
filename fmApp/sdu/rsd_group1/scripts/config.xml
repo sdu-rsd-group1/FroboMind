@@ -17,12 +17,12 @@
 		<yellowHue>31</yellowHue>
 		<intensity>105</intensity>
 		<saturation>52</saturation>
-		<colorRange>8</colorRange>
-		<redSaturation>47</redSaturation>
+		<colorRange>9</colorRange>
+		<redSaturation>52</redSaturation>
 		<blueSaturation>68</blueSaturation>
 		<yellowSaturation>21</yellowSaturation>
 		<redHue>8</redHue>
-		<redIntensity>11</redIntensity>
+		<redIntensity>101</redIntensity>
 		<blueIntensity>62</blueIntensity>
 		<yellowIntensity>130</yellowIntensity>
 	</hsvSettings>

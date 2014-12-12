@@ -103,7 +103,11 @@ void orderCallback(const rsd_group1::Num status)
 {
     cout << "Order" << endl;
     Staubli->orderlist.push_back(status);
-    cout << "New Brick " << Staubli->orderlist.front().color << endl;
+    //cout << "New Brick " << Staubli->orderlist.front().color << endl;
+    for(int i = 0; i < Staubli->orderlist.size(); i++)
+    {
+        cout << i <<". callback: "<<Staubli->orderlist.at(i).brick << endl;
+    }
 }
 
 void statusCallback(const wsg_50_common::Status status){
@@ -227,7 +231,7 @@ int main(int argc, char **argv)
 	log_pub.publish(err);
 	
    cout << "initialized" << endl;
-   
+   bool first = true;
    ros::Rate loop_rate(10);
    while(ros::ok())
    {
@@ -235,6 +239,10 @@ int main(int argc, char **argv)
        {
            if(!Staubli->orderlist.empty())
            {
+               for(int i = 0; i < Staubli->orderlist.size(); i++)
+               {
+                   cout << i <<". upper: "<<Staubli->orderlist.at(i).brick << endl;
+               }
                current_order = Staubli->orderlist.front();
                double y = getPositionFromOrder(current_order.speed,current_order.time);
                double x = PICKUP_BOX_XNEG-current_order.x;
@@ -242,26 +250,28 @@ int main(int argc, char **argv)
 
                angle += ANGLE_OFFSET;
 
-               //Staubli->orderlist.erase(Staubli->orderlist.begin());
 
                cout << "Order: " << x << ", " << y << ", " << angle << endl;
-               
+
+               //if(first)
+               //{
+                //cout << "GOING TO goToUpperPos() TRUE" << endl;
+                //Staubli->goToUpperPos2(x,PICKUP_BOX_YNEG,((3.1415/180.0)*angle));
+                //first = false;
+               //}
 
                if(y > PICKUP_BOX_YNEG)
                {
+                   cout << "GOING TO goToUpperPos()" << endl;
 				   Staubli->next_brick[0] = x;
 				   Staubli->next_brick[1] = y;
 				   Staubli->next_brick[2] = (3.1415/180.0)*angle;
 				   Staubli->goToUpperPos();
                    Staubli->orderlist.erase(Staubli->orderlist.begin());
-                   
+                   first = true;
                }
-               //else
-               //{
-				//   Staubli->next_brick[0] = x;
-				  // Staubli->next_brick[2] = (3.1415/180.0)*angle;
-			       //Staubli->goToUpperPos();
-			   //}
+
+
            }
        }
        rob_pose_pub.publish(Staubli->get_pub_pose());

@@ -393,7 +393,7 @@ class image_converter:
 
     #Find new bricks
     for pBrick in self.pBrickList:
-        if pBrick.y > enterThres:
+        if pBrick.y < enterThres and pBrick.y > leaveThres:
             self.brickList.append(pBrick)
 
     #Publish found bricks
