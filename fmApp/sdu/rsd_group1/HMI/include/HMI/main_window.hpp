@@ -87,6 +87,7 @@ private:
     void stateCompleted();
     void stateReleaseBrick(states next_state);
     void stateGraspBrick(states next_state);
+    void switch_state_color(states cur_state);
 
 
 
