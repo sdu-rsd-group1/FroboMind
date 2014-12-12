@@ -249,19 +249,19 @@ int main(int argc, char **argv)
 
                if(y > PICKUP_BOX_YNEG)
                {
-				   //Staubli->next_brick[0] = x;
+				   Staubli->next_brick[0] = x;
 				   Staubli->next_brick[1] = y;
-				   //Staubli->next_brick[2] = (3.1415/180.0)*angle;
+				   Staubli->next_brick[2] = (3.1415/180.0)*angle;
 				   Staubli->goToUpperPos();
                    Staubli->orderlist.erase(Staubli->orderlist.begin());
                    
                }
-               else
-               {
-				   Staubli->next_brick[0] = x;
-				   Staubli->next_brick[2] = (3.1415/180.0)*angle;
-			       Staubli->goToUpperPos();
-			   }
+               //else
+               //{
+				//   Staubli->next_brick[0] = x;
+				  // Staubli->next_brick[2] = (3.1415/180.0)*angle;
+			       //Staubli->goToUpperPos();
+			   //}
            }
        }
        rob_pose_pub.publish(Staubli->get_pub_pose());
