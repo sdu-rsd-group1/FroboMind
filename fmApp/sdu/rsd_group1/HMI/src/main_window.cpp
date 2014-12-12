@@ -44,8 +44,14 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	/*********************
 	** Logging
 	**********************/
-	ui.view_logging->setModel(qnode.loggingModel());
+    ui.view_log_HMI->setModel(qnode.HmiLogModel());
+    ui.view_log_Rob->setModel(qnode.RobLogModel());
+    ui.view_log_Vis->setModel(qnode.VisLogModel());
+    ui.view_log_MES->setModel(qnode.MesLogModel());
+    ui.view_log_Con->setModel(qnode.ConLogModel());
+    ui.view_log_Complete->setModel(qnode.CompleteLogModel());
     QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
+
 
     // setup signal and slot
     connect(&qnode, SIGNAL(runStateMachine()),this, SLOT(StateMachine()));
@@ -100,7 +106,12 @@ void MainWindow::btn_master_clicked(){
  * the user can always see the latest log message.
  */
 void MainWindow::updateLoggingView() {
-        ui.view_logging->scrollToBottom();
+        ui.view_log_HMI->scrollToBottom();
+        ui.view_log_Rob->scrollToBottom();
+        ui.view_log_Vis->scrollToBottom();
+        ui.view_log_MES->scrollToBottom();
+        ui.view_log_Con->scrollToBottom();
+        ui.view_log_Complete->scrollToBottom();
 }
 
 /*****************************************************************************

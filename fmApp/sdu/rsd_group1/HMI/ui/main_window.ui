@@ -139,7 +139,111 @@
           </property>
           <layout class="QGridLayout" name="gridLayout_31">
            <item row="0" column="0">
-            <widget class="QListView" name="view_logging"/>
+            <widget class="QGroupBox" name="HMI_log">
+             <property name="title">
+              <string>HMI log</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="QListView" name="view_log_HMI"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chk_HMI_debug">
+                <property name="text">
+                 <string>HMI</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QGroupBox" name="Rob_log">
+             <property name="title">
+              <string>Robotics log</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QListView" name="view_log_Rob"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chk_Rob_debug">
+                <property name="text">
+                 <string>Robotics</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QGroupBox" name="Con_log">
+             <property name="title">
+              <string>Conveyor log</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <item>
+               <widget class="QListView" name="view_log_Con"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chk_Con_debug">
+                <property name="text">
+                 <string>Conveyor</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QGroupBox" name="MES_log">
+             <property name="title">
+              <string>MES log</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QListView" name="view_log_MES"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chk_MES_debug">
+                <property name="text">
+                 <string>MES</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QGroupBox" name="Vis_log">
+             <property name="title">
+              <string>Vision log</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QListView" name="view_log_Vis"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="chk_Vis_debug">
+                <property name="text">
+                 <string>Vision</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QGroupBox" name="Complete_log">
+             <property name="title">
+              <string>Complete log</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+              <item>
+               <widget class="QListView" name="view_log_Complete"/>
+              </item>
+             </layout>
+            </widget>
            </item>
           </layout>
          </widget>
