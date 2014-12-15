@@ -40,11 +40,11 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	ui.tab_manager->setCurrentIndex(0); // ensure the first tab is showing - qt-designer should have this already hardwired, but often loses it (settings?).
     QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
     QObject::connect(ui.btn_master, SIGNAL(clicked()), this, SLOT(btn_master_clicked()));
-    QObject::connect(ui.chk_HMI_debug, SIGNAL(toggled(bool),this,SLOT(hmi_debug_checked(bool)));
-    QObject::connect(ui.chk_Ros_debug, SIGNAL(toggled(bool),this,SLOT(ros_debug_checked(bool)));
-    QObject::connect(ui.chk_Vis_debug, SIGNAL(toggled(bool),this,SLOT(vis_debug_checked(bool)));
-    QObject::connect(ui.chk_MES_debug, SIGNAL(toggled(bool),this,SLOT(mes_debug_checked(bool)));
-    QObject::connect(ui.chk_Con_debug, SIGNAL(toggled(bool),this,SLOT(con_debug_checked(bool)));
+    QObject::connect(ui.chk_HMI_debug, SIGNAL(toggled(bool)),this,SLOT(hmi_debug_checked(bool)));
+    QObject::connect(ui.chk_Rob_debug, SIGNAL(toggled(bool)),this,SLOT(rob_debug_checked(bool)));
+    QObject::connect(ui.chk_Vis_debug, SIGNAL(toggled(bool)),this,SLOT(vis_debug_checked(bool)));
+    QObject::connect(ui.chk_MES_debug, SIGNAL(toggled(bool)),this,SLOT(mes_debug_checked(bool)));
+    QObject::connect(ui.chk_Con_debug, SIGNAL(toggled(bool)),this,SLOT(con_debug_checked(bool)));
 
 	/*********************
 	** Logging
@@ -351,8 +351,8 @@ void MainWindow::stateStart(){
     ui.btn_master->setText("Stop");
     ui.btn_master->setStyleSheet("background-color: red");
 
-    ui.lbl_state->setStyleSheet("background-color: yellow");
-    ui.lbl_state->setText("Starting");
+//    ui.lbl_state->setStyleSheet("background-color: yellow");
+//    ui.lbl_state->setText("Starting");
 
     double math = (qnode.current_pose[0]-PICKUP_BOX_CENTERX)*(qnode.current_pose[0]-PICKUP_BOX_CENTERX) + (qnode.current_pose[1]-PICKUP_BOX_CENTERY)*(qnode.current_pose[1]-PICKUP_BOX_CENTERY);
 
