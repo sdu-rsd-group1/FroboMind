@@ -31,6 +31,7 @@
 #include "fstream"
 #include <sstream>
 #include "msgs/log.h"
+#include "rsd_group1/general.h"
 
 #define MES_WAIT 0
 #define MES_LOAD_BRICKS 1
@@ -76,7 +77,7 @@ public:
 	void log(int nodeid, int level, const std::string &msg);
     void logCallback(const msgs::log new_log);
 
-     void publish_vision_config(bool setting);
+    void publish_vision_config(bool setting);
 
     void mes_publish_status(int status);
 
@@ -106,9 +107,6 @@ Q_SIGNALS:
     void rosShutdown();
     void runStateMachine();
     void mesCommand(int command);
-
-    void visOutOfBricks();
-    void visOrderComplete();
 
 
 private:
@@ -145,7 +143,7 @@ private:
 
     void robPosCallback(const std_msgs::Float32MultiArray::ConstPtr& msg);
     void statusCallback(const wsg_50_common::Status status);
-    void mesCallback(const std_msgs::Int8::ConstPtr& msg);
+    void mesCallback(const rsd_group1::general msg);
 
 };
 

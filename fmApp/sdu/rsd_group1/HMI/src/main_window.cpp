@@ -199,6 +199,10 @@ void MainWindow::switch_state_color()
             ui.lbl_state_mes->setStyleSheet("background-color: green");
             break;
         }
+        case SECURITY:
+        {
+            ui.lbl_state_security->setStyleSheet("background-color: green");
+        }
     }
 }
 

@@ -2,11 +2,10 @@
 #roslib.load_manifest('rsd_group1')
 import rospy
 from std_msgs.msg import String
-from rsd_group1.msg import Num, lego_brick, mes_order, Log
+from rsd_group1.msg import Num, lego_brick, mes_order, Log, msg_hi, general
 
 
-count = 0				#timecheck time counter
-then = 0 
+
 orderList = []    
 trashList = []
 ordersRed = 100
@@ -39,8 +38,10 @@ def order_done():
     pub_done.publish("done")
     log_it(0,2,"Order is done after current bricks have been picked")
 
-def out_of_bricks():			# time
-    pub_time.publish("outofbricks")
+def out_of_bricks():
+    message = general()
+    message.general = 2			# time
+    pub_time.publish(message)
 
 def callback(brick):
     global orderList    
@@ -92,10 +93,12 @@ def callback2(b_list):
     ordersBlue = b_list.bricks[1].count
     ordersYellow = b_list.bricks[2].count
     
-def callback_time():				#callback time
+def callback_time(data):				#callback time
     global now
     now = rospy.Time.now()
-    if now.nsecs-then.nsecs>20000000000:
+    print now.secs
+    print then.secs
+    if now.secs-then.secs>20:
         out_of_bricks()
         log_it(0,8,"Out of bricks")
 
@@ -104,7 +107,7 @@ def list_update():
 		rospy.Subscriber("/mes/picklist", mes_order, callback2)
 
 def time_check():             #time_check time
-		rospy.Subscriber("/mes/hi_topic",String , callback_time)
+		rospy.Subscriber("/mes/hi_topic",msg_hi , callback_time)
 
 #def robocallback(brick):
 #    talker()		#this should be placed after/at a request from robotic node
@@ -116,12 +119,14 @@ def time_check():             #time_check time
 if __name__ == '__main__':
     try:
         rospy.init_node('OrderQ', anonymous=True)	#log ("node started")
+        now = rospy.Time.now()				#timecheck time counter
+        then = rospy.Time.now()
         #while not rospy.is_shutdown():
         #talker()
         pub_pick = rospy.Publisher('brick2pick', Num, queue_size=100)
         pub_done = rospy.Publisher('orderdone', String, queue_size=100)
         pub_log = rospy.Publisher('logging', Log, queue_size=100)
-        pub_time = rospy.Publisher('/mes/incoming', String, queue_size=100)		# time
+        pub_time = rospy.Publisher('/mes/incoming', general, queue_size=100)		# time
         listener()
         list_update()
         time_check()

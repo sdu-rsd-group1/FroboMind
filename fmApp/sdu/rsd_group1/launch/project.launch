@@ -28,7 +28,7 @@
  <node pkg="rsd_group1" name="OrderQ" type="OrderQ.py">
 </node>
 <group ns="mes">
-    <node pkg="rsd_mes_client" name="mes_client" type="rsd_mes_sorting_client_node.py" output="screen" >
+    <node pkg="rsd_group1" name="mes_client" type="rsd_mes_sorting_client_node.py" output="screen" >
 	<param name="mes_command_topic" value="command" />
 	<param name="mes_status_topic" value="status" />
 	<param name="mes_incoming_topic" value="incoming" />
