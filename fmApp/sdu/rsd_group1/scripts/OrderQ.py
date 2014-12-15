@@ -97,13 +97,14 @@ def callback_time():				#callback time
     now = rospy.Time.now()
     if now.nsecs-then.nsecs>20000000000:
         out_of_bricks()
+        log_it(0,8,"Out of bricks")
 
 
 def list_update():
-		rospy.Subscriber("mes/picklist", mes_order, callback2)
+		rospy.Subscriber("/mes/picklist", mes_order, callback2)
 
 def time_check():             #time_check time
-		rospy.Subscriber("mes/hi_topic",String , callback_time)
+		rospy.Subscriber("/mes/hi_topic",String , callback_time)
 
 #def robocallback(brick):
 #    talker()		#this should be placed after/at a request from robotic node
@@ -120,7 +121,7 @@ if __name__ == '__main__':
         pub_pick = rospy.Publisher('brick2pick', Num, queue_size=100)
         pub_done = rospy.Publisher('orderdone', String, queue_size=100)
         pub_log = rospy.Publisher('logging', Log, queue_size=100)
-        pub_time = rospy.Publisher('incoming', String, queue_size=100)		# time
+        pub_time = rospy.Publisher('/mes/incoming', String, queue_size=100)		# time
         listener()
         list_update()
         time_check()
