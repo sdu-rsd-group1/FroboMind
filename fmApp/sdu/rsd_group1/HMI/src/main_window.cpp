@@ -52,6 +52,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
     QObject::connect(&qnode, SIGNAL(OEE_updated()),this,SLOT(update_OEE());
 
+    QObject::connect(&qnode, SIGNAL(security_abort()),this,SLOT(abort_security());
+
 
 	/*********************
 	** Logging
@@ -104,6 +106,11 @@ MainWindow::~MainWindow() {}
 /*****************************************************************************
 ** Implementation [Slots]
 *****************************************************************************/
+
+void MainWindow::abort_security()
+{
+    state = SECURITY;
+}
 
 void MainWindow::update_OEE()
 {

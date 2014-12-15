@@ -60,6 +60,8 @@ public Q_SLOTS:
     void mes_status(int status);
 
     void update_OEE();
+
+    void abort_security();
     /******************************************
     ** Manual connections
     *******************************************/

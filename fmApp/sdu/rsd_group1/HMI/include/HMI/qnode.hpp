@@ -23,6 +23,7 @@
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/UInt32.h>
 #include <std_msgs/Int8.h>
+#include <std_msgs/String.h>
 #include "../../../shared.hpp"
 #include "wsg_50_common/Status.h"
 #include "wsg_50_common/Move.h"
@@ -111,6 +112,9 @@ public:
     float fully_productive_operating_time;
     float quality;
     float OEE;
+    float down_time;
+    float speed_loss;
+    float quality_loss;
 
 Q_SIGNALS:
     void loggingUpdated();
@@ -118,6 +122,7 @@ Q_SIGNALS:
     void runStateMachine();
     void mesCommand(int command);
     void OEE_updated();
+    void security_abort();
 
 
 private:
@@ -143,6 +148,7 @@ private:
     ros::Subscriber gripper_sub;
     ros::Subscriber mes_command;
     ros::Subscriber OEE_sub;
+    ros::Subscriber safety_sub;
     QStringListModel hmi_logging_model;
     QStringListModel rob_logging_model;
     QStringListModel vis_logging_model;
@@ -157,6 +163,8 @@ private:
     void statusCallback(const wsg_50_common::Status status);
     void mesCallback(const rsd_group1::general msg);
     void OEECallback(const rsd_group1::OEEmsg msg);
+
+    void safetyCallback(const std_msgs::String msg);
 
 };
 

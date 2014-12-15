@@ -187,6 +187,14 @@ void QNode::OEECallback(const rsd_group1::OEEmsg msg){
     Q_EMIT OEE_updated();
 }
 
+void safetyCallback(const std_msgs::String msg)
+{
+    if(msg.data == "False")
+    {
+        Q_EMIT security_abort();
+    }
+}
+
 bool QNode::init() {
     ros::init(init_argc,init_argv,"HMI");
     if ( ! ros::master::check() ) {
@@ -197,6 +205,7 @@ bool QNode::init() {
     ros::start(); // explicitly needed since our nodehandle is going out of scope.
     ros::NodeHandle n;
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
+    safety_sub = n.subscribe("/Safety_node_chatter",1000,&QNode::safetyCallback, this);
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
     mes_command = n.subscribe("/mes/outgoing",1000,&QNode::mesCallback, this);
     OEE_sub = n.subscribe("/OEE_stats",1000,&QNode::OEECallback, this);
