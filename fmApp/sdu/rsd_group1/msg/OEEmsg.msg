@@ -8,3 +8,6 @@ float64 performance
 float64 fully_productive_operating_time
 float64 quality
 float64 OEE
+float64 down_time
+float64 speed_loss
+float64 quality_loss

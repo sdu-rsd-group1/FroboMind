@@ -36,28 +36,26 @@ class OEE:
     def __init__(self):
 
         #self.currentModule = null
-	print "init start"
+        print "init start"
         self.timeStamp = 0
-	self.prevType = "null"
+        self.prevType = "null"
         self.currentType = "null"
-	global OEE_xml
+        global OEE_xml
         OEE_xml = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/OEE.xml')
 
-
-	self.down_time = 0
+        self.down_time = 0
         self.speed_loss = 0
         self.quality_loss = 0
         self.planned_operation = 0
-	self.operation = 0
+        self.operation = 0
 
         self.down_time = float(OEE_xml.get('OEE_Stats/down_time',0.0))
         self.speed_loss = float(OEE_xml.get('OEE_Stats/speed_loss',0.0))
         self.quality_loss = float(OEE_xml.get('OEE_Stats/quality_loss',0.0))
         self.planned_operation = float(OEE_xml.get('OEE_Stats/planned_operation',0.0))
-	self.operation = float(OEE_xml.get('OEE_Stats/operation',0.0))
+        self.operation = float(OEE_xml.get('OEE_Stats/operation',0.0))
 
-
-        #defines for states
+        #"defines" for states
         self.STOP = 0
         self.START = 1
         self.READY = 2
@@ -79,16 +77,14 @@ class OEE:
 
     def OEECallback(self, state):
 
-        publishToLog("debug", 0, "Entering OEE callback")
-
-	
+        #Get the time between state changes
         tempTime = rospy.get_time() - self.timeStamp
         self.timeStamp = rospy.get_time()
-	if self.currentType == "null":
-		tempTime = 0
-	print "tempTime:"
-	print tempTime
 
+        if self.currentType == "null":
+            tempTime = 0
+
+        #Get add the time to the correct type
         if self.currentType == "down_time":
             self.down_time = float(self.down_time) + tempTime
         elif self.currentType == "speed_loss":
@@ -100,8 +96,10 @@ class OEE:
         else:
             pass
 
-	self.prevType = self.currentType
+        #Update prev state type before current is changed
+        self.prevType = self.currentType
 
+        #Get the type of state, determines if time is downtime, speed loss, etc.
         if state.data == self.STOP:
             self.currentType = "down_time"
         elif (state.data == self.START) or (state.data == self.SUSPENDED) or (state.data == self.COMPLETED) \
@@ -113,13 +111,14 @@ class OEE:
             self.currentType = "operation"
 
         #Enumerated defines for states, first is 0
-        #STOP,START,READY,EXECUTE,SUSPENDED,GO_TO_UPPER_BRICK,GO_TO_LOWER_BRICK,BRICK_TO_MIDDLE,MIDDLE_TO_BOX,BOX_TO_MIDDLE,COMPLETED,GRASP_BRICK,RELEASE_BRICK,OPEN_GRIP
-		
-	if self.prevType != "null":
-		publishToLog("debug", 0, "Current state of type: "+self.currentType+" ended")
-		publishToLog("debug", 0, "New state of type: "+self.currentType+" started")
-		self.publishOEE()
-	
+        #STOP,START,READY,EXECUTE,SUSPENDED,GO_TO_UPPER_BRICK,GO_TO_LOWER_BRICK,BRICK_TO_MIDDLE,MIDDLE_TO_BOX,
+        #BOX_TO_MIDDLE,COMPLETED,GRASP_BRICK,RELEASE_BRICK,OPEN_GRIP
+
+        if self.prevType != "null":
+            publishToLog("debug", 0, "Current state of type: "+self.currentType+" ended after "+str(tempTime)+"s")
+            publishToLog("debug", 0, "New state of type: "+self.currentType+" started")
+            self.publishOEE()
+
         return
 
     def publishOEE(self):
@@ -146,6 +145,8 @@ class OEE:
 
         OEE_xml.save()
 
+        publishToLog("debug", 1, "New OEE stats saved in OEE.xml")
+
         oeeStats = OEEmsg()
 
         oeeStats.planned_operating_time = planned_operating_time
@@ -159,9 +160,13 @@ class OEE:
         oeeStats.quality = quality
         oeeStats.OEE = OEE_value
 
+	oeeStats.down_time = self.down_time
+        oeeStats.speed_loss = self.speed_loss
+        oeeStats.quality_loss = self.quality_loss
+
         pubOEE.publish(oeeStats)
 
-        publishToLog("operation", 2, "New OEE stats calculated and published, new OEE: "+str(OEE_value))
+        publishToLog("operation", 2, "New OEE stats calculated and published; new OEE: "+str(OEE_value))
 
         return
 
@@ -169,12 +174,12 @@ class OEE:
 def main(args):
     oee_inst = OEE()
     rospy.init_node('OEE', anonymous=True)
-    publishToLog("operation", 15, "OEE node sucessfully initialized")
+    publishToLog("operation", 3, "OEE node sucessfully initialized")
     try:
         rospy.spin()
     except KeyboardInterrupt:
         print "Shutting down"
-    publishToLog("operation", 15, "OEE node shutting down")
+    publishToLog("operation", 4, "OEE node shutting down")
 
 
 if __name__ == '__main__':
