@@ -18,6 +18,7 @@
 #include <QTimer>
 #include "../../../shared.hpp"
 #include "std_msgs/UInt32.h"
+#include "../../../../RX60Controller/src/rx60_controller/RX60Driver.hpp"
 
 /*****************************************************************************
 ** Namespace
@@ -65,7 +66,7 @@ private:
 	QNode qnode;
 
     states state;
-
+//    RX60Driver * RobotStatus;
     void initialize();
 
     void updatePositions();
