@@ -181,6 +181,9 @@ void QNode::OEECallback(const rsd_group1::OEEmsg msg){
     fully_productive_operating_time = msg.fully_productive_operating_time;
     quality = msg.quality;
     OEE = msg.OEE;
+    down_time = msg.down_time;
+    speed_loss = msg.speed_loss;
+    quality_loss = msg.quality_loss;
     Q_EMIT OEE_updated();
 }
 

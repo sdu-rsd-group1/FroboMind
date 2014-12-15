@@ -114,9 +114,12 @@ void MainWindow::update_OEE()
 
     ui.stats_avail_ppt->setText(QString::number(qnode.planned_operating_time));
     ui.stats_avail_op_time->setText(QString::number(qnode.operating_time));
+    us.stats_avail_down_time->setText(QString::number(qnode.down_time));
 
+    ui.stats_perf_speed_loss->setText(QString::number(qnode.speed_loss));
     ui.stats_perf_net_op_time->setText(QString::number(qnode.net_operating_time));
 
+    ui.stats_qual_loss->setText(QString::number(qnode.quality_loss));
     ui.stats_qual_productive->setText(QString::number(qnode.fully_productive_operating_time));
 
 }
