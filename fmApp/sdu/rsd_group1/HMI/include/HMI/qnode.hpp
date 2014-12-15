@@ -75,7 +75,10 @@ public:
 
 	void log(int nodeid, int level, const std::string &msg);
     void logCallback(const msgs::log new_log);
-    void mesCallback(const std_msgs::Int8::ConstPtr& msg);
+
+     void publish_vision_config(bool setting);
+
+    void mes_publish_status(int status);
 
     float current_config[6];
     float current_pose[6];
@@ -87,7 +90,6 @@ public:
     void publish_state(states state);
 
     ros::Publisher state_publisher;
-    void transmit_MES_status(int status);
 
 	bool HMI_debug;
 	bool Rob_debug;
@@ -95,11 +97,18 @@ public:
 	bool MES_debug;
 	bool Con_debug;
 
+    bool visOutOfBricks;
+    bool visOrderComplete;
+    bool robQueueEmpty;
+
 Q_SIGNALS:
     void loggingUpdated();
     void rosShutdown();
     void runStateMachine();
     void mesCommand(int command);
+
+    void visOutOfBricks();
+    void visOrderComplete();
 
 
 private:
@@ -131,9 +140,12 @@ private:
     QStringListModel con_logging_model;
     QStringListModel complete_logging_model;
 
+    ros::Publisher pub_vis_set;
+    ros::Publisher pub_mes_status;
 
     void robPosCallback(const std_msgs::Float32MultiArray::ConstPtr& msg);
     void statusCallback(const wsg_50_common::Status status);
+    void mesCallback(const std_msgs::Int8::ConstPtr& msg);
 
 };
 

@@ -24,6 +24,14 @@ namespace HMI {
 ** Implementation
 *****************************************************************************/
 
+void QNode::publish_vision_config(bool setting)
+{
+    if(setting)
+        pub_vis_set.publish("true");
+    else
+        pub_vis_set.publish("false");
+}
+
 void QNode::mesCallback(const std_msgs::Int8::ConstPtr& msg)
 {
     Q_EMIT mesCommand(msg->data);
@@ -31,6 +39,21 @@ void QNode::mesCallback(const std_msgs::Int8::ConstPtr& msg)
 
 void QNode::logCallback(const msgs::log new_log)
 {
+
+    if(new_log.NodeID == 2 && new_log.CodeID == 8) //Vision out of bricks
+    {
+        visOutOfBricks = true;
+    }
+    else if(new_log.NodeID == 2 && new_log.CodeID == 2) //Vision order done
+    {
+        visOrderComplete = true;
+    }
+
+    if(new_log.NodeID == 1 && new_log.CodeID == 1) //Vision out of bricks
+    {
+        robQueueEmpty = true;
+    }
+
     	std::stringstream ss;
 
     	t = time(0);   // get time now
@@ -111,6 +134,12 @@ void QNode::logCallback(const msgs::log new_log)
     log(new_log.NodeID,new_log.Level,ss.str());
 }
 
+void QNode::mes_publish_status(int status){
+    std_msgs::Int8 stat;
+    stat.data = status;
+    pub_mes_status.publish(stat);
+}
+
 
 void QNode::publish_state(states state){
     std_msgs::UInt32 msg;
@@ -144,11 +173,15 @@ bool QNode::init() {
     if ( ! ros::master::check() ) {
         return false;
     }
+    visOrderComplete = false;
+    visOutOfBricks = false;
     ros::start(); // explicitly needed since our nodehandle is going out of scope.
     ros::NodeHandle n;
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
     mes_command = n.subscribe("/mes/outgoing",1000,&QNode::mesCallback, this);
+    pub_vis_set = n.advertise<string>("vision_config",1000);
+    pub_mes_status = n.advertise<std_msgs::Int8>("/mes/incoming",1000);
     state_publisher = n.advertise<std_msgs::UInt32>("robot_states", 1000);
     gripper_sub = n.subscribe("wsg_50/status",1000,&QNode::statusCallback,this);
     start();

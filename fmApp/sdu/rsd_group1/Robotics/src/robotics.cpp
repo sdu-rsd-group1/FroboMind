@@ -44,12 +44,16 @@ double new_time = ros::Time::now().toSec();
 }
 
 void stateStop(){
-    Staubli->goToZero();
+    //Staubli->goToZero();
+}
+
+void stateReset(){
+    cout << "Going to middle pos";
+    Staubli->goToMiddlePos();
 }
 
 void stateStart(){
-    cout << "Going to middle pos";
-    Staubli->goToMiddlePos();
+
 }
 
 void stateReady(){
@@ -124,6 +128,11 @@ void stateCallback(const std_msgs::UInt32::ConstPtr& state){
         case STOP:
         {
             stateStop();
+            break;
+        }
+        case RESET:
+        {
+            stateReset();
             break;
         }
         case START:

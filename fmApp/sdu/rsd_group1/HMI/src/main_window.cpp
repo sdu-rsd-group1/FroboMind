@@ -46,6 +46,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(ui.chk_MES_debug, SIGNAL(toggled(bool)),this,SLOT(mes_debug_checked(bool)));
     QObject::connect(ui.chk_Con_debug, SIGNAL(toggled(bool)),this,SLOT(con_debug_checked(bool)));
 
+    QObject::connect(ui.chk_conf_vision, SIGNAL(toggled(bool)),this,SLOT(conf_vision_checked(bool)));
+
     QObject::connect(&qnode, SIGNAL(mesCommand(int)),this,SLOT(mes_status(int)));
 
 
@@ -122,6 +124,11 @@ void MainWindow::switch_state_color()
             ui.lbl_state_stop->setStyleSheet("background-color: green");
             break;
         }
+        case RESET:
+        {
+            ui.lbl_state_start->setStyleSheet("background-color: green");
+            break;
+        }
         case START:
         {
             ui.lbl_state_start->setStyleSheet("background-color: green");
@@ -187,6 +194,11 @@ void MainWindow::switch_state_color()
             ui.lbl_state_complete->setStyleSheet("background-color: green");
             break;
         }
+        case ABORT:
+        {
+            ui.lbl_state_mes->setStyleSheet("background-color: green");
+            break;
+        }
     }
 }
 
@@ -195,8 +207,8 @@ void MainWindow::btn_master_clicked(){
     {
         case STOP:
         {
-            cout << "State: Start" << endl;
-            state = START;
+            cout << "State: RESET" << endl;
+            state = RESET;
             qnode.publish_state(state);
             break;
         }
@@ -238,13 +250,42 @@ void MainWindow::mes_status(int status)
     {
         state = ABORT;
     }
-    else if(status == MES_SORT_BRICKS)
+    else if(status == MES_LOAD_BRICKS)
     {
         if(state == READY)
         {
             state = EXECUTE;
+            cout << "State: Execute" << endl;
+            qnode.publish_state(state);
+            qnode.mes_publish_status(MES_LOADING);
+        }
+
+        else
+        {
+            qnode.mes_publish_status(MES_ERROR);
+        }
+
+    }
+    else if(status == MES_SORT_BRICKS)
+    {
+        if(state == EXECUTE)
+        {
+            state = SUSPENDED;
+            cout << "State: Execute" << endl;
+            qnode.publish_state(state);
+            qnode.mes_publish_status(MES_SORTING);
+        }
+
+        else
+        {
+            qnode.mes_publish_status(MES_ERROR);
         }
     }
+}
+
+void MainWindow::conf_vision_checked(bool setting)
+{
+    qnode.publish_vision_config(setting);
 }
 
 void MainWindow::hmi_debug_checked(bool setting)
@@ -369,6 +410,20 @@ void MainWindow::StateMachine(){
         }
         case ABORT:
         {
+            state = STOP;
+            qnode.publish_state(state);
+            break;
+        }
+        case RESET:
+        {
+
+            state = START;
+            break;
+        }
+        case SECURITY:
+        {
+            state = STOP;
+            qnode.publish_state(state);
             break;
         }
     }
@@ -400,6 +455,7 @@ void MainWindow::stateStart(){
         state = READY;
         cout << "State: Ready" << endl;
         qnode.publish_state(state);
+        qnode.mes_publish_status(MES_FREE);
     }
 }
 
@@ -408,10 +464,9 @@ void MainWindow::stateReady(){
 //    ui.lbl_state_ready->setStyleSheet("background-color: green");
 //    //ui.lbl_state->setText("Ready");
 
-    state = EXECUTE;
-    //ui.lbl_state_ready->setStyleSheet("background-color: blue");
-    cout << "State: Execute" << endl;
-    qnode.publish_state(state);
+//    state = EXECUTE;
+//    //ui.lbl_state_ready->setStyleSheet("background-color: blue");
+
 }
 
 void MainWindow::stateExecute(){
@@ -419,9 +474,9 @@ void MainWindow::stateExecute(){
 //    ui.lbl_state->setStyleSheet("background-color: blue");
 //    ui.lbl_state->setText("Executing");
 
-    state = SUSPENDED;
-    cout << "State: Suspended" << endl;
-    qnode.publish_state(state);
+    //state = SUSPENDED;
+    //cout << "State: Suspended" << endl;
+
 }
 
 void MainWindow::stateSuspended(){
@@ -436,6 +491,23 @@ void MainWindow::stateSuspended(){
 void MainWindow::stateUpperBrick(){
 
     //ui.lbl_state->setText("Finding new brick");
+    if(qnode.visOutOfBricks && qnode.robQueueEmpty)
+    {
+        qnode.visOutOfBricks = false;
+        qnode.robQueueEmpty = false;
+        state = EXECUTE;
+        cout << "State: Execute" << endl;
+        qnode.publish_state(state);
+    }
+    else if(qnode.visOrderComplete && qnode.robQueueEmpty)
+    {
+        qnode.visOrderComplete = false;
+        qnode.robQueueEmpty = false;
+        state = COMPLETED;
+        cout << "State: completed order" << endl;
+        qnode.publish_state(state);
+    }
+
 double math = 0;
     for(int i = 0; i < 2; i++)
     {
@@ -544,7 +616,10 @@ void MainWindow::stateBoxToMiddle(){
 }
 
 void MainWindow::stateCompleted(){
-    cout << "State: Completed" << endl;
+    qnode.mes_publish_status(MES_ORDER_SORTED);
+    state = RESET;
+    qnode.publish_state(state);
+    cout << "State: RESET" << endl;
 //    ui.lbl_state->setStyleSheet("background-color: yellow");
 //    ui.lbl_state->setText("Order Completed");
 }
