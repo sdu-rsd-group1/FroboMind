@@ -23,6 +23,10 @@ find_package(OpenCV REQUIRED)
 
 add_message_files(
   FILES
+  mes_mobile_command.msg
+  mes_mobile_status.msg
+  mes_sorting_command.msg
+  mes_sorting_status.msg
   Log.msg
   Num.msg
   OEEmsg.msg

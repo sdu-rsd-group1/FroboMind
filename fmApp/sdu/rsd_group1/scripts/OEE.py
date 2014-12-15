@@ -15,7 +15,7 @@ def publishToLog(level, code, logMessage):
     #level = 0 = debug, 1 = operation
     logEntry = Log()
     logEntry.CodeID = code
-    logEntry.NodeID = 2
+    logEntry.NodeID = 5
     logEntry.Text = logMessage
 
     if level == "operation":
@@ -43,11 +43,18 @@ class OEE:
 	global OEE_xml
         OEE_xml = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/OEE.xml')
 
-        self.down_time = OEE_xml.get('OEE_Stats/down_time', 0)
-        self.speed_loss = OEE_xml.get('OEE_Stats/speed_loss', 0)
-        self.quality_loss = OEE_xml.get('OEE_Stats/quality_loss', 0)
-        self.planned_operation = OEE_xml.get('OEE_Stats/planned_operation', 0)
-        self.operation = OEE_xml.get('OEE_Stats/operation', 0)
+
+	self.down_time = 0
+        self.speed_loss = 0
+        self.quality_loss = 0
+        self.planned_operation = 0
+	self.operation = 0
+
+        self.down_time = float(OEE_xml.get('OEE_Stats/down_time',0.0))
+        self.speed_loss = float(OEE_xml.get('OEE_Stats/speed_loss',0.0))
+        self.quality_loss = float(OEE_xml.get('OEE_Stats/quality_loss',0.0))
+        self.planned_operation = float(OEE_xml.get('OEE_Stats/planned_operation',0.0))
+	self.operation = float(OEE_xml.get('OEE_Stats/operation',0.0))
 
 
         #defines for states
@@ -99,7 +106,7 @@ class OEE:
             self.currentType = "down_time"
         elif (state.data == self.START) or (state.data == self.SUSPENDED) or (state.data == self.COMPLETED) \
                 or (state.data == self.START):
-            self.currentType = "time_loss"
+            self.currentType = "speed_loss"
         elif 0:
             self.currentType = "quality_loss"
         else:
@@ -132,10 +139,10 @@ class OEE:
 
         OEE_value = availability * performance * quality
 
-        self.down_time = OEE_xml.put('OEE_Stats/down_time', self.down_time)
-        self.speed_loss = OEE_xml.put('OEE_Stats/speed_loss', self.speed_loss)
-        self.quality_loss = OEE_xml.put('OEE_Stats/quality_loss', self.quality_loss)
-        self.operation = OEE_xml.put('OEE_Stats/operation', self.operation)
+        OEE_xml.put('OEE_Stats/down_time', float(self.down_time))
+        OEE_xml.put('OEE_Stats/speed_loss', float(self.speed_loss))
+        OEE_xml.put('OEE_Stats/quality_loss', float(self.quality_loss))
+        OEE_xml.put('OEE_Stats/operation', float(self.operation))
 
         OEE_xml.save()
 
