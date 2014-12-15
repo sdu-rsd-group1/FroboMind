@@ -68,14 +68,14 @@ def getBricks(contours, color):
 
     #Area requirements for the different colored bricks
     if color == "Blue":
-        areaReqMin = 3500
-        areaReqMax = 10000
+        areaReqMin = 2000
+        areaReqMax = 6500
     elif color == "Red":
-        areaReqMin = 7500
-        areaReqMax = 20000
+        areaReqMin = 6000
+        areaReqMax = 10000
     elif color == "Yellow":
-        areaReqMin = 11500
-        areaReqMax = 30000
+        areaReqMin = 10000
+        areaReqMax = 24000
     else:
         areaReqMin = 300
         areaReqMax = 1000000
@@ -98,7 +98,7 @@ def getBricks(contours, color):
             tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time(), rect[1][0], rect[1][1]))
         else:
             pass
-            publishToLog("debug", 11, "Potential "+color+" brick detected, area too small")
+            publishToLog("debug", 11, "Potential "+color+" brick detected area "+str(contourArea(cnt))+" too small")
     return bricks, tempList
 
 def on_dimensionbar(args):

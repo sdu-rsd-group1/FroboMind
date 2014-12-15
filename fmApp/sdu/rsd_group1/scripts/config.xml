@@ -13,17 +13,17 @@
 		<topCrop>192</topCrop>
 	</imageCrop>
 	<hsvSettings>
-		<blueHue>120</blueHue>
-		<yellowHue>31</yellowHue>
+		<blueHue>109</blueHue>
+		<yellowHue>23</yellowHue>
 		<intensity>105</intensity>
 		<saturation>52</saturation>
 		<colorRange>9</colorRange>
 		<redSaturation>52</redSaturation>
-		<blueSaturation>68</blueSaturation>
-		<yellowSaturation>21</yellowSaturation>
-		<redHue>8</redHue>
-		<redIntensity>101</redIntensity>
-		<blueIntensity>62</blueIntensity>
-		<yellowIntensity>130</yellowIntensity>
+		<blueSaturation>18</blueSaturation>
+		<yellowSaturation>27</yellowSaturation>
+		<redHue>9</redHue>
+		<redIntensity>23</redIntensity>
+		<blueIntensity>11</blueIntensity>
+		<yellowIntensity>45</yellowIntensity>
 	</hsvSettings>
 </root>

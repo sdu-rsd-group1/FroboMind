@@ -38,9 +38,9 @@ int main(int argc, char **argv)
   n.param<std::string> ("rx60_controller_ip", rx60_controller_ip, "172.16.1.25");
   n.param<std::string> ("rx60_controller_port", rx60_controller_port, "22222");
   n.param<std::string> ("rx60_command_service_name", rx60_command_service_name, "rx60_command");
-  n.param<double> ("rx60_max_velocity", rx60_max_velocity, 20.0);
-  n.param<double> ("rx60_max_acceleration", rx60_max_acceleration, 20.0);
-  n.param<double> ("rx60_max_deceleration", rx60_max_deceleration, 20.0);
+  n.param<double> ("rx60_max_velocity", rx60_max_velocity, 100.0);
+  n.param<double> ("rx60_max_acceleration", rx60_max_acceleration, 100.0);
+  n.param<double> ("rx60_max_deceleration", rx60_max_deceleration, 100.0);
 //  n.param<double> ("rx60_max_rotational_velocity", rx60_max_rotational_velocity, 10.0);
   n.param<double> ("rx60_max_rotational_velocity", rx60_max_rotational_velocity, 1000000000.0);
   n.param<double> ("rx60_max_cartesian_velocity", rx60_max_cartesian_velocity, 1000.0);
