@@ -1,0 +1,10 @@
+Header header
+
+float64 planned_operating_time
+float64 operating_time
+float64 availability
+float64 net_operating_time
+float64 performance
+float64 fully_productive_operating_time
+float64 quality
+float64 OEE

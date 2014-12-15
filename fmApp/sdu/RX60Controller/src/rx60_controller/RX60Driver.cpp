@@ -763,11 +763,8 @@ bool RX60Driver::commandServiceHandler(	rx60controller::command::Request  &req,
 					break;
 
 				case rx60controller::command::Request::IS_SETTLED:
-					//bool is_settled;
-					//isSettled(is_settled);
-					//res.is_settled = is_settled;
 					bool is_settled;
-					is_settled = isConnected();
+					isSettled(is_settled);
 					res.is_settled = is_settled;
 					break;
 

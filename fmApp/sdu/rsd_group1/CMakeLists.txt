@@ -25,6 +25,7 @@ add_message_files(
   FILES
   Log.msg
   Num.msg
+  OEEmsg.msg
   lego_brick.msg
   mes_order.msg
 )

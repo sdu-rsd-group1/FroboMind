@@ -14,6 +14,7 @@
 #include <iostream>
 #include "../include/HMI/main_window.hpp"
 #include <cmath>
+#include <QTimer>
 
 /*****************************************************************************
 ** Namespaces
@@ -35,7 +36,6 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
 
 	ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
-
 	setWindowIcon(QIcon(":/images/icon.png"));
 	ui.tab_manager->setCurrentIndex(0); // ensure the first tab is showing - qt-designer should have this already hardwired, but often loses it (settings?).
     QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
@@ -77,13 +77,14 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     ui.widget_4_5->setStyleSheet("border-image: url(:/arrows/left_arrow.png)");
 
     initialize();
+    QTimer::singleShot(1000, this, SLOT(showFullScreen()));
 
     qnode.init();
 }
 
 void MainWindow::initialize(){
     state = STOP;
-    switch_state_color();
+
     ui.btn_master->setText("Start");
     ui.btn_master->setStyleSheet("background-color: green");
 
@@ -175,7 +176,7 @@ void MainWindow::switch_state_color()
         }
         case BOX_TO_MIDDLE:
         {
-            ui.lbl_state_stop->setStyleSheet("background-color: green");
+            ui.lbl_state_update->setStyleSheet("background-color: green");
             break;
         }
         case COMPLETED:
@@ -192,16 +193,13 @@ void MainWindow::btn_master_clicked(){
         case STOP:
         {
             cout << "State: Start" << endl;
-            //ui.lbl_state_stop->setStyleSheet("background-color: red");
             state = START;
-            switch_state_color();
             qnode.publish_state(state);
             break;
         }
         default:
         {
             state = STOP;
-            switch_state_color();
             qnode.publish_state(state);
             cout << "State: Stop" << endl;
             break;
@@ -277,6 +275,7 @@ void MainWindow::updatePositions(){
 void MainWindow::StateMachine(){
 
     updatePositions();
+    switch_state_color();
 
     switch(state)
     {
@@ -366,6 +365,7 @@ void MainWindow::stateStart(){
     ui.btn_master->setText("Stop");
     ui.btn_master->setStyleSheet("background-color: red");
 
+
 //    ui.lbl_state->setStyleSheet("background-color: yellow");
 //    ui.lbl_state->setText("Starting");
 
@@ -376,7 +376,6 @@ void MainWindow::stateStart(){
     if(sqrt(math) < 0.02)
     {
         state = READY;
-        switch_state_color();
         cout << "State: Ready" << endl;
         qnode.publish_state(state);
     }
@@ -388,7 +387,6 @@ void MainWindow::stateReady(){
 //    //ui.lbl_state->setText("Ready");
 
     state = EXECUTE;
-    switch_state_color();
     //ui.lbl_state_ready->setStyleSheet("background-color: blue");
     cout << "State: Execute" << endl;
     qnode.publish_state(state);
@@ -400,7 +398,6 @@ void MainWindow::stateExecute(){
 //    ui.lbl_state->setText("Executing");
 
     state = SUSPENDED;
-    switch_state_color();
     cout << "State: Suspended" << endl;
     qnode.publish_state(state);
 }
@@ -410,7 +407,6 @@ void MainWindow::stateSuspended(){
     //ui.lbl_state->setText("Waiting for brick");
 
     state = GO_TO_UPPER_BRICK;
-    switch_state_color();
     cout << "State: Going to brick" << endl;
     qnode.publish_state(state);
 }
@@ -427,7 +423,6 @@ double math = 0;
     if(sqrt(math) < 0.02)
     {
         state = OPEN_GRIP;
-        switch_state_color();
         qnode.publish_state(state);
         cout << "State: open grip " << sqrt(math) << endl;
     }
@@ -440,7 +435,6 @@ void MainWindow::stateReleaseBrick(states next_state){
     if(qnode.wsg_width > RELEASE_WIDTH_THRESHOLD)
     {
         state = next_state;
-        switch_state_color();
         qnode.publish_state(state);
         cout << "State: next state" << endl;
     }
@@ -453,14 +447,13 @@ void MainWindow::stateGraspBrick(){
     if(qnode.wsg_width < GRASP_WIDTH_THRESHOLD)
     {
         state = START;
-        switch_state_color();
         qnode.publish_state(state);
         cout << "State: Start"  <<qnode.wsg_width << endl;
     }
     else if(qnode.wsg_width < RELEASE_WIDTH_THRESHOLD && qnode.wsg_width > GRASP_WIDTH_THRESHOLD)
     {
         state = BRICK_TO_MIDDLE;
-        switch_state_color();
+
         qnode.publish_state(state);
         cout << "State: Brick To middle" << endl;
     }
@@ -473,7 +466,7 @@ void MainWindow::stateLowerBrick(){
     if(qnode.current_pose[2] < PICKUP_BOX_ZNEG_UP-0.02)
     {
         state = GRASP_BRICK;
-        switch_state_color();
+
         cout << "State: Grasp Brick" << endl;
         qnode.publish_state(state);
     }
@@ -490,7 +483,7 @@ void MainWindow::stateBrickToMiddle(){
     if(sqrt(math) < 0.2)//0.02)//qnode.wsg_width > 60 && )
     {
         state = MIDDLE_TO_BOX;
-        switch_state_color();
+
         qnode.publish_state(state);
         cout << "State: Middle to box" << endl;
     }
@@ -506,7 +499,7 @@ void MainWindow::stateMiddleToBox(){
     if(sqrt(math) < 0.02)//qnode.wsg_width > 60 && )
     {
         state = RELEASE_BRICK;
-        switch_state_color();
+
         qnode.publish_state(state);
         cout << "State: Release brick" << endl;
     }
@@ -522,7 +515,7 @@ void MainWindow::stateBoxToMiddle(){
     if(sqrt(math) < 0.02)//qnode.wsg_width > 60 && )
     {
         state = SUSPENDED;
-        switch_state_color();
+
         qnode.publish_state(state);
         cout << "State: SUSPENDED" << endl;
     }
