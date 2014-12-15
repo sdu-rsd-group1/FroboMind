@@ -545,7 +545,7 @@
           <locale language="English" country="Australia"/>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="tab_status_2">
           <attribute name="title">
@@ -5980,6 +5980,22 @@
                   <widget class="QLabel" name="lbl_current_q_6">
                    <property name="text">
                     <string>N/A</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QGroupBox" name="groupBox_2">
+                <property name="title">
+                 <string>Vision config</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_19">
+                 <item>
+                  <widget class="QCheckBox" name="chk_conf_vision">
+                   <property name="text">
+                    <string>Configure Vision</string>
                    </property>
                   </widget>
                  </item>
