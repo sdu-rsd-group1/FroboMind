@@ -520,10 +520,23 @@
              </property>
              <layout class="QGridLayout" name="gridLayout">
               <item row="0" column="3">
-               <widget class="QWidget" name="widget_6" native="true"/>
+               <widget class="QWidget" name="widget_6" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="1" column="1">
                <widget class="QWidget" name="widget_16" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_8">
                  <item>
                   <widget class="QLabel" name="lbl_state_deliver">
@@ -970,6 +983,12 @@
               </item>
               <item row="0" column="2">
                <widget class="QWidget" name="widget_5" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_5">
                  <item>
                   <widget class="QLabel" name="lbl_state_update">
@@ -1416,6 +1435,12 @@
               </item>
               <item row="4" column="4">
                <widget class="QWidget" name="widget_23" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_12">
                  <item>
                   <widget class="QLabel" name="lbl_state_security">
@@ -1862,6 +1887,12 @@
               </item>
               <item row="3" column="3">
                <widget class="QWidget" name="widget_10" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-image : url(../resources/left-arrow.png); </string>
                 </property>
@@ -1869,32 +1900,72 @@
               </item>
               <item row="3" column="4">
                <widget class="QWidget" name="widget_21" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">background-image : url(../resources/down-left-arrow.png); </string>
                 </property>
                </widget>
               </item>
               <item row="4" column="3">
-               <widget class="QWidget" name="widget_9" native="true"/>
+               <widget class="QWidget" name="widget_9" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="3" column="2">
-               <widget class="QWidget" name="widget_14" native="true"/>
+               <widget class="QWidget" name="widget_14" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QWidget" name="widget_4" native="true"/>
+               <widget class="QWidget" name="widget_4" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="4" column="1">
-               <widget class="QWidget" name="widget_22" native="true"/>
+               <widget class="QWidget" name="widget_22" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="0" column="0">
                <widget class="QWidget" name="widget_3" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                  <item>
                   <widget class="QLabel" name="lbl_state_ready">
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
-                     <height>50</height>
+                     <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
@@ -2334,6 +2405,12 @@
               </item>
               <item row="4" column="2">
                <widget class="QWidget" name="widget_15" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_11">
                  <item>
                   <widget class="QLabel" name="lbl_state_mes">
@@ -2779,13 +2856,33 @@
                </widget>
               </item>
               <item row="2" column="1">
-               <widget class="QWidget" name="widget_18" native="true"/>
+               <widget class="QWidget" name="widget_18" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="2" column="3">
-               <widget class="QWidget" name="widget_11" native="true"/>
+               <widget class="QWidget" name="widget_11" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="1" column="3">
                <widget class="QWidget" name="widget_12" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_7">
                  <item>
                   <widget class="QLabel" name="lbl_state_wait">
@@ -3232,6 +3329,12 @@
               </item>
               <item row="0" column="4">
                <widget class="QWidget" name="widget_7" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_6">
                  <item>
                   <widget class="QLabel" name="lbl_state_complete">
@@ -3677,10 +3780,23 @@
                </widget>
               </item>
               <item row="3" column="1">
-               <widget class="QWidget" name="widget_20" native="true"/>
+               <widget class="QWidget" name="widget_20" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="2" column="2">
                <widget class="QWidget" name="widget_13" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_10">
                  <item>
                   <widget class="QLabel" name="lbl_state_fetch">
@@ -4127,16 +4243,35 @@
               </item>
               <item row="2" column="4">
                <widget class="QWidget" name="widget_19" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
-                 <string notr="true">background-image : url(../resources/down-arrow.png); </string>
+                 <string notr="true">background-image : url(/down-arrow.png); </string>
                 </property>
                </widget>
               </item>
               <item row="1" column="2">
-               <widget class="QWidget" name="widget_8" native="true"/>
+               <widget class="QWidget" name="widget_8" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="1" column="0">
                <widget class="QWidget" name="widget_24" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <item>
                   <widget class="QLabel" name="lbl_state_start">
@@ -4582,10 +4717,23 @@
                </widget>
               </item>
               <item row="2" column="0">
-               <widget class="QWidget" name="widget_25" native="true"/>
+               <widget class="QWidget" name="widget_25" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
+               </widget>
               </item>
               <item row="3" column="0">
                <widget class="QWidget" name="widget_26" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_14">
                  <item>
                   <widget class="QLabel" name="lbl_state_reset">
@@ -5032,6 +5180,12 @@
               </item>
               <item row="4" column="0">
                <widget class="QWidget" name="widget_27" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_13">
                  <item>
                   <widget class="QLabel" name="lbl_state_stop">
@@ -5478,8 +5632,14 @@
               </item>
               <item row="1" column="4">
                <widget class="QWidget" name="widget" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>140</width>
+                  <height>75</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
-                 <string notr="true">background-image : url(../resources/down-arrow.png); </string>
+                 <string notr="true">background-image : url(resources/down-arrow.png); </string>
                 </property>
                </widget>
               </item>

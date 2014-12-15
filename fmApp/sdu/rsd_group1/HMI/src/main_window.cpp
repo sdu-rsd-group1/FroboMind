@@ -61,6 +61,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     // setup signal and slot
     connect(&qnode, SIGNAL(runStateMachine()),this, SLOT(StateMachine()));
 
+    ui.widget->setStyleSheet("border-image: url(:/test/down_arrow.png)");
+
     initialize();
 
     qnode.init();
