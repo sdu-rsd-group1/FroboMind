@@ -7,7 +7,7 @@
 #include "wsg_50_common/Status.h"
 #include "../../shared.hpp"
 #include "rsd_group1/Num.h"
-#include "rsd_group1/Log.h"
+#include "msgs/log.h"
 #include <time.h>
 
 #include <sstream>
@@ -206,7 +206,7 @@ int main(int argc, char **argv)
 {
   	init(argc,argv, "Robotics");
   	NodeHandle n;
-    Publisher log_pub = n.advertise<UIntrsd_group1::Log>("logging",1000);
+    Publisher log_pub = n.advertise<msgs::log>("logging",1000);
     Publisher rob_pose_pub = n.advertise<Float32MultiArray>("robotics_pose",1000);
     ros::Subscriber state_sub = n.subscribe("robot_states",1000,stateCallback);
     ros::Subscriber gripper_sub = n.subscribe("wsg_50/status",1000,statusCallback);
@@ -227,7 +227,7 @@ int main(int argc, char **argv)
 
     Staubli->initialize();
 
-	rsd_group1::Log log;
+    msgs::log log;
 	log.NodeID = 1;
 	log.CodeID = 0;
 	log.Level = 0;

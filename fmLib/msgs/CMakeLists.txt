@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation roscpp rospy std_msgs
 	StringArrayStamped.msg
 	waypoint_navigation_status.msg
 	velocity.msg
+	log.msg
  )
 
 ## Generate services in the 'srv' folder

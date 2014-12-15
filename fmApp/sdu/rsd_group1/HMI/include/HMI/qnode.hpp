@@ -21,6 +21,7 @@
 #include <QThread>
 #include <QStringListModel>
 #include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/UInt32.h>
 #include "../../../shared.hpp"
 #include "wsg_50_common/Status.h"
 #include "wsg_50_common/Move.h"
@@ -28,7 +29,7 @@
 #include <std_msgs/String.h>
 #include "fstream"
 #include <sstream>
-#include "rsd_group1/Log.h"
+#include "msgs/log.h"
 
 
 
@@ -62,7 +63,7 @@ public:
     QStringListModel* CompleteLogModel() { return &complete_logging_model; }
 
 	void log(int nodeid, int level, const std::string &msg);
-    void logCallback(const rsd_group1::Log new_log);
+    void logCallback(const msgs::log new_log);
 
     float current_config[6];
     float current_pose[6];
