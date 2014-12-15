@@ -46,6 +46,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
     QObject::connect(ui.chk_MES_debug, SIGNAL(toggled(bool)),this,SLOT(mes_debug_checked(bool)));
     QObject::connect(ui.chk_Con_debug, SIGNAL(toggled(bool)),this,SLOT(con_debug_checked(bool)));
 
+    QObject::connect(&qnode, SIGNAL(mesCommand(int)),this,SLOT(mes_status(int)));
+
+
 	/*********************
 	** Logging
 	**********************/
@@ -231,6 +234,21 @@ void MainWindow::updateLoggingView() {
 ** Implementation [Configuration]
 *****************************************************************************/
 
+void MainWindow::mes_status(int status)
+{
+    if(status == MES_ABORT)
+    {
+        state = ABORT;
+    }
+    else if(status == MES_SORT_BRICKS)
+    {
+        if(state == READY)
+        {
+            state = EXECUTE;
+        }
+    }
+}
+
 void MainWindow::hmi_debug_checked(bool setting)
 {
     qnode.HMI_debug = setting;
@@ -348,6 +366,10 @@ void MainWindow::StateMachine(){
         case COMPLETED:
         {
             stateCompleted();
+            break;
+        }
+        case ABORT:
+        {
             break;
         }
     }

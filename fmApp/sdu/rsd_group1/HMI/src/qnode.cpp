@@ -24,6 +24,10 @@ namespace HMI {
 ** Implementation
 *****************************************************************************/
 
+void QNode::mesCallback(const std_msgs::Int8::ConstPtr& msg)
+{
+    Q_EMIT mesCommand(msg->data);
+}
 
 void QNode::logCallback(const msgs::log new_log)
 {
@@ -144,6 +148,7 @@ bool QNode::init() {
     ros::NodeHandle n;
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
+    mes_command = n.subscribe("/mes/outgoing",1000,&QNode::mesCallback, this);
     state_publisher = n.advertise<std_msgs::UInt32>("robot_states", 1000);
     gripper_sub = n.subscribe("wsg_50/status",1000,&QNode::statusCallback,this);
     start();

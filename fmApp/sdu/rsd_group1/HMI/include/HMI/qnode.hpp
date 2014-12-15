@@ -22,6 +22,7 @@
 #include <QStringListModel>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/UInt32.h>
+#include <std_msgs/Int8.h>
 #include "../../../shared.hpp"
 #include "wsg_50_common/Status.h"
 #include "wsg_50_common/Move.h"
@@ -31,7 +32,17 @@
 #include <sstream>
 #include "msgs/log.h"
 
+#define MES_WAIT 0
+#define MES_LOAD_BRICKS 1
+#define MES_SORT_BRICKS 2
+#define MES_ABORT 3
 
+#define MES_FREE 0
+#define MES_SORTING 1
+#define MES_OUT_OF_BRICKS 2
+#define MES_ORDER_SORTED 3
+#define MES_LOADING 4
+#define MES_ERROR 5
 
 /*****************************************************************************
 ** Namespaces
@@ -64,6 +75,7 @@ public:
 
 	void log(int nodeid, int level, const std::string &msg);
     void logCallback(const msgs::log new_log);
+    void mesCallback(const std_msgs::Int8::ConstPtr& msg);
 
     float current_config[6];
     float current_pose[6];
@@ -75,7 +87,7 @@ public:
     void publish_state(states state);
 
     ros::Publisher state_publisher;
-
+    void transmit_MES_status(int status);
 
 	bool HMI_debug;
 	bool Rob_debug;
@@ -87,6 +99,7 @@ Q_SIGNALS:
     void loggingUpdated();
     void rosShutdown();
     void runStateMachine();
+    void mesCommand(int command);
 
 
 private:
@@ -110,6 +123,7 @@ private:
 
     ros::Subscriber rob_pos_sub;
     ros::Subscriber gripper_sub;
+    ros::Subscriber mes_command;
     QStringListModel hmi_logging_model;
     QStringListModel rob_logging_model;
     QStringListModel vis_logging_model;
