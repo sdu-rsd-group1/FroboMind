@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <root>
 	<OEE_Stats>
-		<down_time>28.64808321</down_time>
-		<speed_loss>23.9483938217</speed_loss>
-		<operation>24.8369920254</operation>
+		<down_time>79.0199141502</down_time>
+		<speed_loss>38.8799335956</speed_loss>
+		<operation>43.232993126</operation>
 	</OEE_Stats>
 </root>

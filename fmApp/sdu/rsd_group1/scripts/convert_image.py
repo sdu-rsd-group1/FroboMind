@@ -68,17 +68,17 @@ def getBricks(contours, color):
 
     #Area requirements for the different colored bricks
     if color == "Blue":
-        areaReqMin = 2000
-        areaReqMax = 6500
+        areaReqMin = blueMinArea
+        areaReqMax = blueMaxArea
     elif color == "Red":
-        areaReqMin = 6000
-        areaReqMax = 10000
+        areaReqMin = redMinArea
+        areaReqMax = redMaxArea
     elif color == "Yellow":
-        areaReqMin = 10000
-        areaReqMax = 24000
+        areaReqMin = yellowMinArea
+        areaReqMax = yellowMaxArea
     else:
-        areaReqMin = 300
-        areaReqMax = 1000000
+        areaReqMin = blueMinArea
+        areaReqMax = yellowMaxArea
 
     for cnt in contours:
         #Check if the bricks area is plausible
@@ -87,6 +87,9 @@ def getBricks(contours, color):
             rect = minAreaRect(cnt)
             bricks.append(rect)
             sort(rect[1], False)
+
+            publishToLog("debug", 12, color+" brick detected, it's area is "+str(contourArea(cnt)))
+
 
             #Check if width is larger than length
             #if so, rotate 90 degrees
@@ -98,7 +101,7 @@ def getBricks(contours, color):
             tempList.append(LegoBrick(rect[0][0],rect[0][1],tempAngle,color,rospy.get_time(), rect[1][0], rect[1][1]))
         else:
             pass
-            publishToLog("debug", 11, "Potential "+color+" brick detected area "+str(contourArea(cnt))+" too small")
+            publishToLog("debug", 12, "Potential "+color+" brick detected, it's area "+str(contourArea(cnt))+" not in range of " + str(areaReqMin)+ " to " + str(areaReqMax))
     return bricks, tempList
 
 def on_dimensionbar(args):
@@ -115,6 +118,39 @@ def on_dimensionbar(args):
     config.save()
     return
 
+def on_areabar(args):
+
+    global blueMaxArea
+    global blueMaxArea
+
+    global yellowMaxArea
+    global yellowMaxArea
+
+    global redMaxArea
+    global redMaxArea
+
+    blueMaxArea = getTrackbarPos('blueMaxArea', 'Area Bar')
+    blueMinArea = getTrackbarPos('blueMinArea', 'Area Bar')
+
+    yellowMaxArea = getTrackbarPos('yellowMaxArea', 'Area Bar')
+    yellowMinArea = getTrackbarPos('yellowMinArea', 'Area Bar')
+
+
+    redMaxArea = getTrackbarPos('redMaxArea', 'Area Bar')
+    redMinArea = getTrackbarPos('redMinArea', 'Area Bar')
+
+
+    config.put('brickAreas/blueMinArea', blueMinArea)
+    config.put('brickAreas/blueMaxArea', blueMaxArea)
+
+    config.put('brickAreas/yellowMinArea', yellowMinArea)
+    config.put('brickAreas/yellowMaxArea', yellowMaxArea)
+
+    config.put('brickAreas/redMinArea', redMinArea)
+    config.put('brickAreas/redMaxArea', redMaxArea)
+
+    config.save()
+    return
 
 def on_colorbar(args):
 
@@ -200,6 +236,8 @@ class image_converter:
     global config
     config = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
 
+
+    #initialize border values
     global leftBorder
     global rightBorder
     global enterThres
@@ -217,9 +255,6 @@ class image_converter:
     widthM = config.get('dimensions/width', 0.15)
     lengthM = config.get('dimensions/length', 0.09)
 
-    #Dimenstions in pixel
-    self.widthP = leftBorder - rightBorder
-
     #crop settings
     global leftCrop
     global rightCrop
@@ -231,6 +266,7 @@ class image_converter:
     topCrop = config.get('imageCrop/topCrop', 0)
     botCrop = config.get('imageCrop/botCrop', 800)
 
+    #Hue settings
     global redHue
     global blueHue
     global yellowHue
@@ -253,6 +289,22 @@ class image_converter:
     blueIntensity = config.get('hsvSettings/blueIntensity', 50)
     yellowIntensity = config.get('hsvSettings/yellowIntensity', 104)
 
+    #brick areas
+    global blueMaxArea
+    global blueMaxArea
+    global yellowMaxArea
+    global yellowMaxArea
+    global redMaxArea
+    global redMaxArea
+
+    blueMinArea = config.get('brickAreas/blueMinArea', 2000)
+    blueMaxArea = config.get('brickAreas/blueMaxArea', 6000)
+    redMinArea = config.get('brickAreas/redMinArea', 2000)
+    redMaxArea = config.get('brickAreas/redMaxArea', 14000)
+    yellowMinArea = config.get('brickAreas/yellowMinArea', 5000)
+    yellowMaxArea = config.get('brickAreas/yellowMaxArea', 20000)
+
+
     self.pBrickList = []
     self.brickList = []
 
@@ -272,7 +324,7 @@ class image_converter:
     if conf.data == "true":
         self.config_mode = conf.data
 
-        publishToLog("operation", 14, "Entering configuration mode")
+        publishToLog("operation", 13, "Entering configuration mode")
 
         namedWindow("trackbars", WINDOW_NORMAL)
         namedWindow("hsvBar", WINDOW_NORMAL)
@@ -281,6 +333,15 @@ class image_converter:
         namedWindow("Blue mask", WINDOW_NORMAL)
         namedWindow("Yellow mask", WINDOW_NORMAL)
         namedWindow("dimBar", WINDOW_NORMAL)
+        namedWindow("Area bar", WINDOW_NORMAL)
+
+        #Adjustment of brick area
+        createTrackbar('blueMinArea', 'Area bar', int(blueMinArea), blueMaxArea, on_areabar)
+        createTrackbar("blueMaxArea", 'Area bar', int(blueMaxArea), 9000, on_areabar)
+        createTrackbar('redMinArea', 'Area bar', int(redMinArea), redMaxArea, on_areabar)
+        createTrackbar("redMaxArea", 'Area bar', int(redMaxArea), 20000, on_areabar)
+        createTrackbar('yellowMinArea', 'Area bar', int(yellowMinArea), yellowMaxArea, on_areabar)
+        createTrackbar("yellowMaxArea", 'Area bar', int(yellowMaxArea), 30000, on_areabar)
 
         #Adjustment of dimensions
         createTrackbar('length', 'dimBar', int(lengthM*1000), 2000, on_dimensionbar)
@@ -311,7 +372,7 @@ class image_converter:
         createTrackbar('BotCrop', 'trackbars', botCrop, 1920, on_trackbar)
 
     elif conf.data == "false":
-        publishToLog("operation", 14, "Exiting configuration mode")
+        publishToLog("operation", 13, "Exiting configuration mode")
         self.config_mode = conf.data
         destroyAllWindows()
     else:
@@ -322,9 +383,10 @@ class image_converter:
 
     #convert the image to opencv format
     try:
-      cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
     except CvBridgeError, e:
-      print e
+        publishToLog("operation", 14, "An error occoured while reading image from camera: "+str(e))
+        print e
 
 #-----------------------------------------------
 
@@ -441,17 +503,16 @@ class image_converter:
 
         #Timeout, if a tracked brick haven't been updated in 2 sec it is discarded
         if brick.getTimeSinceUpdate(rospy.get_time()) > 2:
-            publishToLog("debug",12, brick.color.lower()+" brick removed by timeout")
+            publishToLog("operation",15, brick.color.lower()+" brick removed by timeout")
             print "Following brick removed by timeout:"
             print brick.getInfo()
             self.brickList.remove(brick)
-
 
     #Find new bricks
     #New brick is found if a preliminary brick haven't been matched and is located between the enter and leave thresholds
     for pBrick in self.pBrickList:
         if pBrick.y < enterThres and pBrick.y > leaveThres:
-            publishToLog("debug", 13, pBrick.color.lower()+" brick detected")
+            publishToLog("operation", 16, pBrick.color.lower()+" brick detected")
             self.brickList.append(pBrick)
 
     #Publish found bricks when they leave the leaveThreshold
@@ -460,8 +521,8 @@ class image_converter:
             print "Brick found!"
             brick.timeEnd = rospy.get_time()
             brick.setEndPos(brick.x-leftBorder, brick.y)
-            brick.calcSpeed(enterThres-leaveThres, lengthM, self.widthP, widthM)
-            brick.setXPos(self.widthP, widthM)
+            brick.calcSpeed(enterThres-leaveThres, lengthM, leftBorder - rightBorder, widthM)
+            brick.setXPos(leftBorder - rightBorder, widthM)
             publishBrick(brick)
             self.brickList.remove(brick)
 
@@ -474,15 +535,15 @@ class image_converter:
     waitKey(3)
 
 def main(args):
-	ic = image_converter()
-	rospy.init_node('image_converter', anonymous=True)
-	publishToLog("operation", 15, "Vision node sucessfully initialized")
-	try:
-		rospy.spin()
-	except KeyboardInterrupt:
-		print "Shutting down"
-	publishToLog("operation", 15, "Vision node shutting down")
-	destroyAllWindows()
+    ic = image_converter()
+    rospy.init_node('image_converter', anonymous=True)
+    publishToLog("operation", 17, "Vision node sucessfully initialized")
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print "Shutting down"
+        publishToLog("operation", 18, "Vision node shutting down")
+    destroyAllWindows()
 
 
 if __name__ == '__main__':
