@@ -32,6 +32,7 @@
 #include <sstream>
 #include "msgs/log.h"
 #include "rsd_group1/general.h"
+#include "rsd_group1/OEEmsg.h"
 
 #define MES_WAIT 0
 #define MES_LOAD_BRICKS 1
@@ -102,11 +103,21 @@ public:
     bool visOrderComplete;
     bool robQueueEmpty;
 
+    float planned_operating_time;
+    float operating_time;
+    float availability;
+    float net_operating_time;
+    float performance;
+    float fully_productive_operating_time;
+    float quality;
+    float OEE;
+
 Q_SIGNALS:
     void loggingUpdated();
     void rosShutdown();
     void runStateMachine();
     void mesCommand(int command);
+    void OEE_updated();
 
 
 private:
@@ -131,6 +142,7 @@ private:
     ros::Subscriber rob_pos_sub;
     ros::Subscriber gripper_sub;
     ros::Subscriber mes_command;
+    ros::Subscriber OEE_sub;
     QStringListModel hmi_logging_model;
     QStringListModel rob_logging_model;
     QStringListModel vis_logging_model;
@@ -144,6 +156,7 @@ private:
     void robPosCallback(const std_msgs::Float32MultiArray::ConstPtr& msg);
     void statusCallback(const wsg_50_common::Status status);
     void mesCallback(const rsd_group1::general msg);
+    void OEECallback(const rsd_group1::OEEmsg msg);
 
 };
 

@@ -58,6 +58,8 @@ public Q_SLOTS:
     void conf_vision_checked(bool setting);
 
     void mes_status(int status);
+
+    void update_OEE();
     /******************************************
     ** Manual connections
     *******************************************/

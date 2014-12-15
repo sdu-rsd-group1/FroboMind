@@ -172,6 +172,18 @@ void QNode::statusCallback(const wsg_50_common::Status status){
     wsg_force = status.force;
 }
 
+void QNode::OEECallback(const rsd_group1::OEEmsg msg){
+    planned_operating_time = msg.planned_operating_time;
+    foperating_time = msg.foperating_time;
+    availability = msg.availability;
+    net_operating_time = msg.net_operating_time;
+    performance = msg.performance;
+    fully_productive_operating_time = msg.fully_productive_operating_time;
+    quality = msg.quality;
+    OEE = msg.OEE;
+    Q_EMIT OEE_updated();
+}
+
 bool QNode::init() {
     ros::init(init_argc,init_argv,"HMI");
     if ( ! ros::master::check() ) {
@@ -184,6 +196,7 @@ bool QNode::init() {
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
     mes_command = n.subscribe("/mes/outgoing",1000,&QNode::mesCallback, this);
+    OEE_sub = n.subscribe("/OEE_stats",1000,&QNode::OEECallback, this);
     pub_vis_set = n.advertise<std_msgs::String>("vision_config",1000);
     pub_mes_status = n.advertise<rsd_group1::general>("/mes/incoming",1000);
     state_publisher = n.advertise<std_msgs::UInt32>("robot_states", 1000);

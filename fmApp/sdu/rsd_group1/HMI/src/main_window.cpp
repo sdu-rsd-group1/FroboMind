@@ -50,6 +50,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
     QObject::connect(&qnode, SIGNAL(mesCommand(int)),this,SLOT(mes_status(int)));
 
+    QObject::connect(&qnode, SIGNAL(OEE_updated()),this,SLOT(update_OEE());
+
 
 	/*********************
 	** Logging
@@ -102,6 +104,22 @@ MainWindow::~MainWindow() {}
 /*****************************************************************************
 ** Implementation [Slots]
 *****************************************************************************/
+
+void MainWindow::update_OEE()
+{
+    ui.OEE_perf->setText(QString::number(qnode.performance));
+    ui.OEE_avail->setText(QString::number(qnode.availability));
+    ui.OEE_qual->setText(QString::number(qnode.quality));
+    ui.OEE_overall->setText(QString::number(qnode.OEE));
+
+    ui.stats_avail_ppt->setText(QString::number(qnode.planned_operating_time));
+    ui.stats_avail_op_time->setText(QString::number(qnode.operating_time));
+
+    ui.stats_perf_net_op_time->setText(QString::number(qnode.net_operating_time));
+
+    ui.stats_qual_productive->setText(QString::number(qnode.fully_productive_operating_time));
+
+}
 
 void MainWindow::switch_state_color()
 {
