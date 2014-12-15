@@ -26,15 +26,19 @@ namespace HMI {
 
 void QNode::publish_vision_config(bool setting)
 {
+    std_msgs::String message;
+    message.data = "true";
     if(setting)
-        pub_vis_set.publish("true");
+        message.data = "true";
     else
-        pub_vis_set.publish("false");
+        message.data = "false";
+
+    pub_vis_set.publish(message);
 }
 
-void QNode::mesCallback(const std_msgs::Int8::ConstPtr& msg)
+void QNode::mesCallback(const rsd_group1::general msg)
 {
-    Q_EMIT mesCommand(msg->data);
+    Q_EMIT mesCommand(msg.general);
 }
 
 void QNode::logCallback(const msgs::log new_log)
@@ -135,8 +139,8 @@ void QNode::logCallback(const msgs::log new_log)
 }
 
 void QNode::mes_publish_status(int status){
-    std_msgs::Int8 stat;
-    stat.data = status;
+    rsd_group1::general stat;
+    stat.general = status;
     pub_mes_status.publish(stat);
 }
 
@@ -180,8 +184,8 @@ bool QNode::init() {
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
     mes_command = n.subscribe("/mes/outgoing",1000,&QNode::mesCallback, this);
-    pub_vis_set = n.advertise<string>("vision_config",1000);
-    pub_mes_status = n.advertise<std_msgs::Int8>("/mes/incoming",1000);
+    pub_vis_set = n.advertise<std_msgs::String>("vision_config",1000);
+    pub_mes_status = n.advertise<rsd_group1::general>("/mes/incoming",1000);
     state_publisher = n.advertise<std_msgs::UInt32>("robot_states", 1000);
     gripper_sub = n.subscribe("wsg_50/status",1000,&QNode::statusCallback,this);
     start();
