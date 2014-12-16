@@ -2,7 +2,7 @@
 #roslib.load_manifest('rsd_group1')
 import rospy
 from std_msgs.msg import String
-from rsd_group1.msg import Num, lego_brick, mes_order, Log
+from rsd_group1.msg import Num, lego_brick, mes_order, Log, msg_hi, general
 
 
 
@@ -19,7 +19,7 @@ def log_it(level, code, logMessage):
     logEntry.NodeID = 2
     logEntry.Text = logMessage
 
-    pub3.publish(logEntry)
+    pub_log.publish(logEntry)
 
 
 
@@ -31,12 +31,17 @@ def send_brick():
     global ordersYellow
 #		str = "hello world %s"%rospy.get_time()
 #    rospy.loginfo(str)
-    pub.publish(orderList[0])
+    pub_pick.publish(orderList[0])
     del orderList[0]
 
 def order_done():
-    pub2.publish("done")
+    pub_done.publish("done")
     log_it(0,2,"Order is done after current bricks have been picked")
+
+def out_of_bricks():
+    message = general()
+    message.general = 2			# time
+    pub_time.publish(message)
 
 def callback(brick):
     global orderList    
@@ -44,6 +49,10 @@ def callback(brick):
     global ordersRed
     global ordersBlue
     global ordersYellow
+    global then						# time
+    then = rospy.Time.now()	# time
+
+
     #print brick.color
     log_it(0,3,"Brick received from vision node")
     if brick.color == "Red" and ordersRed != 0:
@@ -84,9 +93,21 @@ def callback2(b_list):
     ordersBlue = b_list.bricks[1].count
     ordersYellow = b_list.bricks[2].count
     
+def callback_time(data):				#callback time
+    global now
+    now = rospy.Time.now()
+    print now.secs
+    print then.secs
+    if now.secs-then.secs>20:
+        out_of_bricks()
+        log_it(0,8,"Out of bricks")
+
 
 def list_update():
-		rospy.Subscriber("picklist", mes_order, callback2)
+		rospy.Subscriber("/mes/picklist", mes_order, callback2)
+
+def time_check():             #time_check time
+		rospy.Subscriber("/mes/hi_topic",msg_hi , callback_time)
 
 #def robocallback(brick):
 #    talker()		#this should be placed after/at a request from robotic node
@@ -98,16 +119,28 @@ def list_update():
 if __name__ == '__main__':
     try:
         rospy.init_node('OrderQ', anonymous=True)	#log ("node started")
+        now = rospy.Time.now()				#timecheck time counter
+        then = rospy.Time.now()
         #while not rospy.is_shutdown():
         #talker()
-        pub = rospy.Publisher('brick2pick', Num, queue_size=100)
-        pub2 = rospy.Publisher('orderdone', String, queue_size=100)
-        pub3 = rospy.Publisher('logging', Log, queue_size=100)
+        pub_pick = rospy.Publisher('brick2pick', Num, queue_size=100)
+        pub_done = rospy.Publisher('orderdone', String, queue_size=100)
+        pub_log = rospy.Publisher('logging', Log, queue_size=100)
+        pub_time = rospy.Publisher('/mes/incoming', general, queue_size=100)		# time
         listener()
         list_update()
+        time_check()
         #print "hell"
         rospy.spin()
     except rospy.ROSInterruptException: pass
+
+
+
+
+
+
+
+
 
 
 

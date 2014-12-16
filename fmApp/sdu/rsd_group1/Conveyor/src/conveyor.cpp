@@ -1,5 +1,7 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
+#include "rsd_group1/Log.h"
+
 using namespace std_msgs;
 using namespace std;
 using namespace ros;
@@ -10,6 +12,7 @@ int main(int argc, char**argv)
 
 NodeHandle n;
 Publisher string_pub = n.advertise<String>("serial_com",1000);
+Publisher log_pub = n.advertise<rsd_group1::Log>("logging",1000);
 
 std::stringstream On1;
 std::stringstream Off1;
@@ -40,8 +43,15 @@ Forward2 	<< "2Forward";
 Reverse2 	<< "2Reverse";
 
 ros::Rate loop_rate(1);
-  while (ros::ok())
-  {
+
+rsd_group1::Log log_msg;
+log_msg.NodeID = 4;
+log_msg.CodeID = 0;
+log_msg.Level = 0;
+log_msg.Text = "Conveyor node initialized";
+
+log_pub.publish(log_msg);
+
 
     std_msgs::String msg;
 
@@ -55,9 +65,13 @@ ros::Rate loop_rate(1);
     msg.data = Forward1.str();
     string_pub.publish(msg);
     loop_rate.sleep();
-    msg.data = Forward2.str();
+    msg.data = Reverse2.str();
     string_pub.publish(msg);
     loop_rate.sleep();
+
+
+  while (ros::ok())
+  {
 
     msg.data = Start1.str();
     string_pub.publish(msg);
@@ -66,26 +80,6 @@ ros::Rate loop_rate(1);
     string_pub.publish(msg);
     loop_rate.sleep();
 
-    msg.data = Reverse1.str();
-    string_pub.publish(msg);
-    loop_rate.sleep();
-    msg.data = Reverse2.str();
-    string_pub.publish(msg);
-    loop_rate.sleep();
-
-    msg.data = Stop1.str();
-    string_pub.publish(msg);
-    loop_rate.sleep();
-    msg.data = Stop2.str();
-    string_pub.publish(msg);
-    loop_rate.sleep();
-
-    msg.data = Off1.str();
-    string_pub.publish(msg);
-    loop_rate.sleep();
-    msg.data = Off2.str();
-    string_pub.publish(msg);
-    loop_rate.sleep();
 
     ros::spinOnce();
 

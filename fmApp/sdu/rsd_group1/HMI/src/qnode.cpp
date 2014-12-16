@@ -24,9 +24,40 @@ namespace HMI {
 ** Implementation
 *****************************************************************************/
 
+void QNode::publish_vision_config(bool setting)
+{
+    std_msgs::String message;
+    message.data = "true";
+    if(setting)
+        message.data = "true";
+    else
+        message.data = "false";
+
+    pub_vis_set.publish(message);
+}
+
+void QNode::mesCallback(const rsd_group1::general msg)
+{
+    Q_EMIT mesCommand(msg.general);
+}
 
 void QNode::logCallback(const msgs::log new_log)
 {
+
+    if(new_log.NodeID == 2 && new_log.CodeID == 8) //Vision out of bricks
+    {
+        visOutOfBricks = true;
+    }
+    else if(new_log.NodeID == 2 && new_log.CodeID == 2) //Vision order done
+    {
+        visOrderComplete = true;
+    }
+
+    if(new_log.NodeID == 1 && new_log.CodeID == 1) //Vision out of bricks
+    {
+        robQueueEmpty = true;
+    }
+
     	std::stringstream ss;
 
     	t = time(0);   // get time now
@@ -107,6 +138,12 @@ void QNode::logCallback(const msgs::log new_log)
     log(new_log.NodeID,new_log.Level,ss.str());
 }
 
+void QNode::mes_publish_status(int status){
+    rsd_group1::general stat;
+    stat.general = status;
+    pub_mes_status.publish(stat);
+}
+
 
 void QNode::publish_state(states state){
     std_msgs::UInt32 msg;
@@ -135,15 +172,46 @@ void QNode::statusCallback(const wsg_50_common::Status status){
     wsg_force = status.force;
 }
 
+void QNode::OEECallback(const rsd_group1::OEEmsg msg){
+    planned_operating_time = msg.planned_operating_time;
+    operating_time = msg.operating_time;
+    availability = msg.availability;
+    net_operating_time = msg.net_operating_time;
+    performance = msg.performance;
+    fully_productive_operating_time = msg.fully_productive_operating_time;
+    quality = msg.quality;
+    OEE = msg.OEE;
+    down_time = msg.down_time;
+    speed_loss = msg.speed_loss;
+    quality_loss = msg.quality_loss;
+    Q_EMIT OEE_updated();
+}
+
+void QNode::safetyCallback(const std_msgs::String msg)
+{
+    if(msg.data[0] == 'F')
+    {
+        cout << "bitches wants to F" << endl;
+        Q_EMIT security_abort();
+    }
+}
+
 bool QNode::init() {
     ros::init(init_argc,init_argv,"HMI");
     if ( ! ros::master::check() ) {
         return false;
     }
+    visOrderComplete = false;
+    visOutOfBricks = false;
     ros::start(); // explicitly needed since our nodehandle is going out of scope.
     ros::NodeHandle n;
     rob_pos_sub = n.subscribe("robotics_pose",1000,&QNode::robPosCallback, this);
+    safety_sub = n.subscribe("/Safety_node_chatter",1000,&QNode::safetyCallback, this);
     log_sub = n.subscribe("logging",1000,&QNode::logCallback, this);
+    mes_command = n.subscribe("/mes/outgoing",1000,&QNode::mesCallback, this);
+    OEE_sub = n.subscribe("/OEE_stats",1000,&QNode::OEECallback, this);
+    pub_vis_set = n.advertise<std_msgs::String>("vision_config",1000);
+    pub_mes_status = n.advertise<rsd_group1::general>("/mes/incoming",1000);
     state_publisher = n.advertise<std_msgs::UInt32>("robot_states", 1000);
     gripper_sub = n.subscribe("wsg_50/status",1000,&QNode::statusCallback,this);
     start();

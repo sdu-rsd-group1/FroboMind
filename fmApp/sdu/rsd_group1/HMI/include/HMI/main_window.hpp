@@ -55,6 +55,13 @@ public Q_SLOTS:
     void vis_debug_checked(bool setting);
     void mes_debug_checked(bool setting);
     void con_debug_checked(bool setting);
+    void conf_vision_checked(bool setting);
+
+    void mes_status(int status);
+
+    void update_OEE();
+
+    void abort_security();
     /******************************************
     ** Manual connections
     *******************************************/

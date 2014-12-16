@@ -1,0 +1,7 @@
+<launch>
+	<node name="rx60_controller" pkg="rx60controller" type="rx60_controller" />
+	<node name="wsg_50_ip" pkg="wsg_50_driver" type="wsg_50_ip" />
+	<node name="HMI" pkg="rsd_group1" type="HMI" />
+	<node name="robotics" pkg="rsd_group1" type="robotics" />
+	<node name="OEE" pkg="rsd_group1" type="OEE.py" />
+</launch>
