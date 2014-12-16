@@ -9,9 +9,12 @@ from std_msgs.msg import UInt32
 import serial
 
 ser = serial.Serial('/dev/ttyUSB0', 19200, timeout=1)
+pubSafe = rospy.Publisher('/Safety_node_chatter', String, queue_size=10)
 
 def callback(data):
 	ser.write(str(data.data) + "\0")
+	SafetyOn = ser.read(100)
+	pubSafe.publish(SafetyOn)
     
 def listener():
 	pub = rospy.Publisher('logging', UInt32, queue_size=10)
@@ -26,5 +29,5 @@ def listener():
         
 if __name__ == '__main__':
 	listener()
-    
+    	
 

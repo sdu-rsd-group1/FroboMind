@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rsd_group1)
 
-SET(RW_ROOT "/home/robot/RWPROJECTROOT/RobWork")
+SET(RW_ROOT "/home/anoch/RWPROJECTROOT/RobWork")
 
 SET(CMAKE_MODULE_PATH ${RW_ROOT}/build ${CMAKE_MODULE_PATH})
 FIND_PACKAGE(RobWork)
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
+
+
 
 find_package(catkin REQUIRED COMPONENTS
   qt_build
