@@ -120,13 +120,13 @@ def on_dimensionbar(args):
 
 def on_areabar(args):
 
-    global blueMaxArea
+    global blueMinArea
     global blueMaxArea
 
-    global yellowMaxArea
+    global yellowMinArea
     global yellowMaxArea
 
-    global redMaxArea
+    global redMinArea
     global redMaxArea
 
     blueMaxArea = getTrackbarPos('blueMaxArea', 'Area Bar')
@@ -290,20 +290,19 @@ class image_converter:
     yellowIntensity = config.get('hsvSettings/yellowIntensity', 104)
 
     #brick areas
+    global blueMinArea
     global blueMaxArea
-    global blueMaxArea
+    global yellowMinArea
     global yellowMaxArea
-    global yellowMaxArea
-    global redMaxArea
+    global redMinArea
     global redMaxArea
 
     blueMinArea = config.get('brickAreas/blueMinArea', 2000)
-    blueMaxArea = config.get('brickAreas/blueMaxArea', 6000)
-    redMinArea = config.get('brickAreas/redMinArea', 2000)
-    redMaxArea = config.get('brickAreas/redMaxArea', 14000)
-    yellowMinArea = config.get('brickAreas/yellowMinArea', 5000)
-    yellowMaxArea = config.get('brickAreas/yellowMaxArea', 20000)
-
+    blueMaxArea = config.get('brickAreas/blueMaxArea', 6500)
+    redMinArea = config.get('brickAreas/redMinArea', 6000)
+    redMaxArea = config.get('brickAreas/redMaxArea', 10000)
+    yellowMinArea = config.get('brickAreas/yellowMinArea', 10000)
+    yellowMaxArea = config.get('brickAreas/yellowMaxArea', 24000)
 
     self.pBrickList = []
     self.brickList = []
@@ -336,11 +335,11 @@ class image_converter:
         namedWindow("Area bar", WINDOW_NORMAL)
 
         #Adjustment of brick area
-        createTrackbar('blueMinArea', 'Area bar', int(blueMinArea), blueMaxArea, on_areabar)
+        createTrackbar('blueMinArea', 'Area bar', int(blueMinArea), 6000, on_areabar)
         createTrackbar("blueMaxArea", 'Area bar', int(blueMaxArea), 9000, on_areabar)
-        createTrackbar('redMinArea', 'Area bar', int(redMinArea), redMaxArea, on_areabar)
+        createTrackbar('redMinArea', 'Area bar', int(redMinArea), 12000, on_areabar)
         createTrackbar("redMaxArea", 'Area bar', int(redMaxArea), 20000, on_areabar)
-        createTrackbar('yellowMinArea', 'Area bar', int(yellowMinArea), yellowMaxArea, on_areabar)
+        createTrackbar('yellowMinArea', 'Area bar', int(yellowMinArea), 20000, on_areabar)
         createTrackbar("yellowMaxArea", 'Area bar', int(yellowMaxArea), 30000, on_areabar)
 
         #Adjustment of dimensions

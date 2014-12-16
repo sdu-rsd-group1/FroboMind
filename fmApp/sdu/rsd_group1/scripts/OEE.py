@@ -3,7 +3,7 @@ import roslib
 roslib.load_manifest('rsd_group1')
 import sys
 import rospy
-from std_msgs.msg import Int32
+from std_msgs.msg import UInt32
 from rsd_group1.msg import Log
 from rsd_group1.msg import OEEmsg
 import xmlsettings
@@ -55,6 +55,10 @@ class OEE:
         self.planned_operation = float(OEE_xml.get('OEE_Stats/planned_operation',0.0))
         self.operation = float(OEE_xml.get('OEE_Stats/operation',0.0))
 
+	#Enumerated defines for states, first is 0
+        #STOP,START,READY,EXECUTE,SUSPENDED,GO_TO_UPPER_BRICK,GO_TO_LOWER_BRICK,BRICK_TO_MIDDLE,MIDDLE_TO_BOX,
+        #BOX_TO_MIDDLE,COMPLETED,GRASP_BRICK,RELEASE_BRICK,OPEN_GRIP,ABORT,RESET,SECURITY
+
         #"defines" for states
         self.STOP = 0
         self.START = 1
@@ -70,8 +74,11 @@ class OEE:
         self.GRASP_BRICK = 11
         self.RELEASE_BRICK = 12
         self.OPEN_GRIP = 13
+	self.ABORT = 14
+	self.RESET = 15
+	self.SECURITY = 16
 
-        rospy.Subscriber("robot_states", Int32, self.OEECallback)
+        rospy.Subscriber("robot_states", UInt32, self.OEECallback)
 
         return
 
@@ -99,20 +106,24 @@ class OEE:
         #Update prev state type before current is changed
         self.prevType = self.currentType
 
+
+	#Enumerated defines for states, first is 0
+        #STOP,START,READY,EXECUTE,SUSPENDED,GO_TO_UPPER_BRICK,GO_TO_LOWER_BRICK,BRICK_TO_MIDDLE,MIDDLE_TO_BOX,
+        #BOX_TO_MIDDLE,COMPLETED,GRASP_BRICK,RELEASE_BRICK,OPEN_GRIP,ABORT,RESET,SECURITY
+
+
         #Get the type of state, determines if time is downtime, speed loss, etc.
-        if state.data == self.STOP:
+        if (state.data == self.STOP) or (state.data == self.RESET) or (state.data == self.START) or (state.data == self.ABORT):
             self.currentType = "down_time"
-        elif (state.data == self.START) or (state.data == self.SUSPENDED) or (state.data == self.COMPLETED) \
-                or (state.data == self.START):
+        elif (state.data == self.READY) or (state.data == self.EXECUTE):
             self.currentType = "speed_loss"
         elif 0:
             self.currentType = "quality_loss"
         else:
             self.currentType = "operation"
 
-        #Enumerated defines for states, first is 0
-        #STOP,START,READY,EXECUTE,SUSPENDED,GO_TO_UPPER_BRICK,GO_TO_LOWER_BRICK,BRICK_TO_MIDDLE,MIDDLE_TO_BOX,
-        #BOX_TO_MIDDLE,COMPLETED,GRASP_BRICK,RELEASE_BRICK,OPEN_GRIP
+       
+
 
         if self.prevType != "null":
             publishToLog("debug", 0, "Current state of type: "+self.currentType+" ended after "+str(tempTime)+"s")

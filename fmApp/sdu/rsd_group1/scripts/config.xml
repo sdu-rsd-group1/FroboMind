@@ -26,4 +26,12 @@
 		<blueIntensity>11</blueIntensity>
 		<yellowIntensity>45</yellowIntensity>
 	</hsvSettings>
+	<brickAreas>
+		<blueMinArea>-1</blueMinArea>
+		<blueMaxArea>-1</blueMaxArea>
+		<yellowMinArea>-1</yellowMinArea>
+		<yellowMaxArea>-1</yellowMaxArea>
+		<redMinArea>-1</redMinArea>
+		<redMaxArea>-1</redMaxArea>
+	</brickAreas>
 </root>

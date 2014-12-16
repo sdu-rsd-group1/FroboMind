@@ -50,9 +50,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 
     QObject::connect(&qnode, SIGNAL(mesCommand(int)),this,SLOT(mes_status(int)));
 
-    QObject::connect(&qnode, SIGNAL(OEE_updated()),this,SLOT(update_OEE());
+    QObject::connect(&qnode, SIGNAL(OEE_updated()),this,SLOT(update_OEE()));
 
-    QObject::connect(&qnode, SIGNAL(security_abort()),this,SLOT(abort_security());
+    QObject::connect(&qnode, SIGNAL(security_abort()),this,SLOT(abort_security()));
 
 
 	/*********************
@@ -121,7 +121,7 @@ void MainWindow::update_OEE()
 
     ui.stats_avail_ppt->setText(QString::number(qnode.planned_operating_time));
     ui.stats_avail_op_time->setText(QString::number(qnode.operating_time));
-    us.stats_avail_down_time->setText(QString::number(qnode.down_time));
+    ui.stats_avail_down_time->setText(QString::number(qnode.down_time));
 
     ui.stats_perf_speed_loss->setText(QString::number(qnode.speed_loss));
     ui.stats_perf_net_op_time->setText(QString::number(qnode.net_operating_time));

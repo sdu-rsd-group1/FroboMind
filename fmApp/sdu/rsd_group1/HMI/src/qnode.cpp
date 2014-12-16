@@ -174,7 +174,7 @@ void QNode::statusCallback(const wsg_50_common::Status status){
 
 void QNode::OEECallback(const rsd_group1::OEEmsg msg){
     planned_operating_time = msg.planned_operating_time;
-    foperating_time = msg.foperating_time;
+    operating_time = msg.operating_time;
     availability = msg.availability;
     net_operating_time = msg.net_operating_time;
     performance = msg.performance;
@@ -187,10 +187,11 @@ void QNode::OEECallback(const rsd_group1::OEEmsg msg){
     Q_EMIT OEE_updated();
 }
 
-void safetyCallback(const std_msgs::String msg)
+void QNode::safetyCallback(const std_msgs::String msg)
 {
-    if(msg.data == "False")
+    if(msg.data[0] == 'F')
     {
+        cout << "bitches wants to F" << endl;
         Q_EMIT security_abort();
     }
 }

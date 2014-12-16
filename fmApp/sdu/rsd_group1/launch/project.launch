@@ -22,9 +22,10 @@
 
  <node pkg="rosbag" name="play" type="play" args="/home/ditlev/roswork/src/fmApp/sdu/rsd_group1/videoStream.bag" respawn="true">
   </node>
--->
+
  <node pkg="rsd_group1" name="convert" type="convert_image.py">
 </node> 
+-->
  <node pkg="rsd_group1" name="OrderQ" type="OrderQ.py">
 </node>
 <group ns="mes">

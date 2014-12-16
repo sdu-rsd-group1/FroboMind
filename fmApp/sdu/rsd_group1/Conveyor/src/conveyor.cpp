@@ -44,13 +44,13 @@ Reverse2 	<< "2Reverse";
 
 ros::Rate loop_rate(1);
 
-Log log_msg;
+rsd_group1::Log log_msg;
 log_msg.NodeID = 4;
 log_msg.CodeID = 0;
 log_msg.Level = 0;
 log_msg.Text = "Conveyor node initialized";
 
-log.publish(log_msg);
+log_pub.publish(log_msg);
 
 
     std_msgs::String msg;
