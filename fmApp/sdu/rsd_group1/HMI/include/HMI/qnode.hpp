@@ -31,7 +31,7 @@
 #include <std_msgs/String.h>
 #include "fstream"
 #include <sstream>
-#include "msgs/log.h"
+#include "rsd_group1/Log.h"
 #include "rsd_group1/general.h"
 #include "rsd_group1/OEEmsg.h"
 
@@ -77,7 +77,7 @@ public:
     QStringListModel* CompleteLogModel() { return &complete_logging_model; }
 
 	void log(int nodeid, int level, const std::string &msg);
-    void logCallback(const msgs::log new_log);
+    void logCallback(const rsd_group1::Log new_log);
 
     void publish_vision_config(bool setting);
 

@@ -41,7 +41,7 @@ void QNode::mesCallback(const rsd_group1::general msg)
     Q_EMIT mesCommand(msg.general);
 }
 
-void QNode::logCallback(const msgs::log new_log)
+void QNode::logCallback(const rsd_group1::Log new_log)
 {
 
     if(new_log.NodeID == 2 && new_log.CodeID == 8) //Vision out of bricks
