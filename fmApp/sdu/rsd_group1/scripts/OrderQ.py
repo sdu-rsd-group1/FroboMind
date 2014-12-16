@@ -8,9 +8,9 @@ from rsd_group1.msg import Num, lego_brick, mes_order, Log, msg_hi, general
 
 orderList = []    
 trashList = []
-ordersRed = 100
-ordersBlue = 100
-ordersYellow = 100
+ordersRed = 0
+ordersBlue = 0
+ordersYellow = 0
 
 def log_it(level, code, logMessage):
 
@@ -98,7 +98,7 @@ def callback_time(data):				#callback time
     now = rospy.Time.now()
     print now.secs
     print then.secs
-    if now.secs-then.secs>20:
+    if now.secs-then.secs>20 and (ordersRed != 0 or ordersBlue != 0 or ordersYellow != 0):
         out_of_bricks()
         log_it(0,8,"Out of bricks")
 

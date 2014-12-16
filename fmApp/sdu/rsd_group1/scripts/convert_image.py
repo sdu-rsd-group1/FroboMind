@@ -234,7 +234,7 @@ class image_converter:
   def __init__(self):
 
     global config
-    config = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
+    config = xmlsettings.XMLSettings('/home/anoch/roswork/src/fmApp/sdu/rsd_group1/scripts/config.xml')
 
 
     #initialize border values

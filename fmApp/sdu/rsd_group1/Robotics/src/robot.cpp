@@ -9,7 +9,7 @@ namespace robot {
         middleQ.set_Q_deg(m1,MIDDLEQ2,MIDDLEQ3,MIDDLEQ4,MIDDLEQ5,MIDDLEQ6);
         zeroQ.set_Q_deg(0,0,0,0,0,0);
 
-        currentWorkCell = WorkCellLoader::Factory::load("/home/robot/StaubliRX60_Scene/SceneStaubliRX60.wc.xml");
+        currentWorkCell = WorkCellLoader::Factory::load("/home/anoch/Dropbox/RX60/StaubliRX60_Scene/SceneStaubliRX60.wc.xml");
         RobotDevice = currentWorkCell->findDevice("StaubliRX60");
         current_state = currentWorkCell->getDefaultState();
 

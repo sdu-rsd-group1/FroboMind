@@ -41,7 +41,7 @@ class OEE:
         self.prevType = "null"
         self.currentType = "null"
         global OEE_xml
-        OEE_xml = xmlsettings.XMLSettings('/home/robot/roswork/src/fmApp/sdu/rsd_group1/scripts/OEE.xml')
+        OEE_xml = xmlsettings.XMLSettings('/home/anoch/roswork/src/fmApp/sdu/rsd_group1/scripts/OEE.xml')
 
         self.down_time = 0
         self.speed_loss = 0

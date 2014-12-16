@@ -42,7 +42,7 @@ class RSDMesClientNode():
         self.mes_order_topic = rospy.get_param("~mes_order_topic",'mes_order_topic')
         self.update_duration = rospy.get_param("~update_duration", 1.0)
         self.server_address = rospy.get_param("~server_address", '')
-        self.robot_id = rospy.get_param("~robot_id", 0)
+        self.robot_id = rospy.get_param("~robot_id", 3)
         self.log_topic = rospy.Publisher("logging", Log, queue_size=1)
         self.logDataToTopic(0,1,'Initaialising topics')
 
